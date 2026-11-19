@@ -9,9 +9,9 @@ Nebula on the Ship（Among Us MOD）の試合を、サーバーに入らなく�
 
 ## ダウンロード
 
-**[ここをクリックして zip をダウンロード](https://github.com/MandanoRyuseigun/nos-record-viewer/archive/refs/heads/main.zip)**
-
-（このページの緑の「Code」ボタン →「Download ZIP」でも同じものが取れます）
+1. **[ここをクリックして最新版のページを開く](https://github.com/MandanoRyuseigun/nos-record-viewer/releases/latest)**
+2. 「Assets」の中の **`nos-record-viewer-v1.1.zip`**（バージョンの数字は最新のもの）を押してダウンロードします。
+   - 「Source code (zip)」「Source code (tar.gz)」は GitHub が自動で付けるものなので、使わなくて大丈夫です。
 
 ## はじめに（1回だけ）
 
