@@ -5,6 +5,8 @@ Nebula on the Ship（Among Us MOD）の試合を、サーバーに入らなく�
 
 使うもの：Windows、Among Us（NoS）、Chrome か Edge
 
+バージョン：**1.1**（ビューア左上の「ゲームデータ」の横にも表示されます）
+
 ## ダウンロード
 
 **[ここをクリックして zip をダウンロード](https://github.com/MandanoRyuseigun/nos-record-viewer/archive/refs/heads/main.zip)**
@@ -71,6 +73,18 @@ Nebula on the Ship（Among Us MOD）の試合を、サーバーに入らなく�
 
 - `records.js` と `backup` フォルダ：あなたの試合記録（一緒に遊んだ人の名前など）が入っています。
 - `assets.js`：ゲームのマップ画像です。受け取った人の PC で、その人のゲームから作られます。
+
+## 更新履歴
+
+### 1.1
+- 📊 統計画面を追加：全体の勝敗、プレイヤー別（勝率、陣営別勝率、シェリフの勝率、キル、生存率、投票的中率）、役職別、マップ別
+- 名前を変えた人を1人にまとめる機能と、元に戻すボタン
+- まとめた名前と★マークの書き出し・読み込み（別のブラウザや PC への引き継ぎ）
+
+更新方法：新しい zip から `viewer.html` を取り出して、今のフォルダの `viewer.html` と置き換えるだけです（`backup` や `records.js` はそのまま使えます）。
+
+### 1.0
+- 最初の公開版：マップ再生、会議の投票、役職・勝敗の表示、★マーク、backup への自動保存
 
 ---
 
