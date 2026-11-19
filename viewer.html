@@ -105,7 +105,7 @@ tbody tr.sel{background:#1c2438}
 .rate{display:inline-flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
 .rate i{display:inline-block;width:54px;height:6px;border-radius:3px;background:#2b2f3a;overflow:hidden}
 .rate i b{display:block;height:100%;background:var(--acc)}
-.rate.imp i b{background:#ff6b6b}.rate.crew i b{background:#5fb2ff}.rate.sheriff i b{background:#f0bf00}
+.rate.imp i b{background:#ff6b6b}.rate.crew i b{background:#5fb2ff}.rate.sheriff i b{background:#f0bf00}.rate.exile i b{background:#b18cff}.rate.first i b{background:#ff8f5a}
 .st input[type=checkbox]{accent-color:var(--acc);width:14px;height:14px;cursor:pointer}
 .lnk{background:none;border:none;color:var(--acc);cursor:pointer;padding:0 2px;font-size:11.5px}
 .lnk:hover{text-decoration:underline}
@@ -115,7 +115,7 @@ tbody tr.sel{background:#1c2438}
 <body>
 <div id="app">
   <aside id="side">
-    <div class="hd"><h2>ゲームデータ <span class="small" style="font-weight:400" title="NoS 戦歴ビューアのバージョン">v1.1.1</span></h2><span><button class="icon" id="statsBtn" title="統計（勝率など）">📊</button> <button class="icon" id="pick" title="フォルダを読み込む">📁</button> <button class="icon" id="reload" title="再読み込み">⟳</button></span></div>
+    <div class="hd"><h2>ゲームデータ <span class="small" style="font-weight:400" title="NoS 戦歴ビューアのバージョン">v1.2</span></h2><span><button class="icon" id="statsBtn" title="統計（勝率など）">📊</button> <button class="icon" id="pick" title="フォルダを読み込む">📁</button> <button class="icon" id="reload" title="再読み込み">⟳</button></span></div>
     <div class="chips"><button class="chip on" data-f="all">すべて</button><button class="chip" data-f="marked">マーク済み</button></div>
     <input id="q" placeholder="名前・役職で絞り込み">
     <div id="games"></div>
@@ -600,29 +600,42 @@ function computeStats(list){
     if(g.cond === 'nogame') continue;
     mp.valid++; if(g.cond === 'crewmate') mp.crew++; if(g.cond === 'impostor') mp.imp++;
     const team = new Map(), byId = new Map();
+    const exiledIds = new Set(g.events.filter(e => e.detailTranslationKey === 'statistics.events.exiled').flatMap(e => e.targetIds || []));
     for(const p of g.players.values()){
       const t = teamOf(g, p), win = g.winners.has(p.playerId);
       team.set(p.playerId, t);
       const key = canon(p.name);
       let s = P.get(key);
-      if(!s) P.set(key, s = { name: key, names: new Set(), n: 0, w: 0, crew: rec(), imp: rec(), other: rec(), sheriff: rec(), kills: 0, deaths: 0, alive: 0, vHit: 0, vTot: 0, roles: new Map() });
+      if(!s) P.set(key, s = { name: key, names: new Set(), n: 0, w: 0, crew: rec(), imp: rec(), other: rec(), sheriff: rec(), kills: 0, deaths: 0, first: 0, alive: 0, exiled: 0, exiledCrew: 0, exiledImp: 0, vHit: 0, vTot: 0, roles: new Map() });
       s.names.add(p.name);
       s.color = p.color; byId.set(p.playerId, s);
       s.n++; if(win) s.w++;
       s[t].n++; if(win) s[t].w++;
       if(p.roleId === 'sheriff'){ s.sheriff.n++; if(win) s.sheriff.w++; }
       if(p.stateTranslationKey === 'state.alive') s.alive++;
+      const ex = exiledIds.has(p.playerId);
+      if(ex){ s.exiled++; if(t === 'imp') s.exiledImp++; else if(t === 'crew') s.exiledCrew++; }
       const roleName = plain(p.roleText).trim() || p.roleId;
       for(const map of [R, s.roles]){
         let r = map.get(p.roleId);
-        if(!r) map.set(p.roleId, r = { name: roleName, team: t, roleText: p.roleText, n: 0, w: 0, alive: 0 });
-        r.n++; if(win) r.w++; if(p.stateTranslationKey === 'state.alive') r.alive++;
+        if(!r) map.set(p.roleId, r = { name: roleName, team: t, roleText: p.roleText, n: 0, w: 0, alive: 0, exiled: 0, first: 0 });
+        r.n++; if(win) r.w++; if(p.stateTranslationKey === 'state.alive') r.alive++; if(ex) r.exiled++;
       }
     }
-    for(const e of g.events){
+    let firstKill = true;
+    for(const e of g.events){ // 時刻順
       if(e.detailTranslationKey !== 'statistics.events.kill') continue;
       if(e.sourceId != null && byId.has(e.sourceId)) byId.get(e.sourceId).kills += (e.targetIds || []).length || 1;
-      for(const t of e.targetIds || []) if(byId.has(t)) byId.get(t).deaths++;
+      for(const t of e.targetIds || []){
+        if(!byId.has(t)) continue;
+        const s = byId.get(t); s.deaths++;
+        if(firstKill){ // その試合で最初にキルされた人
+          s.first++;
+          const rid = g.players.get(t).roleId;
+          for(const r of [R.get(rid), s.roles.get(rid)]) if(r) r.first++;
+        }
+      }
+      firstKill = false;
     }
     for(const v of g.rec.voteResults || []) for(const x of v.votes || []){
       if(x.votedForId >= 253 || team.get(x.voterId) !== 'crew' || !byId.has(x.voterId)) continue;
@@ -679,7 +692,11 @@ function renderStats(){
     { k: 'sheriff', label: 'シェリフ', v: r => rateVal(r.sheriff.w, r.sheriff.n), h: r => rate(r.sheriff.w, r.sheriff.n, 'sheriff') },
     { k: 'kills', label: 'キル', num: 1, v: r => r.kills, h: r => r.kills },
     { k: 'deaths', label: 'キルされた', num: 1, v: r => r.deaths, h: r => r.deaths },
+    { k: 'first', label: '最初にキルされた', v: r => rateVal(r.first, r.n), h: r => rate(r.first, r.n, 'first') },
     { k: 'alive', label: '最後まで生存', v: r => rateVal(r.alive, r.n), h: r => rate(r.alive, r.n) },
+    { k: 'exiled', label: '被追放率', v: r => rateVal(r.exiled, r.n), h: r => rate(r.exiled, r.n, 'exile') },
+    { k: 'exC', label: 'クルーで被追放', v: r => rateVal(r.exiledCrew, r.crew.n), h: r => rate(r.exiledCrew, r.crew.n, 'crew') },
+    { k: 'exI', label: 'インポスターで被追放', v: r => rateVal(r.exiledImp, r.imp.n), h: r => rate(r.exiledImp, r.imp.n, 'imp') },
     { k: 'vote', label: '投票的中', v: r => rateVal(r.vHit, r.vTot), h: r => rate(r.vHit, r.vTot) },
   ], S.P, { sel: r => r.name === statsWho, click: r => { statsWho = statsWho === r.name ? null : r.name; renderStats(); } });
   $('#sPlayers').querySelectorAll('.mg').forEach(cb => cb.onchange = () => { lastMerge = null; if(cb.checked) mergeSel.add(cb.dataset.n); else mergeSel.delete(cb.dataset.n); renderMergeBar(S); });
@@ -695,6 +712,8 @@ function renderStats(){
     { k: 'n', label: '回数', num: 1, v: r => r.n, h: r => r.n },
     { k: 'w', label: '勝率', v: r => rateVal(r.w, r.n), h: r => rate(r.w, r.n, r.team === 'imp' ? 'imp' : 'crew') },
     { k: 'alive', label: '最後まで生存', v: r => rateVal(r.alive, r.n), h: r => rate(r.alive, r.n) },
+    { k: 'exiled', label: '被追放率', v: r => rateVal(r.exiled, r.n), h: r => rate(r.exiled, r.n, 'exile') },
+    { k: 'first', label: '最初にキルされた', v: r => rateVal(r.first, r.n), h: r => rate(r.first, r.n, 'first') },
   ], who ? [...who.roles.values()] : S.R);
 
   sortTable('sMaps', [
