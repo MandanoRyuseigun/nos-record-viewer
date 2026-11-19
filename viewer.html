@@ -58,6 +58,8 @@ h3{font-size:13px;margin:22px 0 8px;color:#c9cdd6;font-weight:600}
 .mapbox canvas{position:absolute;inset:0;width:100%;height:100%;cursor:grab}
 .mapbox canvas:active{cursor:grabbing}
 .mapbox .fit{position:absolute;right:8px;bottom:8px}
+#mapNote{max-width:1000px;margin:0 0 10px;padding:9px 14px;border:1px solid #6b5520;background:#2a2312;color:#f3dfa8;border-radius:8px;font-size:12.5px;line-height:1.7}
+#mapNote b{color:#ffd56b}
 .mapbox .badge{position:absolute;left:10px;top:8px;font-size:12px;color:#cfd3dd;text-shadow:0 1px 2px #000;pointer-events:none}
 .opts{width:150px;flex:none;border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:12px 14px}
 .opts .k{font-size:12px;color:#c9cdd6;margin-bottom:8px}
@@ -113,7 +115,7 @@ tbody tr.sel{background:#1c2438}
 <body>
 <div id="app">
   <aside id="side">
-    <div class="hd"><h2>ゲームデータ <span class="small" style="font-weight:400" title="NoS 戦歴ビューアのバージョン">v1.1</span></h2><span><button class="icon" id="statsBtn" title="統計（勝率など）">📊</button> <button class="icon" id="pick" title="フォルダを読み込む">📁</button> <button class="icon" id="reload" title="再読み込み">⟳</button></span></div>
+    <div class="hd"><h2>ゲームデータ <span class="small" style="font-weight:400" title="NoS 戦歴ビューアのバージョン">v1.1.1</span></h2><span><button class="icon" id="statsBtn" title="統計（勝率など）">📊</button> <button class="icon" id="pick" title="フォルダを読み込む">📁</button> <button class="icon" id="reload" title="再読み込み">⟳</button></span></div>
     <div class="chips"><button class="chip on" data-f="all">すべて</button><button class="chip" data-f="marked">マーク済み</button></div>
     <input id="q" placeholder="名前・役職で絞り込み">
     <div id="games"></div>
@@ -135,6 +137,7 @@ tbody tr.sel{background:#1c2438}
       <h3>移動経路</h3>
       <div class="chips" id="steps"></div>
       <div style="height:10px"></div>
+      <div id="mapNote" hidden></div>
       <div class="stage">
         <div class="mapbox"><canvas id="map"></canvas><div class="badge" id="badge"></div><button class="icon fit" id="fit" title="表示をリセット">⤢</button></div>
         <div class="opts">
@@ -410,8 +413,18 @@ function select(g){
     `<div style="margin:4px 0">勝者: ${[...g.winners].map(pchip).join('　') || '<span class="dim">なし</span>'}</div>` +
     g.phases.flatMap(ph => ph.reasons || []).map(r => `<div class="small">${esc(r.translationKey.replace('end.detail.','').replace(/\.win$/,' 勝利'))}: ${(r.players||[]).map(pchip).join('　')}</div>`).join('');
   renderList(); renderPlayers();
+  renderMapNote();
   setStep(g.steps[0]);
   requestAnimationFrame(fitView);
+}
+// マップ画像（assets.js）が無いときの案内
+function renderMapNote(){
+  const f = cur && floorOf(cur), el = $('#mapNote');
+  el.hidden = !cur || !!(f && f.image);
+  if(el.hidden) return;
+  el.innerHTML = '⚠ <b>マップ画像がまだ保存されていないため、おおまかな形で表示しています。</b><br>' +
+    'Among Us（NoS）で<b>1試合を最後（リザルト画面）まで遊んだあと、ゲームを閉じずに</b> <code>open-viewer.cmd</code> を実行すると、ゲームと同じマップになります（最初の1回だけでOK）。<br>' +
+    '<span class="small">ゲームを起動しただけでは保存されません。試合が終わったあとに、マップ画像を取り出せるようになります。</span>';
 }
 $('#winBtn').onclick = () => $('#winDetail').classList.toggle('open');
 

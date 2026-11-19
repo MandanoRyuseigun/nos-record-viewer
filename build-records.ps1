@@ -55,34 +55,87 @@ foreach ($f in Get-ChildItem $backup -Recurse -File -Filter *.json | Sort-Object
 Write-Host "records.js: $n games ($copied new/updated files backed up)"
 
 # ---- minimap images (only while the game is running) ----
-$port = $null
-foreach ($log in @((Join-Path $GameDir 'BepInEx\LogOutput.log'), (Join-Path $GameDir 'NebulaLog.txt'))) {
-  if (Test-Path $log) {
-    $m = Select-String -Path $log -Pattern 'Started\. http://127\.0\.0\.1:(\d+)/' | Select-Object -Last 1
-    if ($m) { $port = $m.Matches[0].Groups[1].Value; break }
+$howTo = 'To save map images: in Among Us (NoS), play one game to the results screen, then run open-viewer.cmd again WITHOUT closing the game.'
+
+# Plain HTTP GET to the local Nebula server (no proxy, short timeout)
+function Get-Local([string]$url, [int]$timeoutMs, [switch]$Bytes) {
+  $req = [System.Net.HttpWebRequest]::Create($url)
+  $req.Proxy = $null
+  $req.Timeout = $timeoutMs
+  $req.ReadWriteTimeout = $timeoutMs
+  $res = $req.GetResponse()
+  try {
+    $ms = New-Object IO.MemoryStream
+    $res.GetResponseStream().CopyTo($ms)
+    $data = $ms.ToArray()
+    if ($Bytes) { return ,$data }
+    return [Text.Encoding]::UTF8.GetString($data)
+  } finally { $res.Close() }
+}
+
+# Where is the game? 1) the running Among Us process  2) -GameDir  3) Steam libraries with Nebula installed
+$dirs = New-Object System.Collections.Generic.List[string]
+foreach ($p in @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -eq 'Among Us' })) {
+  try { if ($p.Path) { $dirs.Add((Split-Path $p.Path)) } } catch {}
+}
+$dirs.Add($GameDir)
+foreach ($vdf in @((Join-Path ${env:ProgramFiles(x86)} 'Steam\steamapps\libraryfolders.vdf'), (Join-Path $env:ProgramFiles 'Steam\steamapps\libraryfolders.vdf'))) {
+  if (-not (Test-Path $vdf)) { continue }
+  foreach ($m in @(Select-String -Path $vdf -Pattern '"path"\s+"([^"]+)"')) {
+    $common = Join-Path ($m.Matches[0].Groups[1].Value -replace '\\\\', '\') 'steamapps\common'
+    foreach ($c in @(Get-ChildItem $common -Directory -ErrorAction SilentlyContinue)) {
+      if (Test-Path (Join-Path $c.FullName 'BepInEx\nebula')) { $dirs.Add($c.FullName) }
+    }
   }
 }
-if (-not $port) { Write-Host 'assets.js: Nebula server port not found in logs (skipped)'; return }
-$base = "http://127.0.0.1:$port"
-try {
-  $mapsJson = (Invoke-WebRequest "$base/api/maps" -UseBasicParsing -TimeoutSec 3).Content
-} catch {
-  Write-Host 'assets.js: Among Us (NoS) is not running, keeping the saved map images'
+$dirs = @($dirs | Where-Object { $_ } | Select-Object -Unique)
+
+# Which port? From the game logs first, then Nebula's usual ports
+$ports = New-Object System.Collections.Generic.List[int]
+foreach ($d in $dirs) {
+  foreach ($log in @((Join-Path $d 'BepInEx\LogOutput.log'), (Join-Path $d 'NebulaLog.txt'))) {
+    if (-not (Test-Path $log)) { continue }
+    try {
+      $m = Select-String -Path $log -Pattern 'Started\. http://127\.0\.0\.1:(\d+)/' | Select-Object -Last 1
+      if ($m) { $ports.Add([int]$m.Matches[0].Groups[1].Value) }
+    } catch {}
+  }
+}
+foreach ($p in 27100..27110) { $ports.Add($p) }
+$ports = @($ports | Select-Object -Unique)
+
+$base = $null; $mapsJson = $null
+foreach ($p in $ports) {
+  try {
+    $txt = Get-Local "http://127.0.0.1:$p/api/maps" 2000
+    $null = $txt | ConvertFrom-Json
+    $base = "http://127.0.0.1:$p"; $mapsJson = $txt; break
+  } catch {}
+}
+if (-not $base) {
+  if ($dirs.Count -gt 0) { Write-Host ('Game folder(s) checked: ' + ($dirs -join ' | ')) }
+  if (Test-Path (Join-Path $here 'assets.js')) { Write-Host 'assets.js: Nebula server not found, keeping the saved map images' }
+  else { Write-Host 'assets.js: Nebula server not found (no map images yet)'; Write-Host $howTo }
   return
 }
+Write-Host "Nebula server: $base"
 $images = @{}
 foreach ($m in ($mapsJson | ConvertFrom-Json)) {
   $key = "$($m.mapId)-$($m.inMapId)"
   try {
-    $bytes = (Invoke-WebRequest "$base/maps/$key.png" -UseBasicParsing -TimeoutSec 10).Content
+    $bytes = Get-Local "$base/maps/$key.png" 20000 -Bytes
     $images[$key] = 'data:image/png;base64,' + [Convert]::ToBase64String($bytes)
   } catch { Write-Host "  map $key failed: $($_.Exception.Message)" }
 }
 $objJson = 'null'; $objPng = $null
 try {
-  $objJson = (Invoke-WebRequest "$base/api/map-objects" -UseBasicParsing -TimeoutSec 5).Content
-  $objPng = 'data:image/png;base64,' + [Convert]::ToBase64String((Invoke-WebRequest "$base/map-objects.png" -UseBasicParsing -TimeoutSec 10).Content)
+  $objJson = Get-Local "$base/api/map-objects" 5000
+  $objPng = 'data:image/png;base64,' + [Convert]::ToBase64String((Get-Local "$base/map-objects.png" 20000 -Bytes))
 } catch { Write-Host "  map objects failed: $($_.Exception.Message)" }
+if ($images.Count -eq 0) {
+  Write-Host 'assets.js: could not download any map image (kept the old file)'
+  return
+}
 
 $a = New-Object System.Text.StringBuilder
 [void]$a.Append('window.__NOS_ASSETS__={"maps":' + $mapsJson + ',"mapObjects":' + $objJson + ',"mapObjectsImage":' + (ConvertTo-Json $objPng) + ',"images":{')
