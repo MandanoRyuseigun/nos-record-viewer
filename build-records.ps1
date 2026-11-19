@@ -1,0 +1,97 @@
+# Collects Nebula on the Ship game records into records.js for viewer.html.
+# Also keeps a backup copy of every record in .\backup so old games survive even if the mod deletes them.
+# While Among Us (NoS) is running, it also saves the minimap images from Nebula's local server into assets.js.
+param(
+  [string]$Src = (Join-Path $env:USERPROFILE 'AppData\LocalLow\Innersloth\Among Us\NebulaOnTheShip\GameRecords'),
+  [string]$GameDir = 'C:\Program Files (x86)\Steam\steamapps\common\Among Us NoS'
+)
+$ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
+$here = $PSScriptRoot
+$backup = Join-Path $here 'backup'
+New-Item -ItemType Directory -Force $backup | Out-Null
+$utf8 = New-Object Text.UTF8Encoding $false
+
+# ---- game records ----
+$copied = 0
+if (Test-Path $Src) {
+  $srcRoot = (Resolve-Path $Src).Path
+  foreach ($f in Get-ChildItem $srcRoot -Recurse -File -Filter *.json) {
+    $marked = $f.DirectoryName -ne $srcRoot
+    $destDir = if ($marked) { Join-Path $backup 'Marked' } else { $backup }
+    New-Item -ItemType Directory -Force $destDir | Out-Null
+    $dest = Join-Path $destDir $f.Name
+    # A game marked later: drop the old unmarked copy so it counts as marked
+    $plainCopy = Join-Path $backup $f.Name
+    if ($marked -and (Test-Path $plainCopy)) { Remove-Item $plainCopy -Force }
+    # A game unmarked in-game: drop the marked copy so it counts as unmarked
+    $markedCopy = Join-Path (Join-Path $backup 'Marked') $f.Name
+    if (-not $marked -and (Test-Path $markedCopy)) { Move-Item $markedCopy $dest -Force }
+    if (-not (Test-Path $dest) -or (Get-Item $dest).Length -ne $f.Length) {
+      Copy-Item $f.FullName $dest -Force
+      $copied++
+    }
+  }
+} else {
+  Write-Host "Record folder not found: $Src (using backup only)"
+}
+
+$seen = @{}
+$sb = New-Object System.Text.StringBuilder
+[void]$sb.Append("window.__NOS_RECORDS__=[`n")
+$n = 0
+foreach ($f in Get-ChildItem $backup -Recurse -File -Filter *.json | Sort-Object Name) {
+  $txt = [IO.File]::ReadAllText($f.FullName, [Text.Encoding]::UTF8).Trim()
+  if (-not $txt.StartsWith('{')) { continue }
+  $marked = $f.DirectoryName -ne $backup
+  if ($seen.ContainsKey($f.Name)) { continue }
+  $seen[$f.Name] = $true
+  if ($n -gt 0) { [void]$sb.Append(",`n") }
+  [void]$sb.Append('{"file":' + (ConvertTo-Json $f.Name) + ',"marked":' + $marked.ToString().ToLower() + ',"data":' + $txt + '}')
+  $n++
+}
+[void]$sb.Append("`n];`n")
+[IO.File]::WriteAllText((Join-Path $here 'records.js'), $sb.ToString(), $utf8)
+Write-Host "records.js: $n games ($copied new/updated files backed up)"
+
+# ---- minimap images (only while the game is running) ----
+$port = $null
+foreach ($log in @((Join-Path $GameDir 'BepInEx\LogOutput.log'), (Join-Path $GameDir 'NebulaLog.txt'))) {
+  if (Test-Path $log) {
+    $m = Select-String -Path $log -Pattern 'Started\. http://127\.0\.0\.1:(\d+)/' | Select-Object -Last 1
+    if ($m) { $port = $m.Matches[0].Groups[1].Value; break }
+  }
+}
+if (-not $port) { Write-Host 'assets.js: Nebula server port not found in logs (skipped)'; return }
+$base = "http://127.0.0.1:$port"
+try {
+  $mapsJson = (Invoke-WebRequest "$base/api/maps" -UseBasicParsing -TimeoutSec 3).Content
+} catch {
+  Write-Host 'assets.js: Among Us (NoS) is not running, keeping the saved map images'
+  return
+}
+$images = @{}
+foreach ($m in ($mapsJson | ConvertFrom-Json)) {
+  $key = "$($m.mapId)-$($m.inMapId)"
+  try {
+    $bytes = (Invoke-WebRequest "$base/maps/$key.png" -UseBasicParsing -TimeoutSec 10).Content
+    $images[$key] = 'data:image/png;base64,' + [Convert]::ToBase64String($bytes)
+  } catch { Write-Host "  map $key failed: $($_.Exception.Message)" }
+}
+$objJson = 'null'; $objPng = $null
+try {
+  $objJson = (Invoke-WebRequest "$base/api/map-objects" -UseBasicParsing -TimeoutSec 5).Content
+  $objPng = 'data:image/png;base64,' + [Convert]::ToBase64String((Invoke-WebRequest "$base/map-objects.png" -UseBasicParsing -TimeoutSec 10).Content)
+} catch { Write-Host "  map objects failed: $($_.Exception.Message)" }
+
+$a = New-Object System.Text.StringBuilder
+[void]$a.Append('window.__NOS_ASSETS__={"maps":' + $mapsJson + ',"mapObjects":' + $objJson + ',"mapObjectsImage":' + (ConvertTo-Json $objPng) + ',"images":{')
+$first = $true
+foreach ($k in $images.Keys) {
+  if (-not $first) { [void]$a.Append(',') }
+  $first = $false
+  [void]$a.Append((ConvertTo-Json $k) + ':' + (ConvertTo-Json $images[$k]))
+}
+[void]$a.Append("}};`n")
+[IO.File]::WriteAllText((Join-Path $here 'assets.js'), $a.ToString(), $utf8)
+Write-Host "assets.js: $($images.Count) minimap images saved"

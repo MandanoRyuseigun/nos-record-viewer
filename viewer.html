@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NoS 戦歴ビューア</title>
+<style>
+:root{
+  --bg:#15171c;--side:#191b21;--panel:#1d2027;--panel2:#23262f;--line:#2e323d;--line2:#3a3f4c;
+  --text:#e9ebf0;--sub:#9096a5;--acc:#4d86ff;--acc2:#2a4fa8;--red:#ff6161;--blue:#5fb2ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:13px/1.5 "Segoe UI","Yu Gothic UI",Meiryo,sans-serif}
+button,select,input{font:inherit;color:inherit}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:#3a3f4c;border-radius:5px;border:2px solid transparent;background-clip:padding-box}
+#app{display:grid;grid-template-columns:268px 1fr;height:100%}
+
+/* ---- 左：試合一覧 ---- */
+#side{background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;padding:14px 12px 10px}
+#side .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+#side h2{margin:0;font-size:16px;font-weight:700;letter-spacing:.02em}
+.icon{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line2);background:var(--panel);border-radius:7px;cursor:pointer;color:var(--sub)}
+.icon:hover{color:var(--text);border-color:var(--acc)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line2);background:var(--panel);border-radius:999px;padding:2px 12px;cursor:pointer;font-size:12px;color:var(--text);white-space:nowrap}
+.chip:hover{border-color:#5a6275}
+.chip.on{border-color:var(--acc);color:#cfe0ff;background:#1d2a47}
+.chip.meet{color:var(--sub)}
+.chip.meet.on{color:#cfe0ff}
+#q{width:100%;margin:10px 0 8px;background:var(--panel);border:1px solid var(--line2);border-radius:7px;padding:5px 9px}
+#q:focus{outline:none;border-color:var(--acc)}
+#games{flex:1;overflow:auto;padding-right:4px;min-height:0}
+.g{padding:9px 10px;border:1px solid transparent;border-radius:7px;cursor:pointer;margin-bottom:4px}
+.g:hover{background:#20232b}
+.g.sel{border-color:var(--acc);background:#1c2233}
+.g .dt{font-size:12px;color:var(--sub);display:flex;justify-content:space-between}
+.g .rs{font-weight:700;font-size:14px}
+.rs.imp{color:#ff8b8b}.rs.crew{color:#8cc8ff}
+.note{font-size:11.5px;color:var(--sub);margin-top:8px;line-height:1.6}
+.note a{color:var(--acc);cursor:pointer}
+
+/* ---- 右：詳細 ---- */
+#main{overflow:auto;min-width:0;padding:22px 24px 40px}
+#empty{color:var(--sub);text-align:center;margin-top:18vh;line-height:2}
+.titlebar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.titlebar h1{margin:0;font-size:22px;font-weight:700}
+.cards{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);border-radius:8px;background:var(--panel);overflow:hidden}
+.card{padding:12px 14px;border-left:1px solid var(--line);min-width:0;position:relative}
+.card:first-child{border-left:none}
+.card .k{font-size:11px;color:var(--sub);margin-bottom:3px}
+.card .v{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%}
+#winDetail{display:none;margin-top:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:10px 14px}
+#winDetail.open{display:block}
+h3{font-size:13px;margin:22px 0 8px;color:#c9cdd6;font-weight:600}
+.stage{display:flex;gap:14px;align-items:flex-start}
+.mapbox{position:relative;flex:1;max-width:1000px;aspect-ratio:16/9;border:1px solid var(--line);border-radius:8px;background:#0e1016;overflow:hidden}
+.mapbox canvas{position:absolute;inset:0;width:100%;height:100%;cursor:grab}
+.mapbox canvas:active{cursor:grabbing}
+.mapbox .fit{position:absolute;right:8px;bottom:8px}
+.mapbox .badge{position:absolute;left:10px;top:8px;font-size:12px;color:#cfd3dd;text-shadow:0 1px 2px #000;pointer-events:none}
+.opts{width:150px;flex:none;border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:12px 14px}
+.opts .k{font-size:12px;color:#c9cdd6;margin-bottom:8px}
+.opts label{display:flex;align-items:center;gap:7px;margin:5px 0;cursor:pointer;font-size:12.5px}
+.opts input[type=checkbox]{accent-color:var(--acc);width:14px;height:14px}
+.opts select{width:100%;margin-top:8px;background:var(--panel2);border:1px solid var(--line2);border-radius:6px;padding:2px 4px;font-size:12px}
+.ctrl{display:flex;align-items:center;gap:12px;max-width:1000px;margin-top:10px}
+.ctrl input[type=range]{flex:1;accent-color:var(--acc)}
+.ctrl .time{font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums;min-width:74px;text-align:right}
+.ctrl select{background:var(--panel);border:1px solid var(--line2);border-radius:6px;padding:2px 4px;font-size:12px}
+#below{max-width:1000px;margin-top:8px}
+.ev{display:grid;grid-template-columns:62px 130px 1fr;padding:6px 8px;border-radius:6px;cursor:pointer;align-items:center}
+.ev:hover{background:#1e2129}
+.ev .t{color:var(--sub);font-variant-numeric:tabular-nums}
+.ev .n{font-weight:600}
+.vote{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:10px 14px}
+.vote .row{display:flex;gap:10px;padding:4px 0;border-bottom:1px solid #262a33;align-items:baseline}
+.vote .row:last-child{border-bottom:none}
+.vote .tg{min-width:150px;font-weight:600}
+.vote .cnt{min-width:36px;color:var(--sub)}
+.vote .by{color:var(--sub);font-size:12px}
+.sw{display:inline-block;width:11px;height:11px;border-radius:50%;border:2px solid;vertical-align:-1px;margin-right:5px}
+table{border-collapse:collapse;width:100%;max-width:1000px;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+th{font-weight:500;font-size:11px;color:var(--sub);text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
+td{padding:6px 10px;border-bottom:1px solid #262a33;vertical-align:top}
+tr:last-child td{border-bottom:none}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:#21242d}
+tbody tr.sel{background:#1c2438}
+.dim{color:var(--sub)}
+.small{font-size:11.5px;color:var(--sub)}
+#drop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#000a;font-size:20px;z-index:9}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000d;border:1px solid var(--line2);padding:6px 16px;border-radius:8px;display:none;z-index:10}
+@media (max-width:1000px){#app{grid-template-columns:1fr;height:auto}#side{max-height:40vh}.cards{grid-template-columns:repeat(2,1fr)}.stage{flex-direction:column}.opts{width:100%}}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="side">
+    <div class="hd"><h2>ゲームデータ</h2><span><button class="icon" id="pick" title="フォルダを読み込む">📁</button> <button class="icon" id="reload" title="再読み込み">⟳</button></span></div>
+    <div class="chips"><button class="chip on" data-f="all">すべて</button><button class="chip" data-f="marked">マーク済み</button></div>
+    <input id="q" placeholder="名前・役職で絞り込み">
+    <div id="games"></div>
+    <div class="note">ゲーム側では、マークしない限り最新100件以降は削除されます。open-viewer.cmd で開くと、全試合が backup フォルダに残ります。</div>
+    <input type="file" id="dir" webkitdirectory multiple hidden>
+  </aside>
+  <main id="main">
+    <div id="empty">試合記録がまだ読み込まれていません。<br>open-viewer.cmd から開くか、左上の 📁 で<br><code>%USERPROFILE%\AppData\LocalLow\Innersloth\Among Us\NebulaOnTheShip\GameRecords</code><br>を選んでください（JSON ファイルのドロップでも読み込めます）。</div>
+    <div id="detail" hidden>
+      <div class="titlebar"><h1 id="title"></h1><button class="icon" id="star" title=""></button></div>
+      <div class="cards">
+        <div class="card"><div class="k">開始時刻</div><div class="v" id="cStart"></div></div>
+        <div class="card"><div class="k">終了時刻</div><div class="v" id="cEnd"></div></div>
+        <div class="card"><div class="k">マップ</div><div class="v" id="cMap"></div></div>
+        <div class="card"><div class="k">ホスト</div><div class="v" id="cHost"></div></div>
+        <div class="card"><div class="k">勝利</div><div class="v" id="cWin" style="padding-right:34px"></div><button class="icon" id="winBtn" title="詳細">ⓘ</button></div>
+      </div>
+      <div id="winDetail"></div>
+      <h3>移動経路</h3>
+      <div class="chips" id="steps"></div>
+      <div style="height:10px"></div>
+      <div class="stage">
+        <div class="mapbox"><canvas id="map"></canvas><div class="badge" id="badge"></div><button class="icon fit" id="fit" title="表示をリセット">⤢</button></div>
+        <div class="opts">
+          <div class="k">表示</div>
+          <label><input type="checkbox" id="oAlive" checked>生存者</label>
+          <label><input type="checkbox" id="oGhost">幽霊</label>
+          <label><input type="checkbox" id="oObj" checked>オブジェクト</label>
+          <label><input type="checkbox" id="oName" checked>名前</label>
+          <select id="oTrail"><option value="3">軌跡 3秒</option><option value="8">軌跡 8秒</option><option value="0">軌跡なし</option><option value="-1">軌跡 すべて</option></select>
+        </div>
+      </div>
+      <div class="ctrl">
+        <button class="icon" id="play" title="再生 (Space)">▶</button>
+        <input type="range" id="seek" min="0" max="1000" value="0">
+        <span class="time" id="time"></span>
+        <select id="speed"><option value="1">1倍</option><option value="2" selected>2倍</option><option value="4">4倍</option><option value="8">8倍</option></select>
+      </div>
+      <div id="below"></div>
+      <h3>プレイヤー</h3>
+      <table><thead><tr><th>名前</th><th>役職</th><th>タスク</th><th>状態</th><th></th></tr></thead><tbody id="players"></tbody></table>
+    </div>
+  </main>
+</div>
+<div id="drop">ここにドロップして読み込み</div>
+<div id="toast"></div>
+<script src="assets.js"></script>
+<script src="records.js"></script>
+<script>
+'use strict';
+const MAPS = {0:'スケルド',1:'ミラHQ',2:'ポーラス',3:'デルクス',4:'エアシップ',5:'ファングル'};
+const EVT = {
+  'statistics.events.startGame':'ゲーム開始','statistics.events.kill':'キル','statistics.events.report':'通報',
+  'statistics.events.emergency':'緊急会議','statistics.events.endMeeting':'会議終了','statistics.events.exiled':'追放',
+  'statistics.events.endGame':'ゲーム終了','statistics.events.embroil':'巻き添え','statistics.events.disconnect':'切断',
+  'state.suicide':'自殺','statistics.events.misfire':'誤射',
+};
+const PSTATE = {'state.alive':'生存','state.dead':'死亡','state.exiled':'追放','state.embroiled':'巻き添え','state.misfired':'誤射','state.disconnected':'切断','state.suicide':'自殺'};
+const COND = {crewmate:'クルーメイト勝利', impostor:'インポスター勝利', nogame:'無効試合'};
+const REASON = {Situation:'状況による決着', Task:'タスク完了', Special:'特殊'};
+const DEATH = new Set(['statistics.events.kill','statistics.events.embroil','state.suicide','statistics.events.misfire','statistics.events.exiled']);
+const BODY = new Set(['statistics.events.kill']);
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function cssColor(v){ v = String(v||'').replace(/["']/g,'').trim(); if(!v.startsWith('#')) v = '#'+v; return /^#[0-9a-f]{3,8}$/i.test(v) ? v : null; }
+function rich(s){ // TextMeshPro のタグを安全な HTML に
+  let out = '', depth = 0, last = 0, m; const re = /<(\/?)([a-z]+)(?:=([^>]*))?[^>]*>/gi; s = String(s||'');
+  while((m = re.exec(s))){
+    out += esc(s.slice(last, m.index)); last = re.lastIndex;
+    if(m[2].toLowerCase() !== 'color') continue;
+    if(m[1]){ if(depth){ out += '</span>'; depth--; } }
+    else { const c = cssColor(m[3]); out += c ? `<span style="color:${c}">` : '<span>'; depth++; }
+  }
+  out += esc(s.slice(last)); while(depth-- > 0) out += '</span>'; return out;
+}
+const plain = s => String(s||'').replace(/<[^>]*>/g,'');
+const pad = n => String(n).padStart(2,'0');
+const fmtSec = s => { s = Math.max(0, Math.floor(s)); return `${Math.floor(s/60)}:${pad(s%60)}`; };
+const fmtDT = d => `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+function toast(t){ const el = $('#toast'); el.textContent = t; el.style.display = 'block'; clearTimeout(toast.h); toast.h = setTimeout(() => el.style.display = 'none', 2500); }
+
+async function gunzipB64(b64){
+  const bin = atob(b64), u8 = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) u8[i] = bin.charCodeAt(i);
+  return JSON.parse(await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream('gzip'))).text());
+}
+
+// ================= データ =================
+let games = [], floors = {}, cur = null, filter = 'all';
+let step = null;         // {type:'turn', seg} | {type:'meet', m}
+let tIn = 0, playing = false, selPlayer = null;
+
+async function prepare(rec, file, marked){
+  if(!rec || !rec.playerResults || !rec.movement) return null;
+  let raw = [];
+  try { raw = await gunzipB64(rec.movement); } catch(e){ console.warn('movement を展開できません', file, e); }
+  const g = { id: rec.id || file, file, marked: !!marked, rec, segs: [], players: new Map(), events: (rec.events||[]).slice().sort((a,b)=>a.time-b.time) };
+  for(const p of rec.playerResults) g.players.set(p.playerId, p);
+  for(const s of raw){
+    const n = Math.max(0, ...s.tracks.map(t => (t.points||[]).length/2));
+    if(!n) continue;
+    g.segs.push({ absStart: s.startTime, absEnd: s.startTime + (n-1)*s.interval, interval: s.interval, n, tracks: new Map(s.tracks.map(t => [t.playerId, t])) });
+  }
+  g.segs.forEach((s,i) => s.idx = i);
+  const ev = g.events;
+  g.meetings = [];
+  ev.forEach((e,i) => {
+    const k = e.detailTranslationKey;
+    if(k !== 'statistics.events.report' && k !== 'statistics.events.emergency') return;
+    const endE = ev.slice(i+1).find(x => x.detailTranslationKey === 'statistics.events.endMeeting' || x.detailTranslationKey === 'statistics.events.endGame');
+    const end = endE ? endE.time : Infinity;
+    g.meetings.push({ idx: g.meetings.length + 1, start: e, end,
+      votes: (rec.voteResults||[]).filter(v => v.time >= e.time && v.time <= end + 0.5),
+      events: ev.filter(x => x !== e && x.time >= e.time && x.time <= end + 0.5 && x.detailTranslationKey !== 'statistics.events.endMeeting') });
+  });
+  // ターン・会議を時系列に並べる
+  g.steps = [];
+  g.segs.forEach((s,i) => {
+    g.steps.push({ type:'turn', seg: s, label: `ターン ${i+1}` });
+    const next = g.segs[i+1] ? g.segs[i+1].absStart : Infinity;
+    for(const m of g.meetings) if(m.start.time >= s.absStart - 0.5 && m.start.time < next) g.steps.push({ type:'meet', m, label: `会議 ${m.idx}` });
+  });
+  const st = (rec.endInfo && rec.endInfo.stages || [])[0] || {};
+  g.cond = st.endConditionId || ''; g.reason = st.endReason || '';
+  g.winners = new Set(st.winners || []); g.phases = st.phases || [];
+  g.started = new Date(rec.startedAtUtc); g.ended = new Date(rec.endedAtUtc);
+  return g;
+}
+
+// ---- ミニマップ画像（assets.js：ゲーム起動中に Nebula のサーバーから保存したもの）----
+const ASSETS = window.__NOS_ASSETS__ || null;
+const MEETING_COLOR = '#79808f';
+const loadImg = src => new Promise((ok, ng) => { const im = new Image(); im.onload = () => ok(im); im.onerror = ng; im.src = src; });
+// Nebula と同じ塗り方：赤成分から青成分を引いた分だけ指定色に置き換える
+function tint(img, hex){
+  const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+  const x = c.getContext('2d'); x.drawImage(img, 0, 0);
+  const n = parseInt(hex.slice(1), 16), cr = (n>>16&255)/255, cg = (n>>8&255)/255, cb = (n&255)/255;
+  const id = x.getImageData(0, 0, c.width, c.height), a = id.data;
+  for(let i=0;i<a.length;i+=4){
+    const r = a[i]/255, b = a[i+2]/255, d = r - b;
+    if(d > 0.1){ a[i] = Math.min(255, (cr*d + b)*255); a[i+1] = Math.min(255, (cg*d + b)*255); a[i+2] = Math.min(255, (cb*d + b)*255); }
+  }
+  x.putImageData(id, 0, 0); return c;
+}
+let objSheet = null;
+async function buildImageFloors(){
+  if(!ASSETS) return;
+  if(ASSETS.mapObjectsImage && ASSETS.mapObjects) try { objSheet = { img: await loadImg(ASSETS.mapObjectsImage), ...ASSETS.mapObjects, kinds: new Map((ASSETS.mapObjects.kinds||[]).map(k => [k.id, k])) }; } catch(_) {}
+  for(const m of ASSETS.maps || []){
+    const key = `${m.mapId}-${m.inMapId ?? 0}`, src = ASSETS.images && ASSETS.images[key];
+    if(!src || !games.some(g => g.rec.mapId === m.mapId)) continue;
+    try {
+      const img = await loadImg(src);
+      const w = m.width / m.pixelsPerUnit * m.scale, h = m.height / m.pixelsPerUnit * m.scale;
+      floors[key] = { cv: tint(img, m.color || '#0D33FF'), cvMeeting: tint(img, MEETING_COLOR), image: true,
+        minX: (m.originX - m.centerX) * m.scale, maxY: (m.originY - m.centerY) * m.scale, w, h, vents: [] };
+    } catch(e){ console.warn('ミニマップを読み込めません', key, e); }
+  }
+}
+function floorOf(g){ const m = g.rec.mapId; return floors[`${m}-${g.rec.inMapId ?? 0}`] || floors[`${m}-0`] || floors['d' + m]; }
+
+// 画像が無いマップは、全試合で生存者が歩いた経路を太い線で塗って「床」を作る（白い縁取り＋青い床）
+async function buildFloors(){
+  floors = {};
+  await buildImageFloors();
+  const byMap = {};
+  for(const g of games) (byMap[g.rec.mapId] ||= []).push(g);
+  for(const [mapId, list] of Object.entries(byMap)){
+    let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+    for(const g of list) for(const s of g.segs) for(const t of s.tracks.values()){ const p=t.points, st=t.states||[]; for(let i=0;i<p.length/2;i++){ if(st[i]&1) continue; const x=p[2*i], y=p[2*i+1]; if(x<minX)minX=x; if(x>maxX)maxX=x; if(y<minY)minY=y; if(y>maxY)maxY=y; } }
+    if(!isFinite(minX)) continue;
+    const PAD = 2.5; minX-=PAD; minY-=PAD; maxX+=PAD; maxY+=PAD;
+    const PX = 16, W = Math.ceil((maxX-minX)*PX), H = Math.ceil((maxY-minY)*PX);
+    const layer = (width, color) => {
+      const c = document.createElement('canvas'); c.width = W; c.height = H;
+      const x = c.getContext('2d'); x.lineCap = x.lineJoin = 'round'; x.lineWidth = width*PX; x.strokeStyle = color; x.fillStyle = color;
+      for(const g of list) for(const s of g.segs) for(const t of s.tracks.values()){
+        const p = t.points, st = t.states||[], n = p.length/2; x.beginPath(); let pen = false;
+        for(let i=0;i<n;i++){
+          const X = (p[2*i]-minX)*PX, Y = (maxY-p[2*i+1])*PX;
+          if((st[i]&1) || (st[i]&4)){ pen = false; continue; }
+          if(pen && Math.hypot(p[2*i]-p[2*i-2], p[2*i+1]-p[2*i-1]) > 2.2) pen = false;
+          if(!pen){ x.moveTo(X,Y); x.lineTo(X+0.01,Y); pen = true; } else x.lineTo(X,Y);
+        }
+        x.stroke();
+      }
+      return c;
+    };
+    const out = document.createElement('canvas'); out.width = W; out.height = H;
+    const o = out.getContext('2d');
+    o.drawImage(layer(1.75, '#e9edff'), 0, 0);
+    o.drawImage(layer(1.45, '#1f3cf2'), 0, 0);
+    const vents = new Map();
+    for(const g of list) for(const ob of g.rec.mapObjects||[]) if(ob.kindId === 'vent') vents.set(ob.x.toFixed(1)+','+ob.y.toFixed(1), ob);
+    const vlist = [...vents.values()];
+    for(const k of Object.keys(floors)) if(k.startsWith(mapId + '-')) floors[k].vents = vlist;
+    floors['d' + mapId] = { cv: out, minX, maxY, PX, w: maxX-minX, h: maxY-minY, vents: vlist };
+  }
+}
+
+async function loadRecords(items){
+  const known = new Map(games.map(g => [g.id, g]));
+  let added = 0;
+  for(const it of items){
+    let rec = it.data;
+    try { if(typeof rec === 'string') rec = JSON.parse(rec.replace(/^﻿/,'')); } catch(e){ continue; }
+    if(!rec) continue;
+    if(known.has(rec.id)){ if(it.marked) known.get(rec.id).marked = true; continue; }
+    const g = await prepare(rec, it.file, it.marked);
+    if(g){ games.push(g); known.set(g.id, g); added++; }
+  }
+  games.sort((a,b) => b.started - a.started);
+  await buildFloors(); renderList();
+  $('#empty').hidden = games.length > 0;
+  if(!cur && games.length) select(games[0]);
+  return added;
+}
+
+// ================= 一覧 =================
+const resCls = g => g.cond === 'impostor' ? 'imp' : g.cond === 'crewmate' ? 'crew' : '';
+const resText = g => COND[g.cond] || g.cond || '不明';
+function renderList(){
+  const q = $('#q').value.trim().toLowerCase();
+  const html = games.filter(g => filter !== 'marked' || isMarked(g)).filter(g => !q ||
+      [...g.players.values()].some(p => (p.name + ' ' + plain(p.roleText) + ' ' + p.roleId).toLowerCase().includes(q)))
+    .map(g => `<div class="g${g===cur?' sel':''}" data-id="${esc(g.id)}"><div class="dt"><span>${fmtDT(g.started)}</span><span>${isMarked(g)?'★':''}</span></div><div class="rs ${resCls(g)}">${esc(resText(g))}</div></div>`).join('');
+  $('#games').innerHTML = html || '<div class="dim" style="padding:8px">該当なし</div>';
+}
+$('#games').addEventListener('click', e => { const el = e.target.closest('.g'); if(el) select(games.find(x => x.id === el.dataset.id)); });
+$('#q').addEventListener('input', renderList);
+document.querySelectorAll('#side .chip').forEach(b => b.onclick = () => { filter = b.dataset.f; document.querySelectorAll('#side .chip').forEach(x => x.classList.toggle('on', x === b)); renderList(); });
+$('#reload').onclick = () => location.reload();
+
+// ---- マーク：★を押すとビューアの中で付け外しできる（このブラウザに保存。ゲームのマークは変わらない）----
+const MARK_KEY = 'nos-viewer-marks';
+let markOverrides = {};
+try { markOverrides = JSON.parse(localStorage.getItem(MARK_KEY) || '{}') || {}; } catch(_) { markOverrides = {}; }
+function isMarked(g){ return Object.prototype.hasOwnProperty.call(markOverrides, g.id) ? !!markOverrides[g.id] : g.marked; }
+function renderStar(){
+  if(!cur) return;
+  const on = isMarked(cur), b = $('#star');
+  b.textContent = on ? '★' : '☆';
+  b.style.color = on ? '#ffd23f' : '';
+  b.title = (on ? 'マークを外す' : 'マークする') + '（このビューアの中だけ。ゲーム側のマークは変わりません）';
+}
+$('#star').onclick = () => {
+  if(!cur) return;
+  const next = !isMarked(cur);
+  if(next === cur.marked) delete markOverrides[cur.id]; else markOverrides[cur.id] = next;
+  try { localStorage.setItem(MARK_KEY, JSON.stringify(markOverrides)); } catch(_) { toast('マークを保存できませんでした（このページを閉じると元に戻ります）'); }
+  renderStar(); renderList();
+};
+
+// ================= 詳細 =================
+function pname(id){ if(id === 253) return 'スキップ'; if(id === 254) return '未投票'; const p = cur && cur.players.get(id); return p ? p.name : `#${id}`; }
+const pcol = p => (p && p.color) || { main:'#888', shadow:'#444', visor:'#95CADC' };
+function pchip(id){ const p = cur.players.get(id); if(!p) return esc(pname(id)); const c = pcol(p); return `<span class="sw" style="background:${cssColor(c.main)};border-color:${cssColor(c.shadow)}"></span>${esc(p.name)}`; }
+
+function select(g){
+  if(!g) return;
+  cur = g; selPlayer = null; stop();
+  $('#detail').hidden = false;
+  $('#title').textContent = resText(g);
+  renderStar();
+  $('#cStart').textContent = fmtDT(g.started);
+  $('#cEnd').textContent = fmtDT(g.ended);
+  $('#cMap').textContent = MAPS[g.rec.mapId] ?? `Map ${g.rec.mapId}`;
+  const host = [...g.players.values()].find(p => p.isHost);
+  $('#cHost').textContent = host ? host.name : '-';
+  $('#cWin').textContent = resText(g);
+  $('#winDetail').innerHTML =
+    `<div class="small">${esc(REASON[g.reason] || g.reason)}</div>` +
+    `<div style="margin:4px 0">勝者: ${[...g.winners].map(pchip).join('　') || '<span class="dim">なし</span>'}</div>` +
+    g.phases.flatMap(ph => ph.reasons || []).map(r => `<div class="small">${esc(r.translationKey.replace('end.detail.','').replace(/\.win$/,' 勝利'))}: ${(r.players||[]).map(pchip).join('　')}</div>`).join('');
+  renderList(); renderPlayers();
+  setStep(g.steps[0]);
+  requestAnimationFrame(fitView);
+}
+$('#winBtn').onclick = () => $('#winDetail').classList.toggle('open');
+
+function renderSteps(){
+  $('#steps').innerHTML = cur.steps.map((s,i) => `<button class="chip${s.type==='meet'?' meet':''}${s===step?' on':''}" data-i="${i}">${s.label}</button>`).join('');
+  $('#steps').querySelectorAll('.chip').forEach(b => b.onclick = () => { stop(); setStep(cur.steps[+b.dataset.i]); });
+}
+function setStep(s){
+  step = s; tIn = 0;
+  renderSteps(); renderBelow(); syncCtrl(); draw();
+}
+const stepLen = () => step && step.type === 'turn' ? step.seg.absEnd - step.seg.absStart : 0;
+function absNow(){ return step.type === 'turn' ? step.seg.absStart + tIn : step.m.start.time; }
+
+function renderPlayers(){
+  const ps = [...cur.players.values()].sort((a,b) => (cur.winners.has(b.playerId) - cur.winners.has(a.playerId)) || a.playerId - b.playerId);
+  $('#players').innerHTML = ps.map(p => `<tr data-id="${p.playerId}" class="${p.playerId===selPlayer?'sel':''}">`+
+    `<td>${pchip(p.playerId)}${p.isHost?' <span class="small">ホスト</span>':''}</td><td>${rich(p.roleText)}${p.moreInformation?'<div class="small">'+rich(p.moreInformation)+'</div>':''}</td>`+
+    `<td>${rich(p.taskText) || '<span class="dim">-</span>'}</td>`+
+    `<td>${esc(PSTATE[p.stateTranslationKey] || p.stateTranslationKey)}${p.killerId!=null?` <span class="small">← ${esc(pname(p.killerId))}</span>`:''}</td>`+
+    `<td>${cur.winners.has(p.playerId)?'🏆':''}</td></tr>`).join('');
+  $('#players').querySelectorAll('tr').forEach(tr => tr.onclick = () => { const id = +tr.dataset.id; selPlayer = selPlayer === id ? null : id; renderPlayers(); draw(); });
+}
+
+function evDetail(e){
+  const src = e.sourceId, tg = (e.targetIds || []).map(pname).join('・');
+  const k = e.detailTranslationKey;
+  if(k === 'statistics.events.emergency') return src != null ? pname(src) : '';
+  if(src != null && tg) return `${pname(src)} → ${tg}`;
+  return tg || (src != null ? pname(src) : '');
+}
+function renderBelow(){
+  const b = $('#below');
+  if(step.type === 'turn'){
+    const s = step.seg;
+    const list = cur.events.filter(e => e.time >= s.absStart - 1 && e.time <= s.absEnd + 1.5 && e.detailTranslationKey !== 'statistics.events.endMeeting' && e.detailTranslationKey !== 'statistics.events.exiled');
+    b.innerHTML = list.map(e => `<div class="ev" data-t="${e.time}"><span class="t">${fmtSec(e.time - s.absStart)}</span><span class="n">${esc(EVT[e.detailTranslationKey] || e.detailTranslationKey)}</span><span class="dim">${esc(evDetail(e))}</span></div>`).join('') || '<div class="dim" style="padding:6px 8px">イベントなし</div>';
+    b.querySelectorAll('.ev').forEach(el => el.onclick = () => { tIn = Math.max(0, Math.min(stepLen(), +el.dataset.t - s.absStart - 1.5)); syncCtrl(); draw(); });
+  } else {
+    const m = step.m;
+    let h = `<div class="vote"><div style="margin-bottom:6px"><b>${esc(EVT[m.start.detailTranslationKey])}</b> <span class="dim">${esc(evDetail(m.start))}</span></div>`;
+    for(const v of m.votes){
+      const by = new Map();
+      for(const x of v.votes){ if(!by.has(x.votedForId)) by.set(x.votedForId, []); by.get(x.votedForId).push(x.voterId); }
+      [...by.entries()].sort((a,b) => (a[0]>=253) - (b[0]>=253) || b[1].length - a[1].length).forEach(([tg, vs]) => {
+        h += `<div class="row"><span class="tg">${tg>=253?`<span class="dim">${esc(pname(tg))}</span>`:pchip(tg)}</span><span class="cnt">${vs.length}票</span><span class="by">${vs.map(pchip).join('　')}</span></div>`;
+      });
+    }
+    const ex = m.events.filter(e => e.detailTranslationKey === 'statistics.events.exiled');
+    h += `<div style="margin-top:8px">結果: ${ex.length ? ex.map(e => (e.targetIds||[]).map(pchip).join('・')).join('、') + ' を追放' : '<span class="dim">追放なし</span>'}</div>`;
+    const others = m.events.filter(e => e.detailTranslationKey !== 'statistics.events.exiled');
+    if(others.length) h += others.map(e => `<div class="small">${esc(EVT[e.detailTranslationKey] || e.detailTranslationKey)} ${esc(evDetail(e))}</div>`).join('');
+    b.innerHTML = h + '</div>';
+  }
+}
+
+// ================= 再生 =================
+const seek = $('#seek');
+function syncCtrl(){
+  const L = stepLen();
+  seek.disabled = !L; seek.value = L ? Math.round(tIn / L * 1000) : 0;
+  $('#time').textContent = step.type === 'turn' ? `${fmtSec(tIn)} / ${fmtSec(L)}` : '会議中';
+  $('#play').textContent = playing ? '❚❚' : '▶';
+}
+seek.addEventListener('input', () => { tIn = seek.value / 1000 * stepLen(); syncCtrl(); draw(); });
+function stop(){ playing = false; if(step) syncCtrl(); }
+let lastFrame = 0;
+$('#play').onclick = () => {
+  if(!cur) return;
+  if(step.type !== 'turn'){ const i = cur.steps.indexOf(step); const nx = cur.steps.slice(i+1).find(s => s.type === 'turn'); if(!nx) return; setStep(nx); }
+  else if(tIn >= stepLen()) tIn = 0;
+  playing = !playing; syncCtrl(); lastFrame = performance.now(); if(playing) requestAnimationFrame(tick);
+};
+function tick(now){
+  if(!playing) return;
+  tIn += Math.min(0.1, (now - lastFrame)/1000) * +$('#speed').value; lastFrame = now;
+  if(tIn >= stepLen()){ tIn = stepLen(); playing = false; }
+  syncCtrl(); draw();
+  if(playing) requestAnimationFrame(tick);
+}
+addEventListener('keydown', e => {
+  if(!cur || e.target.tagName === 'INPUT' && e.target.type !== 'range') return;
+  if(e.code === 'Space'){ e.preventDefault(); $('#play').click(); }
+  else if(e.key === 'ArrowRight' && e.target.type !== 'range'){ tIn = Math.min(stepLen(), tIn + 3); syncCtrl(); draw(); }
+  else if(e.key === 'ArrowLeft' && e.target.type !== 'range'){ tIn = Math.max(0, tIn - 3); syncCtrl(); draw(); }
+});
+['#oAlive','#oGhost','#oObj','#oName','#oTrail'].forEach(s => $(s).addEventListener('change', () => draw()));
+
+// ================= 地図 =================
+const cv = $('#map'), ctx = cv.getContext('2d');
+let view = { s: 10, ox: 0, oy: 0 };
+function resize(){ const r = cv.getBoundingClientRect(), d = devicePixelRatio || 1; const w = Math.max(1, Math.round(r.width*d)), h = Math.max(1, Math.round(r.height*d)); if(cv.width !== w || cv.height !== h){ cv.width = w; cv.height = h; return true; } return false; }
+function fitView(){
+  resize(); const f = cur && floorOf(cur); if(!f) return;
+  view.s = Math.min(cv.width/f.w, cv.height/f.h) * 0.97;
+  view.ox = (cv.width - f.w*view.s)/2 - f.minX*view.s;
+  view.oy = (cv.height - f.h*view.s)/2 + f.maxY*view.s;
+  draw();
+}
+const sx = x => view.ox + x*view.s, sy = y => view.oy - y*view.s;
+new ResizeObserver(() => fitView()).observe(cv);
+$('#fit').onclick = fitView;
+cv.addEventListener('wheel', e => {
+  e.preventDefault(); const d = devicePixelRatio||1, r = cv.getBoundingClientRect();
+  const mx = (e.clientX-r.left)*d, my = (e.clientY-r.top)*d, k = Math.exp(-e.deltaY*0.0015);
+  view.ox = mx - (mx-view.ox)*k; view.oy = my - (my-view.oy)*k; view.s *= k; draw();
+}, { passive: false });
+let drag = null, lastPos = new Map();
+cv.addEventListener('pointerdown', e => { drag = { x:e.clientX, y:e.clientY, ox:view.ox, oy:view.oy, moved:false }; cv.setPointerCapture(e.pointerId); });
+cv.addEventListener('pointermove', e => { if(!drag) return; const d = devicePixelRatio||1, dx = e.clientX-drag.x, dy = e.clientY-drag.y; if(Math.abs(dx)+Math.abs(dy) > 3) drag.moved = true; view.ox = drag.ox+dx*d; view.oy = drag.oy+dy*d; draw(); });
+cv.addEventListener('pointerup', e => {
+  if(drag && !drag.moved && cur){
+    const d = devicePixelRatio||1, r = cv.getBoundingClientRect(), mx = (e.clientX-r.left)*d, my = (e.clientY-r.top)*d;
+    let best = null, bd = 20*d;
+    for(const [id,p] of lastPos){ const dd = Math.hypot(sx(p.x)-mx, sy(p.y)-my); if(dd < bd){ bd = dd; best = id; } }
+    selPlayer = best === selPlayer ? null : best; renderPlayers(); draw();
+  }
+  drag = null;
+});
+
+function sample(seg, tr, ta){
+  const p = tr.points, st = tr.states || [], n = p.length/2; if(!n) return null;
+  const f = Math.max(0, (ta - seg.absStart)/seg.interval); let i = Math.floor(f);
+  if(i >= n-1) return { x:p[2*n-2], y:p[2*n-1], s: st[n-1]|0, i: n-1 };
+  const a = f-i, x0=p[2*i], y0=p[2*i+1], x1=p[2*i+2], y1=p[2*i+3];
+  if(Math.hypot(x1-x0, y1-y0) > 2.2) return a < .5 ? { x:x0, y:y0, s:st[i]|0, i } : { x:x1, y:y1, s:st[i+1]|0, i:i+1 };
+  return { x:x0+(x1-x0)*a, y:y0+(y1-y0)*a, s:st[i]|0, i };
+}
+function facingLeft(tr, i){ // 直近の移動方向
+  const p = tr.points;
+  for(let k=i; k>0 && k>i-12; k--){ const dx = p[2*k]-p[2*k-2]; if(Math.abs(dx) > 0.02 && Math.abs(dx) < 2.2) return dx < 0; }
+  return false;
+}
+// クルー風のアイコン
+function crew(x, y, h, c, o){
+  const w = h*0.78, lw = Math.max(1.2, h*0.075);
+  ctx.save(); ctx.translate(x, y); if(o.flip) ctx.scale(-1, 1); ctx.globalAlpha = o.alpha ?? 1;
+  ctx.lineWidth = lw; ctx.strokeStyle = '#0b0b10'; ctx.lineJoin = 'round';
+  ctx.fillStyle = c.shadow;
+  ctx.beginPath(); ctx.roundRect(-w*0.68, -h*0.2, w*0.3, h*0.42, w*0.1); ctx.fill(); ctx.stroke();
+  if(!o.ghost){
+    ctx.fillStyle = c.main;
+    ctx.beginPath(); ctx.roundRect(-w*0.45, h*0.12, w*0.36, h*0.38, w*0.12); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(w*0.09, h*0.12, w*0.36, h*0.38, w*0.12); ctx.fill(); ctx.stroke();
+  }
+  ctx.fillStyle = c.main;
+  ctx.beginPath();
+  if(o.ghost){ ctx.moveTo(-w*0.45, h*0.1); ctx.arc(0, -h*0.12, w*0.45, Math.PI, 0); ctx.lineTo(w*0.45, h*0.4); for(let k=0;k<4;k++){ ctx.lineTo(w*(0.34-k*0.26), h*(k%2?0.4:0.3)); } ctx.lineTo(-w*0.45, h*0.4); ctx.closePath(); }
+  else ctx.roundRect(-w*0.45, -h*0.5, w*0.9, h*0.82, [w*0.45, w*0.45, w*0.15, w*0.15]);
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = c.visor;
+  ctx.beginPath(); ctx.ellipse(w*0.13, -h*0.2, w*0.3, h*0.13, 0, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#ffffffaa'; ctx.beginPath(); ctx.ellipse(w*0.2, -h*0.25, w*0.1, h*0.04, 0, 0, 7); ctx.fill();
+  ctx.restore();
+}
+function deadBody(x, y, h, c){
+  const w = h*0.78, lw = Math.max(1.2, h*0.075);
+  ctx.save(); ctx.translate(x, y); ctx.lineWidth = lw; ctx.strokeStyle = '#0b0b10';
+  ctx.fillStyle = c.main;
+  ctx.beginPath(); ctx.roundRect(-w*0.45, -h*0.05, w*0.9, h*0.35, [w*0.05, w*0.05, w*0.15, w*0.15]); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.roundRect(-w*0.45, h*0.2, w*0.36, h*0.3, w*0.12); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.roundRect(w*0.09, h*0.2, w*0.36, h*0.3, w*0.12); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#f2f2f2'; ctx.beginPath(); ctx.roundRect(-w*0.08, -h*0.28, w*0.16, h*0.26, w*0.05); ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
+function vent(x, y, s){
+  const k = objSheet && objSheet.kinds.get('vent');
+  if(k && k.icons && k.icons.length){ // Nebula のアイコン
+    const cs = objSheet.cellSize || 64, cols = Math.max(1, Math.round(objSheet.width / cs)), i = k.icons[0];
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(objSheet.img, (i % cols)*cs, Math.floor(i / cols)*cs, cs, cs, x - s/2, y - s/2, s, s);
+    ctx.imageSmoothingEnabled = true;
+    return;
+  }
+  const w = 0.62*s, h = 0.38*s;
+  ctx.fillStyle = '#c7cbd6'; ctx.strokeStyle = '#2a2d36'; ctx.lineWidth = Math.max(1, s*0.05);
+  ctx.beginPath(); ctx.roundRect(x-w/2, y-h/2, w, h, h*0.45); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); for(let k=-1;k<=1;k++){ ctx.moveTo(x-w*0.3, y+k*h*0.2); ctx.lineTo(x+w*0.3, y+k*h*0.2); } ctx.stroke();
+}
+function deadAt(ta){ // その時点で死亡済みの playerId
+  const s = new Set();
+  for(const e of cur.events){ if(e.time > ta) break; if(DEATH.has(e.detailTranslationKey)) for(const t of e.targetIds||[]) s.add(t); }
+  return s;
+}
+
+function draw(){
+  resize();
+  const d = devicePixelRatio || 1, W = cv.width, H = cv.height;
+  ctx.clearRect(0,0,W,H);
+  if(!cur || !step) return;
+  const f = floorOf(cur);
+  if(f){ ctx.imageSmoothingEnabled = true; ctx.drawImage(step.type === 'meet' && f.cvMeeting ? f.cvMeeting : f.cv, sx(f.minX), sy(f.maxY), f.w*view.s, f.h*view.s); }
+  const oAlive = $('#oAlive').checked, oGhost = $('#oGhost').checked, oObj = $('#oObj').checked, oName = $('#oName').checked, trail = +$('#oTrail').value;
+  const H0 = Math.max(16*d, (f && f.image ? 1.3 : 0.95)*view.s);
+  if(oObj && f) for(const v of f.vents) vent(sx(v.x), sy(v.y), Math.max(16*d, (f.image ? 1.4 : 0.9)*view.s));
+  const ta = absNow();
+  // 死体（そのターン中のキル）
+  if(oObj){
+    const from = step.type === 'turn' ? step.seg.absStart : (cur.segs.filter(s => s.absStart <= ta).pop() || {absStart:-Infinity}).absStart;
+    for(const e of cur.events){
+      if(e.time > ta + 0.01) break;
+      if(e.time < from - 0.5 || !BODY.has(e.detailTranslationKey)) continue;
+      for(const tid of e.targetIds||[]){ const p = (e.positions||[]).find(q => q.playerId === tid); if(p) deadBody(sx(p.x), sy(p.y), H0, pcol(cur.players.get(tid))); }
+    }
+  }
+  const labels = [];
+  lastPos = new Map();
+  if(step.type === 'turn'){
+    const seg = step.seg;
+    // 軌跡
+    for(const [id, tr] of seg.tracks){
+      const all = trail === -1 || id === selPlayer;
+      if(!all && trail <= 0) continue;
+      const p = tr.points, st = tr.states||[], n = p.length/2;
+      const iNow = Math.min(n-1, Math.floor(tIn/seg.interval));
+      const i0 = all ? 0 : Math.max(0, iNow - Math.round(trail/seg.interval));
+      const iEnd = id === selPlayer ? n-1 : iNow;
+      const dead = st[iNow] & 1;
+      if(dead ? !oGhost : !oAlive) continue;
+      ctx.strokeStyle = pcol(cur.players.get(id)).main; ctx.lineWidth = (id === selPlayer ? 3.5 : 2.5)*d; ctx.lineCap = ctx.lineJoin = 'round';
+      ctx.globalAlpha = selPlayer != null && id !== selPlayer ? 0.2 : 0.85;
+      ctx.beginPath(); let pen = false;
+      for(let i=i0;i<=iEnd;i++){
+        if((st[i]&1) && !oGhost){ pen = false; continue; }
+        const X = sx(p[2*i]), Y = sy(p[2*i+1]);
+        if(pen && Math.hypot(p[2*i]-p[2*i-2], p[2*i+1]-p[2*i-1]) > 2.2) pen = false;
+        if(!pen){ ctx.moveTo(X,Y); pen = true; } else ctx.lineTo(X,Y);
+      }
+      ctx.stroke(); ctx.globalAlpha = 1;
+    }
+    const ids = [...seg.tracks.keys()].sort((a,b) => (a===selPlayer) - (b===selPlayer));
+    for(const id of ids){
+      const tr = seg.tracks.get(id), pos = sample(seg, tr, ta); if(!pos) continue;
+      const dead = pos.s & 1, inVent = pos.s & 4;
+      if(dead ? !oGhost : !oAlive) continue;
+      lastPos.set(id, pos);
+      const pl = cur.players.get(id), X = sx(pos.x), Y = sy(pos.y);
+      crew(X, Y, H0, pcol(pl), { flip: facingLeft(tr, pos.i), ghost: !!dead, alpha: dead ? 0.5 : inVent ? 0.35 : 1 });
+      if(id === selPlayer){ ctx.strokeStyle = '#fff'; ctx.lineWidth = 2*d; ctx.beginPath(); ctx.arc(X, Y, H0*0.8, 0, 7); ctx.stroke(); }
+      if(oName && pl) labels.push([pl.name, X, Y - H0*0.62]);
+    }
+    const alive = [...seg.tracks.values()].filter(t => !((sample(seg,t,ta)||{}).s & 1)).length;
+    $('#badge').textContent = `ターン ${seg.idx+1} ・ 生存 ${alive}人`;
+  } else {
+    const m = step.m, dead = deadAt(m.start.time - 0.01);
+    for(const p of m.start.positions || []){
+      const isDead = dead.has(p.playerId);
+      if(isDead ? !oGhost : !oAlive) continue;
+      lastPos.set(p.playerId, p);
+      const pl = cur.players.get(p.playerId), X = sx(p.x), Y = sy(p.y);
+      crew(X, Y, H0, pcol(pl), { ghost: isDead, alpha: isDead ? 0.5 : 1 });
+      if(oName && pl) labels.push([pl.name, X, Y - H0*0.62]);
+    }
+    $('#badge').textContent = `会議 ${m.idx}（${EVT[m.start.detailTranslationKey]}された瞬間の位置）`;
+  }
+  ctx.font = `600 ${11.5*d}px "Yu Gothic UI",Meiryo,sans-serif`; ctx.textAlign = 'center'; ctx.lineJoin = 'round';
+  for(const [t, X, Y] of labels){ ctx.lineWidth = 3*d; ctx.strokeStyle = '#000d'; ctx.strokeText(t, X, Y); ctx.fillStyle = '#fff'; ctx.fillText(t, X, Y); }
+}
+
+// ================= 読み込み =================
+$('#pick').onclick = () => $('#dir').click();
+async function fromFiles(list){
+  const items = [];
+  for(const f of list){ if(!/\.json$/i.test(f.name)) continue; const path = f.webkitRelativePath || f.name; items.push({ file: f.name, marked: /(^|[\\/])Marked[\\/]/i.test(path), data: await f.text() }); }
+  toast(`${await loadRecords(items)} 試合を追加しました`);
+}
+$('#dir').onchange = e => fromFiles([...e.target.files]);
+addEventListener('dragover', e => { e.preventDefault(); $('#drop').style.display = 'flex'; });
+addEventListener('dragleave', e => { if(e.target === $('#drop')) $('#drop').style.display = 'none'; });
+addEventListener('drop', e => { e.preventDefault(); $('#drop').style.display = 'none'; fromFiles([...e.dataTransfer.files]); });
+
+if(!window.DecompressionStream) $('#empty').textContent = 'このブラウザは gzip の展開に対応していません。Chrome / Edge / Firefox の最新版で開いてください。';
+loadRecords(window.__NOS_RECORDS__ || []);
+</script>
+</body>
+</html>

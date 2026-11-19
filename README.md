@@ -1,0 +1,106 @@
+# NoS 戦歴ビューア
+
+Nebula on the Ship（Among Us MOD）の試合を、サーバーに入らなくても見返せるビューアです。
+マップの再生、会議の投票、役職や勝敗を、遊んだ全試合ぶん確認できます。
+
+使うもの：Windows、Among Us（NoS）、Chrome か Edge
+
+## ダウンロード
+
+**[ここをクリックして zip をダウンロード](https://github.com/MandanoRyuseigun/nos-record-viewer/archive/refs/heads/main.zip)**
+
+（このページの緑の「Code」ボタン →「Download ZIP」でも同じものが取れます）
+
+## はじめに（1回だけ）
+
+1. ダウンロードした zip を展開する前に、zip を右クリック →「プロパティ」→ 下のほうの「許可する」にチェック →「OK」。
+   （これをしないと、Windows がスクリプトを止めることがあります）
+2. 展開したフォルダを好きな場所に置きます（デスクトップやドキュメントなど）。
+3. **Among Us（NoS）を起動した状態で** `open-viewer.cmd` をダブルクリックします。
+   - ここでゲームからマップ画像を保存します。ゲームを起動していないと、マップの形がおおまかな表示になります。
+   - 「WindowsによってPCが保護されました」と出たら、「詳細情報」→「実行」を押します。
+
+## ふだんの使い方
+
+遊んだあとに `open-viewer.cmd` をダブルクリックします。新しい試合を取り込んでから、ビューアがブラウザで開きます。
+
+- `viewer.html` を直接開いても、新しい試合は増えません。必ず `open-viewer.cmd` から開いてください。
+- ビューアを開いたままのときも、もう一度 `open-viewer.cmd` を実行します（左上の ⟳ だけでは増えません）。
+- 取り込んだ試合は `backup` フォルダに残ります。ゲーム側で古い試合が消えても、ビューアでは見られます。
+
+## 画面の見方
+
+- **左の一覧**：日付・時刻と勝敗。「マーク済み」で★の付いた試合だけに絞れます。上の欄に名前や役職を入れると絞り込めます。
+- **★**：右上の★を押すと、マークを付けたり外したりできます。
+  - このビューアの中だけの印です。ゲーム側のマークは変わりません。
+  - 使っているブラウザに保存されます（Chrome と Edge では別々）。
+  - ゲーム内でマークを外した試合は、次に `open-viewer.cmd` を実行したときに★が消えます。
+- **ⓘ**（勝利の欄）：勝者と勝因を表示します。
+- **ターン / 会議**：ターンを選ぶとそのターンを再生できます。会議を選ぶと、通報・緊急会議の瞬間の位置と投票結果が出ます。
+- **表示**：生存者・幽霊・オブジェクト（ベントと死体）・名前・軌跡の表示を切り替えます。
+- **操作**：▶ で再生（スペースキーでも可）、← → で3秒戻る・進む。マップはホイールで拡大、ドラッグで移動、⤢ で元に戻ります。
+- **プレイヤー**：一覧の行かマップ上のキャラをクリックすると、その人のターン全体の移動ルートが表示されます。
+
+## うまくいかないとき
+
+- **最新の試合が出ない**：`open-viewer.cmd` から開いたか確認してください。黒い画面に「[ERROR]」と出た場合は、その画面を渡してくれた人に見せてください。
+- **マップの形がおおまか**：Among Us（NoS）を起動した状態で、もう一度 `open-viewer.cmd` を実行してください。
+  NoS を `C:\Program Files (x86)\Steam\steamapps\common\Among Us NoS` 以外に入れている場合は、マップ画像を保存できません（試合を見るのは問題ありません）。
+
+## 人に渡すとき
+
+いちばん簡単なのは、このページの URL（https://github.com/MandanoRyuseigun/nos-record-viewer ）を送ることです。
+
+ファイルを直接渡すときは、次の4つだけにしてください。
+
+- `viewer.html`
+- `open-viewer.cmd`
+- `build-records.ps1`
+- `README.md`
+
+次のものは**入れないでください**。
+
+- `records.js` と `backup` フォルダ：あなたの試合記録（一緒に遊んだ人の名前など）が入っています。
+- `assets.js`：ゲームのマップ画像です。受け取った人の PC で、その人のゲームから作られます。
+
+---
+
+## 技術メモ
+
+### 試合記録の場所と形式
+
+```
+%USERPROFILE%\AppData\LocalLow\Innersloth\Among Us\NebulaOnTheShip\GameRecords\
+    20261111T143816Z_b577bad2.json   ← 1ファイル = 1試合（開始日時UTC_ID）
+    Marked\                          ← ゲーム内でマークした試合
+```
+
+ゲーム側では、マークしていない試合は最新100件より古いものから消されます。
+
+| キー | 中身 |
+| --- | --- |
+| `version` | 形式のバージョン（15, 16） |
+| `mapId` / `inMapId` | 0 Skeld / 1 MIRA / 2 Polus / 4 Airship / 5 Fungle（`inMapId` はマップの種類違い） |
+| `startedAtUtc` / `endedAtUtc` | 開始・終了時刻（UTC） |
+| `endInfo.stages[]` | 勝利条件（`endConditionId`）、勝者の playerId（`winners`）、勝因（`phases`） |
+| `playerResults[]` | 名前、色、役職（`roleId`、`roleText` は TextMeshPro のタグ付き）、タスク数、最終状態、`killerId` |
+| `events[]` | キル・通報・緊急会議・追放などと、その瞬間の全員の座標（`positions`） |
+| `voteResults[]` | 会議ごとの投票。`votedForId` が 253 ならスキップ、254 なら未投票 |
+| `mapObjects[]` | ベントなどの位置 |
+| `movement` | gzip を base64 にした JSON。ターンごとに `startTime`、`interval`（0.25秒）、`tracks[]`（`points` = x,y の並び、`states` = 状態） |
+
+`states` の値は推定で、bit 1 = 死亡（幽霊）、bit 4 = ベント内、bit 32 = タスクなどの操作中です。
+
+### マップ画像
+
+Nebula はゲームの起動中、`http://127.0.0.1:27100` などでサーバーを動かしています（ポートは `BepInEx\LogOutput.log` の `Started. http://127.0.0.1:…` から読みます）。
+`open-viewer.cmd` は、そこから `/api/maps`、`/maps/<mapId>-<inMapId>.png`、`/api/map-objects`、`/map-objects.png` を取得して `assets.js` に保存します。
+
+ゲーム座標から画像のピクセルへの変換は Nebula のビューアと同じです。
+
+```
+px = (x / scale + centerX - originX) * pixelsPerUnit
+py = (originY - (y / scale + centerY)) * pixelsPerUnit
+```
+
+`assets.js` が無いマップは、全試合で生存中のプレイヤーが歩いた場所から床を描きます。
