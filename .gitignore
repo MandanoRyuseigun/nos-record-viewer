@@ -1,0 +1,5 @@
+# Personal data: never upload
+records.js
+assets.js
+backup/
+*.zip
