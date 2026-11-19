@@ -97,6 +97,12 @@ tbody tr.sel{background:#1c2438}
 #statsBtn.on{border-color:var(--acc);color:#cfe0ff;background:#1d2a47}
 .titlebar select,.sel2{background:var(--panel);border:1px solid var(--line2);border-radius:6px;padding:3px 6px;font-size:12.5px}
 .tw{max-width:1000px;overflow:auto;border-radius:8px}
+table.st{overflow:visible}
+.st .stk{position:sticky;z-index:2;background:var(--panel)}
+.st .stk-sel{width:34px;min-width:34px;max-width:34px}
+.st .stk-last{box-shadow:inset -1px 0 0 var(--line2)}
+.st tbody tr:hover .stk{background:#21242d}
+.st tbody tr.sel .stk{background:#1c2438}
 .st th{cursor:pointer;white-space:nowrap;user-select:none}
 .st th:hover{color:var(--text)}
 .st th.on{color:#cfe0ff}
@@ -115,7 +121,7 @@ tbody tr.sel{background:#1c2438}
 <body>
 <div id="app">
   <aside id="side">
-    <div class="hd"><h2>ゲームデータ <span class="small" style="font-weight:400" title="NoS 戦歴ビューアのバージョン">v1.2</span></h2><span><button class="icon" id="statsBtn" title="統計（勝率など）">📊</button> <button class="icon" id="pick" title="フォルダを読み込む">📁</button> <button class="icon" id="reload" title="再読み込み">⟳</button></span></div>
+    <div class="hd"><h2>ゲームデータ <span class="small" style="font-weight:400" title="NoS 戦歴ビューアのバージョン">v1.2.1</span></h2><span><button class="icon" id="statsBtn" title="統計（勝率など）">📊</button> <button class="icon" id="pick" title="フォルダを読み込む">📁</button> <button class="icon" id="reload" title="再読み込み">⟳</button></span></div>
     <div class="chips"><button class="chip on" data-f="all">すべて</button><button class="chip" data-f="marked">マーク済み</button></div>
     <input id="q" placeholder="名前・役職で絞り込み">
     <div id="games"></div>
@@ -654,8 +660,12 @@ function sortTable(id, cols, rows, onRow){
   const st = sortState[id], col = cols.find(c => c.k === st.k) || cols[0];
   rows = rows.slice().sort((a, b) => { const x = col.v(a), y = col.v(b); return (x < y ? -1 : x > y ? 1 : 0) * st.d || String(a.name).localeCompare(String(b.name)); });
   const el = $('#' + id);
-  el.innerHTML = `<thead><tr>${cols.map(c => `<th data-k="${c.k}" class="${c.k===st.k?'on':''}">${c.label}${c.k===st.k?(st.d<0?' ▼':' ▲'):''}</th>`).join('')}</tr></thead>` +
-    `<tbody>${rows.map((r, i) => `<tr data-i="${i}"${onRow && onRow.sel(r) ? ' class="sel"' : ''}>${cols.map(c => `<td class="${c.num?'num':''}">${c.h(r)}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="${cols.length}" class="dim">データなし</td></tr>`}</tbody>`;
+  // 横にスクロールしても名前の列（とチェック欄）が左に残るように固定する
+  const nStick = cols[0].k === 'sel' ? 2 : 1;
+  const stk = i => i >= nStick ? { cls: '', css: '' } :
+    { cls: ' stk' + (i === nStick - 1 ? ' stk-last' : '') + (cols[i].k === 'sel' ? ' stk-sel' : ''), css: ` style="left:${i === 0 ? 0 : 34}px"` };
+  el.innerHTML = `<thead><tr>${cols.map((c, i) => `<th data-k="${c.k}" class="${c.k===st.k?'on':''}${stk(i).cls}"${stk(i).css}>${c.label}${c.k===st.k?(st.d<0?' ▼':' ▲'):''}</th>`).join('')}</tr></thead>` +
+    `<tbody>${rows.map((r, i) => `<tr data-i="${i}"${onRow && onRow.sel(r) ? ' class="sel"' : ''}>${cols.map((c, j) => `<td class="${c.num?'num':''}${stk(j).cls}"${stk(j).css}>${c.h(r)}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="${cols.length}" class="dim">データなし</td></tr>`}</tbody>`;
   el.querySelectorAll('th').forEach(th => th.onclick = () => { const k = th.dataset.k; if(st.k === k) st.d *= -1; else { st.k = k; st.d = -1; } renderStats(); });
   if(onRow) el.querySelectorAll('tbody tr[data-i]').forEach(tr => tr.onclick = e => { if(e.target.closest('input,button,label')) return; onRow.click(rows[+tr.dataset.i]); });
 }
