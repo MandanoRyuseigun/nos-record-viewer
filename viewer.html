@@ -121,7 +121,7 @@ table.st{overflow:visible}
 <body>
 <div id="app">
   <aside id="side">
-    <div class="hd"><h2>ゲームデータ <span class="small" style="font-weight:400" title="NoS 戦歴ビューアのバージョン">v1.2.1</span></h2><span><button class="icon" id="statsBtn" title="統計（勝率など）">📊</button> <button class="icon" id="pick" title="フォルダを読み込む">📁</button> <button class="icon" id="reload" title="再読み込み">⟳</button></span></div>
+    <div class="hd"><h2>ゲームデータ <span class="small" style="font-weight:400" title="NoS 戦歴ビューアのバージョン">v1.2.2</span></h2><span><button class="icon" id="statsBtn" title="統計（勝率など）">📊</button> <button class="icon" id="pick" title="フォルダを読み込む">📁</button> <button class="icon" id="reload" title="再読み込み">⟳</button></span></div>
     <div class="chips"><button class="chip on" data-f="all">すべて</button><button class="chip" data-f="marked">マーク済み</button></div>
     <input id="q" placeholder="名前・役職で絞り込み">
     <div id="games"></div>
@@ -175,6 +175,7 @@ table.st{overflow:visible}
       <div id="mergeBar" class="small" style="margin:0 0 6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;min-height:26px"></div>
       <div class="tw"><table class="st" id="sPlayers"></table></div>
       <h3 id="sRoleTitle">役職</h3>
+      <div class="small" style="margin:-4px 0 6px">割合はすべて「のべ人数」で割った、その役職になった<b>1人あたり</b>の値です（クルーメイトは1試合に約7人いるので、試合数より多くなります）。</div>
       <div class="tw"><table class="st" id="sRoles"></table></div>
       <h3>マップ</h3>
       <div class="tw"><table class="st" id="sMaps"></table></div>
@@ -624,8 +625,8 @@ function computeStats(list){
       const roleName = plain(p.roleText).trim() || p.roleId;
       for(const map of [R, s.roles]){
         let r = map.get(p.roleId);
-        if(!r) map.set(p.roleId, r = { name: roleName, team: t, roleText: p.roleText, n: 0, w: 0, alive: 0, exiled: 0, first: 0 });
-        r.n++; if(win) r.w++; if(p.stateTranslationKey === 'state.alive') r.alive++; if(ex) r.exiled++;
+        if(!r) map.set(p.roleId, r = { name: roleName, team: t, roleText: p.roleText, n: 0, w: 0, alive: 0, exiled: 0, first: 0, gameIds: new Set() });
+        r.n++; r.gameIds.add(g.id); if(win) r.w++; if(p.stateTranslationKey === 'state.alive') r.alive++; if(ex) r.exiled++;
       }
     }
     let firstKill = true;
@@ -664,7 +665,7 @@ function sortTable(id, cols, rows, onRow){
   const nStick = cols[0].k === 'sel' ? 2 : 1;
   const stk = i => i >= nStick ? { cls: '', css: '' } :
     { cls: ' stk' + (i === nStick - 1 ? ' stk-last' : '') + (cols[i].k === 'sel' ? ' stk-sel' : ''), css: ` style="left:${i === 0 ? 0 : 34}px"` };
-  el.innerHTML = `<thead><tr>${cols.map((c, i) => `<th data-k="${c.k}" class="${c.k===st.k?'on':''}${stk(i).cls}"${stk(i).css}>${c.label}${c.k===st.k?(st.d<0?' ▼':' ▲'):''}</th>`).join('')}</tr></thead>` +
+  el.innerHTML = `<thead><tr>${cols.map((c, i) => `<th data-k="${c.k}" class="${c.k===st.k?'on':''}${stk(i).cls}"${stk(i).css}${c.tip ? ` title="${esc(c.tip)}"` : ''}>${c.label}${c.k===st.k?(st.d<0?' ▼':' ▲'):''}</th>`).join('')}</tr></thead>` +
     `<tbody>${rows.map((r, i) => `<tr data-i="${i}"${onRow && onRow.sel(r) ? ' class="sel"' : ''}>${cols.map((c, j) => `<td class="${c.num?'num':''}${stk(j).cls}"${stk(j).css}>${c.h(r)}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="${cols.length}" class="dim">データなし</td></tr>`}</tbody>`;
   el.querySelectorAll('th').forEach(th => th.onclick = () => { const k = th.dataset.k; if(st.k === k) st.d *= -1; else { st.k = k; st.d = -1; } renderStats(); });
   if(onRow) el.querySelectorAll('tbody tr[data-i]').forEach(tr => tr.onclick = e => { if(e.target.closest('input,button,label')) return; onRow.click(rows[+tr.dataset.i]); });
@@ -704,7 +705,6 @@ function renderStats(){
     { k: 'deaths', label: 'キルされた', num: 1, v: r => r.deaths, h: r => r.deaths },
     { k: 'first', label: '最初にキルされた', v: r => rateVal(r.first, r.n), h: r => rate(r.first, r.n, 'first') },
     { k: 'alive', label: '最後まで生存', v: r => rateVal(r.alive, r.n), h: r => rate(r.alive, r.n) },
-    { k: 'exiled', label: '被追放率', v: r => rateVal(r.exiled, r.n), h: r => rate(r.exiled, r.n, 'exile') },
     { k: 'exC', label: 'クルーで被追放', v: r => rateVal(r.exiledCrew, r.crew.n), h: r => rate(r.exiledCrew, r.crew.n, 'crew') },
     { k: 'exI', label: 'インポスターで被追放', v: r => rateVal(r.exiledImp, r.imp.n), h: r => rate(r.exiledImp, r.imp.n, 'imp') },
     { k: 'vote', label: '投票的中', v: r => rateVal(r.vHit, r.vTot), h: r => rate(r.vHit, r.vTot) },
@@ -719,7 +719,8 @@ function renderStats(){
   sortTable('sRoles', [
     { k: 'name', label: '役職', v: r => r.name, h: r => rich(r.roleText) || esc(r.name) },
     { k: 'team', label: '陣営', v: r => r.team, h: r => `<span class="dim">${TEAM[r.team] || ''}</span>` },
-    { k: 'n', label: '回数', num: 1, v: r => r.n, h: r => r.n },
+    { k: 'n', label: 'のべ人数', tip: 'その役職になった人数の合計。1試合に何人もいる役職（クルーメイトなど）は試合数より多くなります。右の割合はこの人数で割った「1人あたり」の値です', num: 1, v: r => r.n, h: r => r.n },
+    { k: 'games', label: '試合数', tip: 'その役職がいた試合の数', num: 1, v: r => r.gameIds.size, h: r => r.gameIds.size },
     { k: 'w', label: '勝率', v: r => rateVal(r.w, r.n), h: r => rate(r.w, r.n, r.team === 'imp' ? 'imp' : 'crew') },
     { k: 'alive', label: '最後まで生存', v: r => rateVal(r.alive, r.n), h: r => rate(r.alive, r.n) },
     { k: 'exiled', label: '被追放率', v: r => rateVal(r.exiled, r.n), h: r => rate(r.exiled, r.n, 'exile') },
