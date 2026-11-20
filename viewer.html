@@ -67,7 +67,20 @@ h3{font-size:13px;margin:22px 0 8px;color:#c9cdd6;font-weight:600}
 .opts input[type=checkbox]{accent-color:var(--acc);width:14px;height:14px}
 .opts select{width:100%;margin-top:8px;background:var(--panel2);border:1px solid var(--line2);border-radius:6px;padding:2px 4px;font-size:12px}
 .ctrl{display:flex;align-items:center;gap:12px;max-width:1000px;margin-top:10px}
-.ctrl input[type=range]{flex:1;accent-color:var(--acc)}
+.ctrl input[type=range]{width:100%;margin:0;accent-color:var(--acc);position:relative;z-index:1}
+#visionCfg{border-top:1px solid var(--line);margin:4px 0 6px;padding-top:6px}
+#visionCfg .vr{display:flex;align-items:center;justify-content:space-between;gap:4px;margin:3px 0;font-size:11.5px}
+#visionCfg .vr span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#visionCfg select{width:auto;margin:0;padding:1px 2px;font-size:11.5px}
+#visionCfg .note{font-size:10.5px;color:var(--sub);margin-top:4px;line-height:1.5}
+.ctrl2{display:flex;align-items:center;gap:8px;max-width:1000px;margin-top:6px;flex-wrap:wrap}
+.ctrl2 label{display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer;margin-left:6px}
+.ctrl2 input[type=checkbox]{accent-color:var(--acc);width:14px;height:14px}
+.seekwrap{flex:1;position:relative;padding:12px 0 4px}
+#marks{position:absolute;left:8px;right:8px;top:0;height:12px;pointer-events:none}
+#marks .mk{position:absolute;top:0;transform:translateX(-50%);width:12px;height:11px;cursor:pointer;pointer-events:auto;line-height:0}
+#marks .mk::after{content:'';position:absolute;left:5px;top:10px;width:2px;height:12px;background:currentColor;opacity:.6}
+#marks .mk:hover{filter:brightness(1.3);transform:translateX(-50%) scale(1.25)}
 .ctrl .time{font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums;min-width:74px;text-align:right}
 .ctrl select{background:var(--panel);border:1px solid var(--line2);border-radius:6px;padding:2px 4px;font-size:12px}
 #below{max-width:1000px;margin-top:8px}
@@ -121,7 +134,7 @@ table.st{overflow:visible}
 <body>
 <div id="app">
   <aside id="side">
-    <div class="hd"><h2>ゲームデータ <span class="small" style="font-weight:400" title="NoS 戦歴ビューアのバージョン">v1.2.2</span></h2><span><button class="icon" id="statsBtn" title="統計（勝率など）">📊</button> <button class="icon" id="pick" title="フォルダを読み込む">📁</button> <button class="icon" id="reload" title="再読み込み">⟳</button></span></div>
+    <div class="hd"><h2>ゲームデータ <span class="small" style="font-weight:400" title="NoS 戦歴ビューアのバージョン">v1.3</span></h2><span><button class="icon" id="statsBtn" title="統計（勝率など）">📊</button> <button class="icon" id="pick" title="フォルダを読み込む">📁</button> <button class="icon" id="reload" title="再読み込み">⟳</button></span></div>
     <div class="chips"><button class="chip on" data-f="all">すべて</button><button class="chip" data-f="marked">マーク済み</button></div>
     <input id="q" placeholder="名前・役職で絞り込み">
     <div id="games"></div>
@@ -152,21 +165,29 @@ table.st{overflow:visible}
           <label><input type="checkbox" id="oGhost">幽霊</label>
           <label><input type="checkbox" id="oObj" checked>オブジェクト</label>
           <label><input type="checkbox" id="oName" checked>名前</label>
+          <label title="生きている人の視界を、その人の色の円で表示します（キャラを選ぶとその人だけ）"><input type="checkbox" id="oVision">視界</label>
+          <button class="chip" id="visionCfgBtn" style="width:100%;margin:2px 0 4px" title="役職ごとに視界の広さを決めます">視界の広さ…</button>
+          <div id="visionCfg" hidden></div>
           <select id="oTrail"><option value="3">軌跡 3秒</option><option value="8">軌跡 8秒</option><option value="0">軌跡なし</option><option value="-1">軌跡 すべて</option></select>
         </div>
       </div>
       <div class="ctrl">
         <button class="icon" id="play" title="再生 (Space)">▶</button>
-        <input type="range" id="seek" min="0" max="1000" value="0">
+        <div class="seekwrap"><input type="range" id="seek" min="0" max="1000" value="0"><div id="marks"></div></div>
         <span class="time" id="time"></span>
         <select id="speed"><option value="1">1倍</option><option value="2" selected>2倍</option><option value="4">4倍</option><option value="8">8倍</option></select>
+      </div>
+      <div class="ctrl2">
+        <button class="chip" id="prevKill" title="前のキルへ（Q キー）">◀ 前のキル</button>
+        <button class="chip" id="nextKill" title="次のキルへ（E キー）">次のキル ▶</button>
+        <label title="ターンの最後まで来たら、会議の結果を少し表示して次のターンへ進みます"><input type="checkbox" id="oCont">続けて再生</label>
       </div>
       <div id="below"></div>
       <h3>プレイヤー</h3>
       <table><thead><tr><th>名前</th><th>役職</th><th>タスク</th><th>状態</th><th></th></tr></thead><tbody id="players"></tbody></table>
     </div>
     <div id="stats" hidden>
-      <div class="titlebar"><h1>統計</h1><span><button class="chip" id="cfgExport" title="まとめた名前と★マークをファイルに保存します">⤓ 設定を書き出す</button> <button class="chip" id="cfgImport" title="書き出したファイルから、まとめた名前と★マークを読み込みます">⤒ 設定を読み込む</button> <select id="sMap"></select> <button class="icon" id="statsClose" title="試合に戻る">✕</button></span></div>
+      <div class="titlebar"><h1>統計</h1><span><button class="chip" id="cfgExport" title="まとめた名前・★マーク・視界の広さをファイルに保存します">⤓ 設定を書き出す</button> <button class="chip" id="cfgImport" title="書き出したファイルから、まとめた名前・★マーク・視界の広さを読み込みます">⤒ 設定を読み込む</button> <select id="sMap"></select> <button class="icon" id="statsClose" title="試合に戻る">✕</button></span></div>
       <input type="file" id="cfgFile" accept=".json,application/json" hidden>
       <div class="small" id="sScope" style="margin:-8px 0 12px"></div>
       <div class="cards" id="sCards"></div>
@@ -441,7 +462,7 @@ function renderSteps(){
 }
 function setStep(s){
   step = s; tIn = 0;
-  renderSteps(); renderBelow(); syncCtrl(); draw();
+  renderSteps(); renderBelow(); renderMarks(); syncCtrl(); draw();
 }
 const stepLen = () => step && step.type === 'turn' ? step.seg.absEnd - step.seg.absStart : 0;
 function absNow(){ return step.type === 'turn' ? step.seg.absStart + tIn : step.m.start.time; }
@@ -537,7 +558,7 @@ function resetAllAliases(){
 }
 // ---- 設定の書き出し・読み込み（まとめた名前と★マーク。別のブラウザや PC に引き継ぐ用）----
 function exportSettings(){
-  const data = { app: 'nos-record-viewer', kind: 'settings', version: 1, exportedAt: new Date().toISOString(), aliases, marks: markOverrides };
+  const data = { app: 'nos-record-viewer', kind: 'settings', version: 1, exportedAt: new Date().toISOString(), aliases, marks: markOverrides, vision: visionMul };
   const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
   const d = new Date(), a = document.createElement('a');
   a.href = url; a.download = `nos-viewer-settings_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}.json`;
@@ -556,6 +577,11 @@ function importSettings(text){
   // まとめ先がさらに別の名前にまとめられていたら、最終的な名前にそろえる
   for(const k of Object.keys(aliases)){ let v = aliases[k], guard = 0; while(Object.prototype.hasOwnProperty.call(aliases, v) && guard++ < 20) v = aliases[v]; if(v === k) delete aliases[k]; else aliases[k] = v; }
   if(isMap(d.marks)) for(const [k, v] of Object.entries(d.marks)){ markOverrides[k] = !!v; nM++; }
+  if(isMap(d.vision)){
+    for(const [k, v] of Object.entries(d.vision)) if(isFinite(+v) && +v > 0) visionMul[k] = +v;
+    try { localStorage.setItem(VISION_KEY, JSON.stringify(visionMul)); } catch(_) {}
+    if(!$('#visionCfg').hidden) renderVisionCfg();
+  }
   saveAliases();
   try { localStorage.setItem(MARK_KEY, JSON.stringify(markOverrides)); } catch(_) {}
   lastMerge = null; mergeSel.clear();
@@ -756,6 +782,33 @@ function syncCtrl(){
   $('#play').textContent = playing ? '❚❚' : '▶';
 }
 seek.addEventListener('input', () => { tIn = seek.value / 1000 * stepLen(); syncCtrl(); draw(); });
+// 再生バーの上に、ターンの途中で起きる出来事（キル・シェリフの誤射など）の印を付ける。押すとその少し前に飛ぶ。
+// 会議の前後に決まって起きる出来事（通報・追放・巻き添えなど）は付けない。
+// 印の色は、起こした人（キルした人・誤射したシェリフ）のキャラの色。
+const MARK_KIND = { 'statistics.events.kill': 'kill', 'statistics.events.misfire': 'misfire', 'state.suicide': 'suicide' };
+function renderMarks(){
+  const box = $('#marks');
+  if(!step || step.type !== 'turn'){ box.innerHTML = ''; return; }
+  const s = step.seg, L = stepLen();
+  if(!L){ box.innerHTML = ''; return; }
+  const inTurn = cur.events.filter(e => MARK_KIND[e.detailTranslationKey] && e.time >= s.absStart - 0.5 && e.time <= s.absEnd + 0.5);
+  // 誤射のときはシェリフ本人の「自殺」も同時に記録されるので、そちらは印にしない
+  const list = inTurn.filter(e => e.detailTranslationKey !== 'state.suicide' ||
+    !inTurn.some(m => m.detailTranslationKey === 'statistics.events.misfire' && m.sourceId === e.sourceId && Math.abs(m.time - e.time) < 1.5));
+  box.innerHTML = list.map(e => {
+    const t = Math.max(0, Math.min(L, e.time - s.absStart));
+    const kind = MARK_KIND[e.detailTranslationKey];
+    const who = e.sourceId != null ? e.sourceId : (e.targetIds || [])[0];
+    const c = pcol(cur.players.get(who));
+    const main = cssColor(c.main) || '#ff5c5c';
+    const label = `${fmtSec(t)} ${EVT[e.detailTranslationKey] || e.detailTranslationKey}　${evDetail(e)}`;
+    // キル＝下向き三角、誤射・自殺＝ひし形
+    const shape = kind === 'kill' ? '<polygon points="1,1 11,1 6,10"/>' : '<polygon points="6,0 11,5 6,10 1,5"/>';
+    return `<span class="mk ${kind}" style="left:${(t / L * 100).toFixed(2)}%;color:${main}" data-t="${t}" title="${esc(label)}">` +
+      `<svg width="12" height="11" viewBox="0 0 12 11"><g fill="${main}" stroke="#e9ebf0" stroke-width="1.2" stroke-linejoin="round">${shape}</g></svg></span>`;
+  }).join('');
+  box.querySelectorAll('.mk').forEach(m => m.onclick = () => { stop(); tIn = Math.max(0, +m.dataset.t - 1.5); syncCtrl(); draw(); });
+}
 function stop(){ playing = false; if(step) syncCtrl(); }
 let lastFrame = 0;
 $('#play').onclick = () => {
@@ -764,20 +817,64 @@ $('#play').onclick = () => {
   else if(tIn >= stepLen()) tIn = 0;
   playing = !playing; syncCtrl(); lastFrame = performance.now(); if(playing) requestAnimationFrame(tick);
 };
+// 「続けて再生」：ターンの最後まで来たら会議の結果を少し表示して、次のターンへ進む
+const MEET_HOLD = 6; // 会議を表示しておく長さ（再生時間の秒。2倍速なら実際は3秒）
+let meetHold = 0;
+function advanceStep(){
+  const nx = cur.steps[cur.steps.indexOf(step) + 1];
+  if(!nx) return false;
+  setStep(nx); meetHold = 0;
+  return true;
+}
 function tick(now){
   if(!playing) return;
-  tIn += Math.min(0.1, (now - lastFrame)/1000) * +$('#speed').value; lastFrame = now;
-  if(tIn >= stepLen()){ tIn = stepLen(); playing = false; }
+  const dt = Math.min(0.1, (now - lastFrame)/1000) * +$('#speed').value; lastFrame = now;
+  if(step.type === 'meet'){
+    meetHold += dt;
+    if(meetHold >= MEET_HOLD && !advanceStep()) playing = false;
+  } else {
+    tIn += dt;
+    if(tIn >= stepLen()){
+      tIn = stepLen();
+      if(!$('#oCont').checked || !advanceStep()) playing = false;
+    }
+  }
   syncCtrl(); draw();
   if(playing) requestAnimationFrame(tick);
 }
+// 前のキル／次のキル（ターンをまたいで探す。キルの1.5秒前に飛ぶ）
+function killTimes(){
+  return cur.events.filter(e => e.detailTranslationKey === 'statistics.events.kill' || e.detailTranslationKey === 'statistics.events.misfire').map(e => e.time);
+}
+let lastJump = null; // 直前に飛んだキル（ターンの最初の1.5秒以内のキルでも、続けて押せるように）
+function jumpToTime(t){
+  const st = cur.steps.find(s => s.type === 'turn' && t >= s.seg.absStart - 0.5 && t <= s.seg.absEnd + 0.5);
+  if(!st) return;
+  if(st !== step) setStep(st);
+  tIn = Math.max(0, Math.min(stepLen(), t - st.seg.absStart - 1.5));
+  lastJump = { step, tIn, t };
+  syncCtrl(); draw();
+}
+function jumpKill(dir){
+  if(!cur || !step) return;
+  let now = step.type === 'turn' ? absNow() + 1.5 : step.m.start.time;
+  if(lastJump && lastJump.step === step && Math.abs(lastJump.tIn - tIn) < 0.01) now = lastJump.t;
+  const ts = killTimes();
+  const t = dir > 0 ? ts.find(x => x > now + 0.1) : ts.filter(x => x < now - 0.1).pop();
+  if(t == null){ toast(dir > 0 ? 'この先にキルはありません' : 'これより前にキルはありません'); return; }
+  jumpToTime(t);
+}
+$('#prevKill').onclick = () => jumpKill(-1);
+$('#nextKill').onclick = () => jumpKill(1);
 addEventListener('keydown', e => {
   if(!cur || statsOpen || e.target.tagName === 'INPUT' && e.target.type !== 'range') return;
+  if(e.key === 'q' || e.key === 'Q'){ jumpKill(-1); return; }
+  if(e.key === 'e' || e.key === 'E'){ jumpKill(1); return; }
   if(e.code === 'Space'){ e.preventDefault(); $('#play').click(); }
   else if(e.key === 'ArrowRight' && e.target.type !== 'range'){ tIn = Math.min(stepLen(), tIn + 3); syncCtrl(); draw(); }
   else if(e.key === 'ArrowLeft' && e.target.type !== 'range'){ tIn = Math.max(0, tIn - 3); syncCtrl(); draw(); }
 });
-['#oAlive','#oGhost','#oObj','#oName','#oTrail'].forEach(s => $(s).addEventListener('change', () => draw()));
+['#oAlive','#oGhost','#oObj','#oName','#oTrail','#oVision'].forEach(s => $(s).addEventListener('change', () => draw()));
 
 // ================= 地図 =================
 const cv = $('#map'), ctx = cv.getContext('2d');
@@ -870,6 +967,34 @@ function vent(x, y, s){
   ctx.beginPath(); ctx.roundRect(x-w/2, y-h/2, w, h, h*0.45); ctx.fill(); ctx.stroke();
   ctx.beginPath(); for(let k=-1;k<=1;k++){ ctx.moveTo(x-w*0.3, y+k*h*0.2); ctx.lineTo(x+w*0.3, y+k*h*0.2); } ctx.stroke();
 }
+// 視界の半径（ゲーム内の距離）。×1 のときの大きさ。
+// エアシップで視界0.5倍のスクショを測ると、暗くなりきる端が約2.7マス（画面の縦＝6マス）だったので、×1＝5.4 とする
+const VISION_BASE = 5.4;
+// 役職ごとの視界の倍率（このブラウザに保存）。決めていない役職は、赤い役職（インポスター側）×1.5、それ以外 ×0.5
+const VISION_KEY = 'nos-viewer-vision';
+const VISION_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3];
+let visionMul = {};
+try { visionMul = JSON.parse(localStorage.getItem(VISION_KEY) || '{}') || {}; } catch(_) { visionMul = {}; }
+function visionOf(p){
+  if(!p) return 1;
+  if(Object.prototype.hasOwnProperty.call(visionMul, p.roleId)) return +visionMul[p.roleId];
+  return isRed(p) ? 1.5 : 0.5;
+}
+function renderVisionCfg(){
+  const box = $('#visionCfg'), roles = new Map();
+  for(const g of games) for(const p of g.players.values()) if(!roles.has(p.roleId)) roles.set(p.roleId, p);
+  const list = [...roles.values()].sort((a, b) => isRed(a) - isRed(b) || plain(a.roleText).localeCompare(plain(b.roleText)));
+  box.innerHTML = list.map(p => `<div class="vr"><span>${rich(p.roleText) || esc(p.roleId)}</span><select data-role="${esc(p.roleId)}">` +
+    VISION_STEPS.map(v => `<option value="${v}"${v === visionOf(p) ? ' selected' : ''}>×${v}</option>`).join('') + `</select></div>`).join('') +
+    '<div class="note">ゲームの設定は記録に残らないので、遊んだときの設定に合わせてください。<button class="lnk" id="visionReset">初期値に戻す</button></div>';
+  box.querySelectorAll('select').forEach(s => s.onchange = () => {
+    visionMul[s.dataset.role] = +s.value;
+    try { localStorage.setItem(VISION_KEY, JSON.stringify(visionMul)); } catch(_) {}
+    draw();
+  });
+  $('#visionReset').onclick = () => { visionMul = {}; try { localStorage.removeItem(VISION_KEY); } catch(_) {} renderVisionCfg(); draw(); };
+}
+$('#visionCfgBtn').onclick = () => { const b = $('#visionCfg'); b.hidden = !b.hidden; if(!b.hidden) renderVisionCfg(); };
 function deadAt(ta){ // その時点で死亡済みの playerId
   const s = new Set();
   for(const e of cur.events){ if(e.time > ta) break; if(DEATH.has(e.detailTranslationKey)) for(const t of e.targetIds||[]) s.add(t); }
@@ -898,9 +1023,23 @@ function draw(){
   }
   const labels = [];
   lastPos = new Map();
+  // 視界：生きている人の位置に、その人の色の半透明の円（キャラを選んでいるときはその人だけ）
+  const oVision = $('#oVision').checked;
+  const visionCircle = (id, x, y) => {
+    if(selPlayer != null && id !== selPlayer) return;
+    const pl = cur.players.get(id);
+    const col = cssColor(pcol(pl).main) || '#ffffff';
+    const visR = VISION_BASE * visionOf(pl) * view.s;
+    ctx.save();
+    ctx.beginPath(); ctx.arc(sx(x), sy(y), visR, 0, 7);
+    ctx.globalAlpha = selPlayer != null ? 0.18 : 0.12; ctx.fillStyle = col; ctx.fill();
+    ctx.globalAlpha = 0.85; ctx.lineWidth = 2*d; ctx.strokeStyle = col; ctx.stroke();
+    ctx.restore();
+  };
   if(step.type === 'turn'){
     const seg = step.seg;
-    // 軌跡
+    if(oVision && oAlive) for(const [id, tr] of seg.tracks){ const pos = sample(seg, tr, ta); if(pos && !(pos.s & 1)) visionCircle(id, pos.x, pos.y); }
+    // 軌跡（ベントでの移動は点線）
     for(const [id, tr] of seg.tracks){
       const all = trail === -1 || id === selPlayer;
       if(!all && trail <= 0) continue;
@@ -913,13 +1052,24 @@ function draw(){
       ctx.strokeStyle = pcol(cur.players.get(id)).main; ctx.lineWidth = (id === selPlayer ? 3.5 : 2.5)*d; ctx.lineCap = ctx.lineJoin = 'round';
       ctx.globalAlpha = selPlayer != null && id !== selPlayer ? 0.2 : 0.85;
       ctx.beginPath(); let pen = false;
+      const ventMoves = [];
       for(let i=i0;i<=iEnd;i++){
         if((st[i]&1) && !oGhost){ pen = false; continue; }
         const X = sx(p[2*i]), Y = sy(p[2*i+1]);
-        if(pen && Math.hypot(p[2*i]-p[2*i-2], p[2*i+1]-p[2*i-1]) > 2.2) pen = false;
+        if(pen && Math.hypot(p[2*i]-p[2*i-2], p[2*i+1]-p[2*i-1]) > 2.2){
+          // ベントの中での移動（瞬間移動）は、あとで点線で結ぶ
+          if((st[i]&4) || (st[i-1]&4)) ventMoves.push([sx(p[2*i-2]), sy(p[2*i-1]), X, Y]);
+          pen = false;
+        }
         if(!pen){ ctx.moveTo(X,Y); pen = true; } else ctx.lineTo(X,Y);
       }
-      ctx.stroke(); ctx.globalAlpha = 1;
+      ctx.stroke();
+      if(ventMoves.length){
+        ctx.setLineDash([6*d, 5*d]); ctx.beginPath();
+        for(const [x0, y0, x1, y1] of ventMoves){ ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); }
+        ctx.stroke(); ctx.setLineDash([]);
+      }
+      ctx.globalAlpha = 1;
     }
     const ids = [...seg.tracks.keys()].sort((a,b) => (a===selPlayer) - (b===selPlayer));
     for(const id of ids){
@@ -936,6 +1086,7 @@ function draw(){
     $('#badge').textContent = `ターン ${seg.idx+1} ・ 生存 ${alive}人`;
   } else {
     const m = step.m, dead = deadAt(m.start.time - 0.01);
+    if(oVision && oAlive) for(const p of m.start.positions || []) if(!dead.has(p.playerId)) visionCircle(p.playerId, p.x, p.y);
     for(const p of m.start.positions || []){
       const isDead = dead.has(p.playerId);
       if(isDead ? !oGhost : !oAlive) continue;
