@@ -36,24 +36,72 @@ button,select,input{font:inherit;color:inherit}
 .g .dt{font-size:12px;color:var(--sub);display:flex;justify-content:space-between}
 .g .rs{font-weight:700;font-size:14px}
 .rs.imp{color:#ff8b8b}.rs.crew{color:#8cc8ff}
+.g .gn{font-weight:700;font-size:13px;color:#fff;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.g .gn + .rs{font-size:12.5px}
+.g .meta{font-size:11.5px;color:var(--sub)}
+.g .me{font-size:11.5px;margin-top:2px;display:flex;gap:6px;align-items:center}
+.me .wl{font-weight:700;border-radius:4px;padding:0 5px;font-size:11px}
+.wl.win{background:#1f3d2a;color:#8fe3a8}.wl.lose{background:#3a2226;color:#ff9a9a}.wl.none{background:#2b2f3a;color:var(--sub)}
+/* 村（一晩の集まり）の見出し */
+.vh{display:flex;align-items:center;gap:6px;padding:7px 6px 5px;margin:6px 0 4px;border-bottom:1px solid var(--line);cursor:pointer;user-select:none;position:sticky;top:0;background:var(--side);z-index:1}
+.vh:first-child{margin-top:0}
+.vh .tw2{color:var(--sub);font-size:10px;width:12px;transition:transform .15s}
+.vh.closed .tw2{transform:rotate(-90deg)}
+.vh .vn{font-weight:700;font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vh .vn.dflt{color:#c9cdd6;font-weight:600}
+.vh .vc{font-size:11px;color:var(--sub);white-space:nowrap}
+.edit{background:none;border:none;color:var(--sub);cursor:pointer;padding:0 3px;font-size:12px;border-radius:4px}
+.edit:hover{color:var(--text);background:#2a2e38}
+.nameIn{background:var(--panel2);border:1px solid var(--acc);border-radius:5px;padding:1px 6px;min-width:0;flex:1;font-size:13px;outline:none}
 .note{font-size:11.5px;color:var(--sub);margin-top:8px;line-height:1.6}
 .note a{color:var(--acc);cursor:pointer}
 
 /* ---- 右：詳細 ---- */
 #main{overflow:auto;min-width:0;padding:22px 24px 40px}
-#empty{color:var(--sub);text-align:center;margin-top:18vh;line-height:2}
-.titlebar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+#empty{max-width:620px;margin:12vh auto 0;border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:22px 26px;line-height:1.8}
+#empty h2{margin:0 0 10px;font-size:17px}
+#empty ol{margin:0;padding-left:22px}
+#empty li{margin:6px 0}
+#empty code{background:#111318;border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:12px;word-break:break-all}
+.titlebar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .titlebar h1{margin:0;font-size:22px;font-weight:700}
+.tt{min-width:0}
+.crumb{font-size:12px;color:var(--sub);margin-bottom:2px}
+.tline{display:flex;align-items:center;gap:8px;min-width:0}
+.tline h1.dflt{color:#c9cdd6}
+/* 試合結果の帯（ゲームの勝利画面ふう） */
+.result{border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:10px;background:linear-gradient(90deg,#262a33,var(--panel) 70%)}
+.result.imp{border-color:#6b2a2e;background:linear-gradient(90deg,#4a1c22,#2a1d22 45%,var(--panel))}
+.result.crew{border-color:#28507a;background:linear-gradient(90deg,#173556,#1b2636 45%,var(--panel))}
+.result .rt{font-size:24px;font-weight:800;letter-spacing:.04em}
+.result.imp .rt{color:#ff8b8b}.result.crew .rt{color:#8cc8ff}.result.none .rt{color:#c9cdd6}
+.result .rr{font-size:13px;color:#dfe3ea;margin:2px 0 8px}
+.result .rw{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px}
+.result .grp{display:inline-flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.result .gl{font-size:11.5px;color:var(--sub);margin-right:2px}
 .cards{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);border-radius:8px;background:var(--panel);overflow:hidden}
 .card{padding:12px 14px;border-left:1px solid var(--line);min-width:0;position:relative}
 .card:first-child{border-left:none}
 .card .k{font-size:11px;color:var(--sub);margin-bottom:3px}
 .card .v{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card .icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%}
-#winDetail{display:none;margin-top:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:10px 14px}
-#winDetail.open{display:block}
+.card .v .small{font-size:11.5px}
 h3{font-size:13px;margin:22px 0 8px;color:#c9cdd6;font-weight:600}
-.stage{display:flex;gap:14px;align-items:flex-start}
+/* マップ・操作・出来事の並び。広い画面では出来事をマップの右に置く */
+.stage{display:grid;grid-template-columns:minmax(0,1000px) 150px;grid-template-areas:"map opts" "ctrl ." "below below";gap:0 14px;align-items:start}
+.stage .mapbox{grid-area:map}.stage .opts{grid-area:opts}.stage .ctrlbox{grid-area:ctrl}.stage #below{grid-area:below}
+@media (min-width:1500px){
+  .stage{grid-template-columns:minmax(0,1fr) 380px;grid-template-areas:"map opts" "map below" "ctrl below";grid-template-rows:auto 1fr auto}
+  .stage .mapbox{max-width:none}
+  .stage .opts{width:auto;display:flex;flex-wrap:wrap;gap:0 14px;align-items:center}
+  .stage .opts .k{width:100%;margin-bottom:2px}
+  .stage .opts label{margin:3px 0}
+  .stage .opts #visionCfgBtn{width:auto!important}
+  .stage .opts #visionCfg{width:100%}
+  .stage .opts select{width:auto;margin-top:4px}
+  .stage #below{contain:size;overflow:auto;align-self:stretch;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:6px}
+  .stage #below .vote{border:none;padding:4px 8px}
+  .stage .ctrl,.stage .ctrl2,#below{max-width:none}
+}
 .mapbox{position:relative;flex:1;max-width:1000px;aspect-ratio:16/9;border:1px solid var(--line);border-radius:8px;background:#0e1016;overflow:hidden}
 .mapbox canvas{position:absolute;inset:0;width:100%;height:100%;cursor:grab}
 .mapbox canvas:active{cursor:grabbing}
@@ -84,14 +132,38 @@ h3{font-size:13px;margin:22px 0 8px;color:#c9cdd6;font-weight:600}
 .ctrl .time{font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums;min-width:74px;text-align:right}
 .ctrl select{background:var(--panel);border:1px solid var(--line2);border-radius:6px;padding:2px 4px;font-size:12px}
 #below{max-width:1000px;margin-top:8px}
-.ev{display:grid;grid-template-columns:62px 130px 1fr;padding:6px 8px;border-radius:6px;cursor:pointer;align-items:center}
+.ev{display:grid;grid-template-columns:54px 84px 1fr;padding:6px 8px;border-radius:6px;cursor:pointer;align-items:center}
 .ev:hover{background:#1e2129}
 .ev .t{color:var(--sub);font-variant-numeric:tabular-nums}
 .ev .n{font-weight:600}
 .vote{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:10px 14px}
 .vote .row{display:flex;gap:10px;padding:4px 0;border-bottom:1px solid #262a33;align-items:baseline}
 .vote .row:last-child{border-bottom:none}
-.vote .tg{min-width:150px;font-weight:600}
+.vote .tg{min-width:120px;font-weight:600}
+/* プレイヤー表 */
+#players tr.grp td{background:#1a1c22;color:var(--sub);font-size:11.5px;font-weight:600;padding:5px 10px;cursor:default}
+#players tr.grp:hover{background:none}
+.tbar{display:inline-flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+.tbar i{display:inline-block;width:46px;height:5px;border-radius:3px;background:#2b2f3a;overflow:hidden}
+.tbar i b{display:block;height:100%;background:#e8c93a}
+.tbar.done i b{background:#7ad48f}
+.when{background:none;border:1px solid var(--line2);border-radius:5px;color:#cfe0ff;cursor:pointer;font-size:11.5px;padding:0 6px;margin-left:4px}
+.when:hover{border-color:var(--acc)}
+.votes{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12px;max-width:360px}
+.votes > span{white-space:nowrap}
+.votes .vn2{color:var(--sub);font-size:10.5px;display:inline-block;min-width:14px;text-align:center;border:1px solid var(--line2);border-radius:3px;margin-right:4px;line-height:14px}
+.votes .sw{width:9px;height:9px;margin-right:3px}
+.votes .hit{color:#8fe3a8;font-weight:700;margin-left:2px}
+#ptable.novote .vcol{display:none}
+.phead{display:flex;align-items:center;justify-content:space-between;max-width:1000px}
+.phead label{display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer;color:#c9cdd6}
+.phead input{accent-color:var(--acc)}
+/* 操作のヘルプ */
+#help{max-width:1000px;margin-top:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:10px 14px;font-size:12.5px}
+#help table{background:none;border:none;max-width:none}
+#help td{border:none;padding:2px 12px 2px 0;cursor:default}
+#help kbd{display:inline-block;min-width:22px;text-align:center;background:#111318;border:1px solid var(--line2);border-bottom-width:2px;border-radius:4px;padding:0 5px;font:12px/1.5 inherit;margin-right:3px}
+.ctrl2 .sp{flex:1}
 .vote .cnt{min-width:36px;color:var(--sub)}
 .vote .by{color:var(--sub);font-size:12px}
 .sw{display:inline-block;width:11px;height:11px;border-radius:50%;border:2px solid;vertical-align:-1px;margin-right:5px}
@@ -128,31 +200,42 @@ table.st{overflow:visible}
 .st input[type=checkbox]{accent-color:var(--acc);width:14px;height:14px;cursor:pointer}
 .lnk{background:none;border:none;color:var(--acc);cursor:pointer;padding:0 2px;font-size:11.5px}
 .lnk:hover{text-decoration:underline}
-@media (max-width:1000px){#app{grid-template-columns:1fr;height:auto}#side{max-height:40vh}.cards{grid-template-columns:repeat(2,1fr)}.stage{flex-direction:column}.opts{width:100%}}
+@media (max-width:1000px){#app{grid-template-columns:1fr;height:auto}#side{max-height:40vh}.cards{grid-template-columns:repeat(2,1fr)}.stage{grid-template-columns:minmax(0,1fr);grid-template-areas:"map" "opts" "ctrl" "below";gap:10px 0}.opts{width:100%}}
 </style>
 </head>
 <body>
 <div id="app">
   <aside id="side">
-    <div class="hd"><h2>ゲームデータ <span class="small" style="font-weight:400" title="NoS 戦歴ビューアのバージョン">v1.3</span></h2><span><button class="icon" id="statsBtn" title="統計（勝率など）">📊</button> <button class="icon" id="pick" title="フォルダを読み込む">📁</button> <button class="icon" id="reload" title="再読み込み">⟳</button></span></div>
+    <div class="hd"><h2>ゲームデータ <span class="small" style="font-weight:400" title="NoS 戦歴ビューアのバージョン">v1.4</span></h2><span><button class="icon" id="statsBtn" title="統計（勝率など）">📊</button> <button class="icon" id="pick" title="フォルダを読み込む">📁</button> <button class="icon" id="reload" title="再読み込み（先に open-viewer.cmd を実行しておくと、最新の試合が入ります）">⟳</button></span></div>
     <div class="chips"><button class="chip on" data-f="all">すべて</button><button class="chip" data-f="marked">マーク済み</button></div>
-    <input id="q" placeholder="名前・役職で絞り込み">
+    <input id="q" placeholder="名前・役職・村や試合の名前で絞り込み">
     <div id="games"></div>
-    <div class="note">ゲーム側では、マークしない限り最新100件以降は削除されます。open-viewer.cmd で開くと、全試合が backup フォルダに残ります。</div>
+    <details class="note" id="howto" style="border:1px solid #2f4f86;background:#18233a;border-radius:7px;padding:6px 9px;color:#cfd8ea">
+      <summary style="cursor:pointer">🔄 試合が終わるたびに <b>open-viewer.cmd</b> をダブルクリック</summary>
+      <div style="margin-top:4px">最新の試合が入り、新しい画面で開きます。cmd を実行したあとなら、開いている画面の ⟳ でも最新になります。</div>
+      <div style="margin-top:4px;color:var(--sub)">ゲーム側では、マークしない限り最新100件以降は削除されます。open-viewer.cmd で開くと、全試合が backup フォルダに残ります。</div>
+    </details>
     <input type="file" id="dir" webkitdirectory multiple hidden>
   </aside>
   <main id="main">
-    <div id="empty">試合記録がまだ読み込まれていません。<br>open-viewer.cmd から開くか、左上の 📁 で<br><code>%USERPROFILE%\AppData\LocalLow\Innersloth\Among Us\NebulaOnTheShip\GameRecords</code><br>を選んでください（JSON ファイルのドロップでも読み込めます）。</div>
+    <div id="empty">
+      <h2>試合記録がまだ読み込まれていません</h2>
+      <ol>
+        <li>いちばん簡単なのは、このフォルダの <b>open-viewer.cmd</b> をダブルクリックして開き直すことです。最新の試合が自動で取り込まれます。</li>
+        <li>または、左上の 📁 を押して、次のフォルダを選んでください。<br><code>%USERPROFILE%\AppData\LocalLow\Innersloth\Among Us\NebulaOnTheShip\GameRecords</code></li>
+        <li>試合記録の JSON ファイルを、この画面にドロップしても読み込めます。</li>
+      </ol>
+    </div>
     <div id="detail" hidden>
-      <div class="titlebar"><h1 id="title"></h1><button class="icon" id="star" title=""></button></div>
+      <div class="titlebar"><div class="tt"><div class="crumb" id="crumb"></div><div class="tline"><h1 id="title"></h1><button class="edit" id="gameNameBtn" title="この試合に名前を付ける">✎ 名前</button></div></div><button class="icon" id="star" title=""></button></div>
+      <div class="result" id="result"></div>
       <div class="cards">
-        <div class="card"><div class="k">開始時刻</div><div class="v" id="cStart"></div></div>
-        <div class="card"><div class="k">終了時刻</div><div class="v" id="cEnd"></div></div>
+        <div class="card"><div class="k">日時</div><div class="v" id="cStart"></div></div>
+        <div class="card"><div class="k">試合時間</div><div class="v" id="cDur"></div></div>
         <div class="card"><div class="k">マップ</div><div class="v" id="cMap"></div></div>
         <div class="card"><div class="k">ホスト</div><div class="v" id="cHost"></div></div>
-        <div class="card"><div class="k">勝利</div><div class="v" id="cWin" style="padding-right:34px"></div><button class="icon" id="winBtn" title="詳細">ⓘ</button></div>
+        <div class="card"><div class="k">ターン・会議</div><div class="v" id="cFlow"></div></div>
       </div>
-      <div id="winDetail"></div>
       <h3>移動経路</h3>
       <div class="chips" id="steps"></div>
       <div style="height:10px"></div>
@@ -170,7 +253,7 @@ table.st{overflow:visible}
           <div id="visionCfg" hidden></div>
           <select id="oTrail"><option value="3">軌跡 3秒</option><option value="8">軌跡 8秒</option><option value="0">軌跡なし</option><option value="-1">軌跡 すべて</option></select>
         </div>
-      </div>
+      <div class="ctrlbox">
       <div class="ctrl">
         <button class="icon" id="play" title="再生 (Space)">▶</button>
         <div class="seekwrap"><input type="range" id="seek" min="0" max="1000" value="0"><div id="marks"></div></div>
@@ -181,13 +264,25 @@ table.st{overflow:visible}
         <button class="chip" id="prevKill" title="前のキルへ（Q キー）">◀ 前のキル</button>
         <button class="chip" id="nextKill" title="次のキルへ（E キー）">次のキル ▶</button>
         <label title="ターンの最後まで来たら、会議の結果を少し表示して次のターンへ進みます"><input type="checkbox" id="oCont">続けて再生</label>
+        <span class="sp"></span>
+        <button class="chip" id="helpBtn" title="キーボードとマウスの操作">？ 操作</button>
+      </div>
+      <div id="help" hidden>
+        <table>
+          <tr><td><kbd>Space</kbd></td><td>再生／一時停止</td><td><kbd>←</kbd><kbd>→</kbd></td><td>3秒戻る／進む</td></tr>
+          <tr><td><kbd>Q</kbd><kbd>E</kbd></td><td>前のキル／次のキル</td><td>再生バーの印</td><td>押すとそのキルの少し前へ</td></tr>
+          <tr><td>ホイール</td><td>マップを拡大・縮小</td><td>ドラッグ</td><td>マップを動かす（⤢ で元に戻す）</td></tr>
+          <tr><td>キャラをクリック</td><td>その人のルートを表示</td><td>プレイヤー表の「ターン○ ○:○○」</td><td>その人が死んだ場面へ</td></tr>
+        </table>
+      </div>
       </div>
       <div id="below"></div>
-      <h3>プレイヤー</h3>
-      <table><thead><tr><th>名前</th><th>役職</th><th>タスク</th><th>状態</th><th></th></tr></thead><tbody id="players"></tbody></table>
+      </div>
+      <div class="phead"><h3>プレイヤー</h3><label title="会議ごとに誰に投票したかを表示します"><input type="checkbox" id="oVotes" checked>投票先を表示</label></div>
+      <table id="ptable"><thead><tr><th>名前</th><th>役職</th><th>タスク</th><th style="text-align:right">キル</th><th>状態</th><th class="vcol">投票（数字は何回目の会議か）</th><th></th></tr></thead><tbody id="players"></tbody></table>
     </div>
     <div id="stats" hidden>
-      <div class="titlebar"><h1>統計</h1><span><button class="chip" id="cfgExport" title="まとめた名前・★マーク・視界の広さをファイルに保存します">⤓ 設定を書き出す</button> <button class="chip" id="cfgImport" title="書き出したファイルから、まとめた名前・★マーク・視界の広さを読み込みます">⤒ 設定を読み込む</button> <select id="sMap"></select> <button class="icon" id="statsClose" title="試合に戻る">✕</button></span></div>
+      <div class="titlebar"><h1>統計</h1><span><label class="small" title="選ぶと、左の一覧の各試合に自分の役職と勝ち負けが出ます">自分 <select class="sel2" id="sMe"></select></label><button class="chip" id="cfgExport" title="まとめた名前・★マーク・視界の広さ・村や試合の名前・自分の名前をファイルに保存します">⤓ 設定を書き出す</button> <button class="chip" id="cfgImport" title="書き出したファイルから、まとめた名前・★マーク・視界の広さ・村や試合の名前・自分の名前を読み込みます">⤒ 設定を読み込む</button> <select id="sMap"></select> <button class="icon" id="statsClose" title="試合に戻る">✕</button></span></div>
       <input type="file" id="cfgFile" accept=".json,application/json" hidden>
       <div class="small" id="sScope" style="margin:-8px 0 12px"></div>
       <div class="cards" id="sCards"></div>
@@ -373,6 +468,7 @@ async function loadRecords(items){
     if(g){ games.push(g); known.set(g.id, g); added++; }
   }
   games.sort((a,b) => b.started - a.started);
+  buildVillages();
   await buildFloors(); renderList();
   $('#empty').hidden = games.length > 0;
   if(!cur && games.length) select(games[0]);
@@ -382,18 +478,118 @@ async function loadRecords(items){
 // ================= 一覧 =================
 const resCls = g => g.cond === 'impostor' ? 'imp' : g.cond === 'crewmate' ? 'crew' : '';
 const resText = g => COND[g.cond] || g.cond || '不明';
+// ---- 村：続けて遊んだ試合のまとまり。前の試合の終わりから1時間以上あいたら別の村にする ----
+const VILLAGE_GAP = 60 * 60 * 1000;
+let villages = [];
+function buildVillages(){
+  villages = [];
+  let v = null;
+  for(const g of games.slice().sort((a,b) => a.started - b.started)){
+    if(!v || g.started - v.last.ended > VILLAGE_GAP){ v = { id: g.id, games: [], start: g.started }; villages.push(v); }
+    v.games.push(g); v.last = g; g.village = v; g.no = v.games.length;
+  }
+  villages.reverse(); // 新しい村が上
+}
+// ---- 村と試合の名前（このブラウザに保存。村は最初の試合の ID で覚える）----
+const NAMES_KEY = 'nos-viewer-names';
+let names = { villages: {}, games: {} };
+try { const d = JSON.parse(localStorage.getItem(NAMES_KEY) || '{}') || {}; names = { villages: d.villages || {}, games: d.games || {} }; } catch(_) {}
+function saveNames(){ try { localStorage.setItem(NAMES_KEY, JSON.stringify(names)); return true; } catch(_) { toast('名前を保存できませんでした（このページを閉じると元に戻ります）'); return false; } }
+const md = d => `${d.getMonth()+1}/${d.getDate()}`;
+const hm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const villageName = v => names.villages[v.id] || '';
+const villageLabel = v => villageName(v) || `${md(v.start)} の村`;
+const gameName = g => names.games[g.id] || '';
+const durOf = g => Math.max(0, (g.ended - g.started) / 1000);
+const fmtMin = s => s < 60 ? `${Math.round(s)}秒` : `${Math.round(s / 60)}分`;
+// 名前の欄をその場で入力欄に変える（Enter で保存、Esc でやめる。空にすると名前を消す）
+function editInline(host, current, placeholder, save){
+  const inp = document.createElement('input');
+  inp.className = 'nameIn'; inp.value = current; inp.placeholder = placeholder; inp.maxLength = 40;
+  host.replaceChildren(inp); inp.focus(); inp.select();
+  let done = false;
+  const finish = ok => { if(done) return; done = true; if(ok) save(inp.value.trim()); else { renderList(); if(cur && !statsOpen) renderTitle(); } };
+  inp.addEventListener('keydown', e => { e.stopPropagation(); if(e.key === 'Enter') finish(true); else if(e.key === 'Escape') finish(false); });
+  inp.addEventListener('click', e => e.stopPropagation());
+  inp.addEventListener('blur', () => finish(true));
+}
+function setVillageName(v, n){ if(n) names.villages[v.id] = n; else delete names.villages[v.id]; saveNames(); renderList(); if(cur && !statsOpen) renderTitle(); }
+function setGameName(g, n){ if(n) names.games[g.id] = n; else delete names.games[g.id]; saveNames(); renderList(); if(cur && !statsOpen) renderTitle(); }
+// たたんだ村（このブラウザに保存）
+const FOLD_KEY = 'nos-viewer-folded';
+let folded = new Set();
+try { folded = new Set(JSON.parse(localStorage.getItem(FOLD_KEY) || '[]')); } catch(_) {}
+const saveFold = () => { try { localStorage.setItem(FOLD_KEY, JSON.stringify([...folded])); } catch(_) {} };
+// ---- 自分の名前：選ぶと一覧に自分の役職と勝ち負けが出る ----
+const ME_KEY = 'nos-viewer-me';
+let me = ''; try { me = localStorage.getItem(ME_KEY) || ''; } catch(_) {}
+function setMe(n){ me = n; try { if(n) localStorage.setItem(ME_KEY, n); else localStorage.removeItem(ME_KEY); } catch(_) {} renderList(); }
+// 一覧に役職と勝ち負けを出す人：試合の画面でプレイヤーを選んでいればその人、いなければ「自分」
+// 選んだ人は、別の試合に移っても（同じ名前の人がいれば）選んだままにする
+let pickedName = null;
+function pickPlayer(id){
+  selPlayer = id;
+  const p = id != null && cur && cur.players.get(id);
+  pickedName = p ? canon(p.name) : null;
+  renderPlayers(); draw(); renderList();
+}
+function focusName(){
+  if(pickedName && !statsOpen) return { name: pickedName, picked: true };
+  return me ? { name: me, picked: false } : null;
+}
+const meIn = (g, f) => f ? [...g.players.values()].find(p => canon(p.name) === f.name) : null;
+
 function listed(){ // 左の一覧に出ている試合（絞り込み後）
   const q = $('#q').value.trim().toLowerCase();
   return games.filter(g => filter !== 'marked' || isMarked(g)).filter(g => !q ||
+      (villageName(g.village) + ' ' + gameName(g)).toLowerCase().includes(q) ||
       [...g.players.values()].some(p => (p.name + ' ' + canon(p.name) + ' ' + plain(p.roleText) + ' ' + p.roleId).toLowerCase().includes(q)));
+}
+function gameItem(g, f){
+  const n = gameName(g), m = meIn(g, f);
+  let mine = '';
+  if(m){
+    const wl = g.cond === 'nogame' ? '<span class="wl none">無効</span>' : g.winners.has(m.playerId) ? '<span class="wl win">勝ち</span>' : '<span class="wl lose">負け</span>';
+    mine = `<div class="me">${wl}<span>${rich(m.roleText) || esc(m.roleId)}</span></div>`;
+  }
+  return `<div class="g${g===cur && !statsOpen?' sel':''}" data-id="${esc(g.id)}">` +
+    `<div class="dt"><span>第${g.no}試合　${hm(g.started)}</span><span>${isMarked(g)?'★':''}</span></div>` +
+    (n ? `<div class="gn" title="${esc(n)}">${esc(n)}</div>` : '') +
+    `<div class="rs ${resCls(g)}">${esc(resText(g))}</div>` +
+    `<div class="meta">${esc(MAPS[g.rec.mapId] ?? 'Map ' + g.rec.mapId)} · ${g.players.size}人 · ${fmtMin(durOf(g))}</div>` + mine + `</div>`;
 }
 function renderList(){
   if(statsOpen) renderStats();
-  const html = listed()
-    .map(g => `<div class="g${g===cur && !statsOpen?' sel':''}" data-id="${esc(g.id)}"><div class="dt"><span>${fmtDT(g.started)}</span><span>${isMarked(g)?'★':''}</span></div><div class="rs ${resCls(g)}">${esc(resText(g))}</div></div>`).join('');
+  const show = new Set(listed()), q = $('#q').value.trim(), f = focusName();
+  // 選んだ人の役職と勝ち負けを出しているときは、一覧の上に誰の分かを出す
+  let html = f && f.picked ? `<div class="small" style="padding:2px 4px 6px;display:flex;align-items:center;gap:6px"><span style="flex:1">役職・勝ち負け：<b style="color:var(--text)">${esc(f.name)}</b></span><button class="edit" id="unpick" title="選ぶのをやめる${me ? `（「${esc(me)}」の表示に戻ります）` : ''}">✕ 解除</button></div>` : '';
+  for(const v of villages){
+    const list = v.games.filter(g => show.has(g));
+    if(!list.length) continue;
+    const closed = !q && folded.has(v.id);
+    const vn = villageName(v);
+    html += `<div class="vh${closed ? ' closed' : ''}" data-v="${esc(v.id)}" title="押すと、たたむ／開く"><span class="tw2">▼</span>` +
+      `<span class="vn${vn ? '' : ' dflt'}">${esc(vn ? `${md(v.start)} ${vn}` : villageLabel(v))}</span>` +
+      `<span class="vc">${list.length === v.games.length ? '' : list.length + '/'}${v.games.length}試合</span>` +
+      `<button class="edit" data-ved="${esc(v.id)}" title="この村に名前を付ける">✎</button></div>`;
+    if(!closed) html += list.slice().reverse().map(g => gameItem(g, f)).join('');
+  }
   $('#games').innerHTML = html || '<div class="dim" style="padding:8px">該当なし</div>';
 }
-$('#games').addEventListener('click', e => { const el = e.target.closest('.g'); if(el) select(games.find(x => x.id === el.dataset.id)); });
+$('#games').addEventListener('click', e => {
+  const ed = e.target.closest('[data-ved]');
+  if(ed){
+    e.stopPropagation();
+    const v = villages.find(x => x.id === ed.dataset.ved), vh = ed.closest('.vh');
+    editInline(vh.querySelector('.vn'), villageName(v), `${md(v.start)} の村の名前`, n => setVillageName(v, n));
+    return;
+  }
+  if(e.target.closest('.nameIn')) return;
+  if(e.target.closest('#unpick')){ pickPlayer(null); return; }
+  const vh = e.target.closest('.vh');
+  if(vh){ const id = vh.dataset.v; if(folded.has(id)) folded.delete(id); else folded.add(id); saveFold(); renderList(); return; }
+  const el = e.target.closest('.g'); if(el) select(games.find(x => x.id === el.dataset.id));
+});
 $('#q').addEventListener('input', renderList);
 document.querySelectorAll('#side .chip').forEach(b => b.onclick = () => { filter = b.dataset.f; document.querySelectorAll('#side .chip').forEach(x => x.classList.toggle('on', x === b)); renderList(); });
 $('#reload').onclick = () => location.reload();
@@ -425,21 +621,20 @@ function pchip(id){ const p = cur.players.get(id); if(!p) return esc(pname(id));
 
 function select(g){
   if(!g) return;
-  cur = g; selPlayer = null; stop();
+  cur = g; stop();
+  const keep = pickedName && [...g.players.values()].find(p => canon(p.name) === pickedName);
+  selPlayer = keep ? keep.playerId : null;
   statsOpen = false; $('#stats').hidden = true; $('#statsBtn').classList.remove('on');
   $('#detail').hidden = false;
-  $('#title').textContent = resText(g);
+  renderTitle();
   renderStar();
-  $('#cStart').textContent = fmtDT(g.started);
-  $('#cEnd').textContent = fmtDT(g.ended);
+  $('#cStart').innerHTML = `${fmtDT(g.started)}<span class="small"> 〜 ${hm(g.ended)}</span>`;
+  $('#cDur').textContent = fmtSec(durOf(g));
   $('#cMap').textContent = MAPS[g.rec.mapId] ?? `Map ${g.rec.mapId}`;
   const host = [...g.players.values()].find(p => p.isHost);
   $('#cHost').textContent = host ? host.name : '-';
-  $('#cWin').textContent = resText(g);
-  $('#winDetail').innerHTML =
-    `<div class="small">${esc(REASON[g.reason] || g.reason)}</div>` +
-    `<div style="margin:4px 0">勝者: ${[...g.winners].map(pchip).join('　') || '<span class="dim">なし</span>'}</div>` +
-    g.phases.flatMap(ph => ph.reasons || []).map(r => `<div class="small">${esc(r.translationKey.replace('end.detail.','').replace(/\.win$/,' 勝利'))}: ${(r.players||[]).map(pchip).join('　')}</div>`).join('');
+  $('#cFlow').textContent = `ターン ${g.segs.length}・会議 ${g.meetings.length}`;
+  renderResult();
   renderList(); renderPlayers();
   renderMapNote();
   setStep(g.steps[0]);
@@ -454,7 +649,61 @@ function renderMapNote(){
     'Among Us（NoS）で<b>1試合を最後（リザルト画面）まで遊んだあと、ゲームを閉じずに</b> <code>open-viewer.cmd</code> を実行すると、ゲームと同じマップになります（最初の1回だけでOK）。<br>' +
     '<span class="small">ゲームを起動しただけでは保存されません。試合が終わったあとに、マップ画像を取り出せるようになります。</span>';
 }
-$('#winBtn').onclick = () => $('#winDetail').classList.toggle('open');
+// 見出し：村の名前 › 第○試合、試合の名前
+function renderTitle(){
+  const g = cur; if(!g) return;
+  const v = g.village, n = gameName(g);
+  $('#crumb').textContent = v ? `${villageName(v) ? `${md(v.start)} ${villageName(v)}` : villageLabel(v)} › 第${g.no}試合` : '';
+  const h = $('#title');
+  h.textContent = n || `第${g.no ?? ''}試合`; h.classList.toggle('dflt', !n);
+  $('#gameNameBtn').textContent = n ? '✎' : '✎ 名前';
+}
+$('#gameNameBtn').onclick = () => { if(cur) editInline($('#title'), gameName(cur), '例：シェリフ大活躍の回', n => setGameName(cur, n)); };
+
+// ---- 試合結果の帯 ----
+// インポスター陣営でキルできる役職（マッドメイトは赤い色でもキルしないので、全滅の判定には入れない）
+const WIN_GROUP = { crewmate: '<span style="color:#8cc8ff">クルー陣営</span>', impostor: '<span style="color:#ff8b8b">インポスター陣営</span>', madmate: '<span style="color:#ff8b8b">マッドメイト</span>' };
+const isKillerImp = p => isRed(p) && p.roleId !== 'madmate';
+const roleLabel = p => plain(p.roleText).trim() || p.roleId;
+function deathEvent(g, pid){ // その人が死んだ出来事（なければ null）
+  const p = g.players.get(pid);
+  if(!p || p.stateTranslationKey === 'state.alive') return null;
+  return g.events.find(e => (e.detailTranslationKey === 'state.suicide' || e.detailTranslationKey === 'statistics.events.misfire') && e.sourceId === pid && p.stateTranslationKey !== 'state.exiled')
+    || g.events.find(e => DEATH.has(e.detailTranslationKey) && e.detailTranslationKey !== 'statistics.events.misfire' && (e.targetIds || []).includes(pid))
+    || null;
+}
+function winReason(g){
+  if(g.cond === 'nogame') return '途中で終わったため、勝敗はつきませんでした';
+  if(g.cond === 'crewmate' && g.reason === 'Task') return 'クルーがタスクをすべて終わらせました';
+  if(g.cond === 'crewmate' && g.reason === 'Situation'){
+    // 最後に死んだインポスターがどう倒れたか
+    const imps = [...g.players.values()].filter(isKillerImp);
+    const last = imps.map(p => ({ p, e: deathEvent(g, p.playerId) })).filter(x => x.e).sort((a,b) => b.e.time - a.e.time)[0];
+    if(!last) return 'インポスターがいなくなりました';
+    const who = `<b>${esc(last.p.name)}</b>（${esc(roleLabel(last.p))}）`;
+    const k = last.e.detailTranslationKey;
+    if(k === 'statistics.events.exiled') return `最後のインポスター陣営 ${who} を会議で追放しました`;
+    if(k === 'statistics.events.kill' && last.e.sourceId != null) return `${esc(pname(last.e.sourceId))} が最後のインポスター陣営 ${who} を倒しました`;
+    return `最後のインポスター陣営 ${who} がいなくなりました`;
+  }
+  if(g.cond === 'impostor' && g.reason === 'Situation') return 'インポスター陣営の人数がクルー陣営に並びました';
+  return esc(REASON[g.reason] || g.reason || '');
+}
+function renderResult(){
+  const g = cur, el = $('#result');
+  el.className = 'result ' + (resCls(g) || 'none');
+  // 勝った人を、勝ち方（陣営・役職）ごとに分ける
+  const groups = g.phases.flatMap(ph => ph.reasons || []).filter(r => (r.players || []).length);
+  let rw = '';
+  if(groups.length) rw = groups.map(r => {
+    const ps = r.players.map(id => g.players.get(id)).filter(Boolean);
+    const key = String(r.translationKey || '').replace('end.detail.','').replace(/\.win$/,'');
+    const label = WIN_GROUP[key] || (ps.length ? rich(ps[0].roleText) || esc(ps[0].roleId) : esc(key));
+    return `<span class="grp"><span class="gl">${label}</span>${r.players.map(pchip).join(' ')}</span>`;
+  }).join('');
+  else if(g.winners.size) rw = `<span class="grp"><span class="gl">勝者</span>${[...g.winners].map(pchip).join(' ')}</span>`;
+  el.innerHTML = `<div class="rt">${esc(resText(g))}</div><div class="rr">${winReason(g)}</div>` + (rw ? `<div class="rw">${rw}</div>` : '');
+}
 
 function renderSteps(){
   $('#steps').innerHTML = cur.steps.map((s,i) => `<button class="chip${s.type==='meet'?' meet':''}${s===step?' on':''}" data-i="${i}">${s.label}</button>`).join('');
@@ -467,14 +716,60 @@ function setStep(s){
 const stepLen = () => step && step.type === 'turn' ? step.seg.absEnd - step.seg.absStart : 0;
 function absNow(){ return step.type === 'turn' ? step.seg.absStart + tIn : step.m.start.time; }
 
+// その時刻が、どのターンの何秒目か（会議中なら何回目の会議か）
+function whereAt(g, t){
+  const ti = g.steps.filter(s => s.type === 'turn').findIndex(s => t >= s.seg.absStart - 0.5 && t <= s.seg.absEnd + 1.5);
+  if(ti >= 0){ const s = g.segs[ti]; return { label: `ターン${ti+1} ${fmtSec(t - s.absStart)}`, go: () => jumpToTime(Math.min(t, s.absEnd)) }; }
+  const m = g.meetings.find(m => t >= m.start.time - 0.5 && t <= m.end + 0.5);
+  if(m){ const st = g.steps.find(s => s.m === m); return { label: `会議${m.idx}`, go: () => { stop(); setStep(st); } }; }
+  return null;
+}
+function taskCell(p){
+  const m = plain(p.taskText).match(/\((\d+)\/(\d+)\)/);
+  if(!m) return rich(p.taskText) || '<span class="dim">-</span>';
+  const a = +m[1], b = +m[2], r = b ? a / b : 0;
+  return `<span class="tbar${a >= b ? ' done' : ''}" title="タスク ${a}/${b}"><i><b style="width:${Math.round(r*100)}%"></b></i>${a}/${b}</span>`;
+}
+function votesCell(g, p){
+  const out = [];
+  for(const m of g.meetings){
+    const x = m.votes.flatMap(v => v.votes || []).find(v => v.voterId === p.playerId);
+    if(!x) continue;
+    const tg = x.votedForId;
+    const hit = tg < 253 && teamOf(g, p) === 'crew' && teamOf(g, g.players.get(tg) || {}) === 'imp';
+    out.push(`<span title="会議${m.idx}"><span class="vn2">${m.idx}</span>${tg >= 253 ? `<span class="dim">${esc(pname(tg))}</span>` : pchip(tg)}${hit ? '<span class="hit" title="インポスター陣営に投票">✓</span>' : ''}</span>`);
+  }
+  return out.length ? `<div class="votes">${out.join('')}</div>` : '<span class="dim">-</span>';
+}
 function renderPlayers(){
-  const ps = [...cur.players.values()].sort((a,b) => (cur.winners.has(b.playerId) - cur.winners.has(a.playerId)) || a.playerId - b.playerId);
-  $('#players').innerHTML = ps.map(p => `<tr data-id="${p.playerId}" class="${p.playerId===selPlayer?'sel':''}">`+
-    `<td>${pchip(p.playerId)}${p.isHost?' <span class="small">ホスト</span>':''}</td><td>${rich(p.roleText)}${p.moreInformation?'<div class="small">'+rich(p.moreInformation)+'</div>':''}</td>`+
-    `<td>${rich(p.taskText) || '<span class="dim">-</span>'}</td>`+
-    `<td>${esc(PSTATE[p.stateTranslationKey] || p.stateTranslationKey)}${p.killerId!=null?` <span class="small">← ${esc(pname(p.killerId))}</span>`:''}</td>`+
-    `<td>${cur.winners.has(p.playerId)?'🏆':''}</td></tr>`).join('');
-  $('#players').querySelectorAll('tr').forEach(tr => tr.onclick = () => { const id = +tr.dataset.id; selPlayer = selPlayer === id ? null : id; renderPlayers(); draw(); });
+  const g = cur;
+  const kills = new Map();
+  for(const e of g.events) if(e.detailTranslationKey === 'statistics.events.kill' && e.sourceId != null) kills.set(e.sourceId, (kills.get(e.sourceId) || 0) + ((e.targetIds || []).length || 1));
+  const teamOrder = p => isRed(p) ? 0 : 1;
+  const sortP = (a, b) => teamOrder(a) - teamOrder(b) || a.playerId - b.playerId;
+  const all = [...g.players.values()];
+  const groups = g.cond === 'nogame' || !g.winners.size ? [['', all.sort(sortP)]] :
+    [['勝ったプレイヤー', all.filter(p => g.winners.has(p.playerId)).sort(sortP)], ['負けたプレイヤー', all.filter(p => !g.winners.has(p.playerId)).sort(sortP)]];
+  const jumps = [];
+  const row = p => {
+    const d = deathEvent(g, p.playerId), w = d && whereAt(g, d.time);
+    if(w) jumps.push(w);
+    return `<tr data-id="${p.playerId}" class="${p.playerId===selPlayer?'sel':''}">`+
+      `<td>${pchip(p.playerId)}${p.isHost?' <span class="small">ホスト</span>':''}</td><td>${rich(p.roleText)}${p.moreInformation?'<div class="small">'+rich(p.moreInformation)+'</div>':''}</td>`+
+      `<td>${taskCell(p)}</td>`+
+      `<td style="text-align:right;font-variant-numeric:tabular-nums">${kills.get(p.playerId) || '<span class="dim">-</span>'}</td>`+
+      `<td>${esc(PSTATE[p.stateTranslationKey] || p.stateTranslationKey)}${p.killerId!=null && p.killerId !== p.playerId?` <span class="small">← ${esc(pname(p.killerId))}</span>`:''}`+
+        `${w ? `<button class="when" data-j="${jumps.length-1}" title="その場面へ移動">${esc(w.label)}</button>` : ''}</td>`+
+      `<td class="vcol">${votesCell(g, p)}</td>`+
+      `<td>${g.winners.has(p.playerId)?'🏆':''}</td></tr>`;
+  };
+  $('#players').innerHTML = groups.filter(([, ps]) => ps.length).map(([label, ps]) =>
+    (label ? `<tr class="grp"><td colspan="7">${label}（${ps.length}人）</td></tr>` : '') + ps.map(row).join('')).join('');
+  $('#players').querySelectorAll('tr[data-id]').forEach(tr => tr.onclick = e => {
+    const j = e.target.closest('.when');
+    if(j){ jumps[+j.dataset.j].go(); return; }
+    const id = +tr.dataset.id; pickPlayer(selPlayer === id ? null : id);
+  });
 }
 
 function evDetail(e){
@@ -558,13 +853,13 @@ function resetAllAliases(){
 }
 // ---- 設定の書き出し・読み込み（まとめた名前と★マーク。別のブラウザや PC に引き継ぐ用）----
 function exportSettings(){
-  const data = { app: 'nos-record-viewer', kind: 'settings', version: 1, exportedAt: new Date().toISOString(), aliases, marks: markOverrides, vision: visionMul };
+  const data = { app: 'nos-record-viewer', kind: 'settings', version: 1, exportedAt: new Date().toISOString(), aliases, marks: markOverrides, vision: visionMul, names, me };
   const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
   const d = new Date(), a = document.createElement('a');
   a.href = url; a.download = `nos-viewer-settings_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}.json`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 5000);
-  toast(`設定を書き出しました（まとめ ${new Set(Object.values(aliases)).size} 人分・マーク ${Object.keys(markOverrides).length} 件）。ダウンロードフォルダを確認してください`);
+  toast(`設定を書き出しました（まとめ ${new Set(Object.values(aliases)).size} 人分・マーク ${Object.keys(markOverrides).length} 件・名前 ${Object.keys(names.villages).length + Object.keys(names.games).length} 件）。ダウンロードフォルダを確認してください`);
 }
 function importSettings(text){
   let d;
@@ -582,11 +877,17 @@ function importSettings(text){
     try { localStorage.setItem(VISION_KEY, JSON.stringify(visionMul)); } catch(_) {}
     if(!$('#visionCfg').hidden) renderVisionCfg();
   }
+  let nN = 0;
+  if(isMap(d.names)){
+    for(const kind of ['villages', 'games']) if(isMap(d.names[kind])) for(const [k, v] of Object.entries(d.names[kind])) if(typeof v === 'string' && v.trim()){ names[kind][k] = v.trim().slice(0, 40); nN++; }
+    saveNames();
+  }
+  if(typeof d.me === 'string' && d.me && !me) setMe(d.me);
   saveAliases();
   try { localStorage.setItem(MARK_KEY, JSON.stringify(markOverrides)); } catch(_) {}
   lastMerge = null; mergeSel.clear();
-  renderStats(); renderList(); renderStar();
-  toast(`設定を読み込みました（まとめた名前 ${nA} 件・マーク ${nM} 件）`);
+  renderStats(); renderList(); renderStar(); if(cur) renderTitle();
+  toast(`設定を読み込みました（まとめた名前 ${nA} 件・マーク ${nM} 件・村や試合の名前 ${nN} 件）`);
 }
 $('#cfgExport').onclick = exportSettings;
 $('#cfgImport').onclick = () => $('#cfgFile').click();
@@ -705,6 +1006,12 @@ function renderStats(){
   sm.value = maps.includes(+prev) ? prev : 'all';
   const list = sm.value === 'all' ? all : all.filter(g => g.rec.mapId === +sm.value);
   const S = computeStats(list), ov = S.ov, valid = ov.n - ov.nogame;
+  // 自分の名前の候補（絞り込みに関係なく、全試合の名前。試合数の多い順）
+  const cnt = new Map();
+  for(const g of games) for(const p of g.players.values()){ const n = canon(p.name); cnt.set(n, (cnt.get(n) || 0) + 1); }
+  const sMe = $('#sMe');
+  sMe.innerHTML = `<option value="">（選ばない）</option>` + [...cnt.entries()].sort((a,b) => b[1] - a[1]).map(([n, c]) => `<option value="${esc(n)}">${esc(n)}（${c}）</option>`).join('');
+  sMe.value = cnt.has(me) ? me : '';
   const q = $('#q').value.trim();
   $('#sScope').textContent = `対象：${list.length} 試合` + (filter === 'marked' ? '（マーク済みのみ）' : '') + (q ? `（「${q}」で絞り込み中）` : '') +
     (list.length ? `　${fmtDT(list[list.length-1].started)} 〜 ${fmtDT(list[0].started)}` : '');
@@ -772,6 +1079,7 @@ function openStats(on){
 $('#statsBtn').onclick = () => openStats(!statsOpen);
 $('#statsClose').onclick = () => openStats(false);
 $('#sMap').onchange = renderStats;
+$('#sMe').onchange = e => { setMe(e.target.value); toast(e.target.value ? `「${e.target.value}」を自分にしました。左の一覧に役職と勝ち負けが出ます` : '自分の名前の設定を外しました'); };
 
 // ================= 再生 =================
 const seek = $('#seek');
@@ -864,6 +1172,13 @@ function jumpKill(dir){
   if(t == null){ toast(dir > 0 ? 'この先にキルはありません' : 'これより前にキルはありません'); return; }
   jumpToTime(t);
 }
+// 投票先の列の表示切り替え（このブラウザに覚える）
+const VOTES_KEY = 'nos-viewer-show-votes';
+try { if(localStorage.getItem(VOTES_KEY) === '0') $('#oVotes').checked = false; } catch(_) {}
+const applyVotes = () => $('#ptable').classList.toggle('novote', !$('#oVotes').checked);
+applyVotes();
+$('#oVotes').onchange = () => { applyVotes(); try { localStorage.setItem(VOTES_KEY, $('#oVotes').checked ? '1' : '0'); } catch(_) {} };
+$('#helpBtn').onclick =() => { const h = $('#help'); h.hidden = !h.hidden; $('#helpBtn').classList.toggle('on', !h.hidden); };
 $('#prevKill').onclick = () => jumpKill(-1);
 $('#nextKill').onclick = () => jumpKill(1);
 addEventListener('keydown', e => {
@@ -903,7 +1218,7 @@ cv.addEventListener('pointerup', e => {
     const d = devicePixelRatio||1, r = cv.getBoundingClientRect(), mx = (e.clientX-r.left)*d, my = (e.clientY-r.top)*d;
     let best = null, bd = 20*d;
     for(const [id,p] of lastPos){ const dd = Math.hypot(sx(p.x)-mx, sy(p.y)-my); if(dd < bd){ bd = dd; best = id; } }
-    selPlayer = best === selPlayer ? null : best; renderPlayers(); draw();
+    pickPlayer(best === selPlayer ? null : best);
   }
   drag = null;
 });
