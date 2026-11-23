@@ -36,11 +36,39 @@ if (Test-Path $Src) {
   Write-Host "Record folder not found: $Src (using backup only)"
 }
 
+# ---- viewer settings (names, marks, hidden games...) ----
+# The viewer keeps its settings inside the browser. A file made with "export settings" is copied into
+# .\backup\settings so it is backed up with the games, and the viewer loads it automatically in a new browser.
+# Sources: this folder and the Downloads folder (nos-viewer-settings*.json). The newest file wins.
+$setDir = Join-Path $backup 'settings'
+$setFile = Join-Path $setDir 'nos-viewer-settings.json'
+$downloads = $null
+try { $downloads = (Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders' -ErrorAction Stop).'{374DE290-123F-4565-9164-39C4925E467B}' } catch {}
+if ($downloads) { $downloads = [Environment]::ExpandEnvironmentVariables($downloads) } else { $downloads = Join-Path $env:USERPROFILE 'Downloads' }
+$cands = @()
+foreach ($d in @($here, $downloads)) {
+  if ($d -and (Test-Path $d)) { $cands += @(Get-ChildItem $d -File -Filter 'nos-viewer-settings*.json' -ErrorAction SilentlyContinue) }
+}
+$newest = $cands | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+if ($newest -and (-not (Test-Path $setFile) -or $newest.LastWriteTime -gt (Get-Item $setFile).LastWriteTime)) {
+  $t = [IO.File]::ReadAllText($newest.FullName, [Text.Encoding]::UTF8)
+  if ($t -match '"app"\s*:\s*"nos-record-viewer"' -and $t -match '"kind"\s*:\s*"settings"') {
+    New-Item -ItemType Directory -Force $setDir | Out-Null
+    Copy-Item $newest.FullName $setFile -Force
+    (Get-Item $setFile).LastWriteTime = $newest.LastWriteTime
+    Write-Host "settings: saved $($newest.Name) to backup\settings"
+  }
+}
+
 $seen = @{}
 $sb = New-Object System.Text.StringBuilder
+if (Test-Path $setFile) {
+  $t = [IO.File]::ReadAllText($setFile, [Text.Encoding]::UTF8).Trim().TrimStart([char]0xFEFF)
+  if ($t.StartsWith('{')) { [void]$sb.Append("window.__NOS_SETTINGS__=" + $t + ";`n") }
+}
 [void]$sb.Append("window.__NOS_RECORDS__=[`n")
 $n = 0
-foreach ($f in Get-ChildItem $backup -Recurse -File -Filter *.json | Sort-Object Name) {
+foreach ($f in Get-ChildItem $backup -Recurse -File -Filter *.json | Where-Object { $_.DirectoryName -ne $setDir } | Sort-Object Name) {
   $txt = [IO.File]::ReadAllText($f.FullName, [Text.Encoding]::UTF8).Trim()
   if (-not $txt.StartsWith('{')) { continue }
   $marked = $f.DirectoryName -ne $backup
