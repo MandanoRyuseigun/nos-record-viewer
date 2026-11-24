@@ -50,6 +50,25 @@ button,select,input{font:inherit;color:inherit}
 .vh .vn{font-weight:700;font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .vh .vn.dflt{color:#c9cdd6;font-weight:600}
 .vh .vc{font-size:11px;color:var(--sub);white-space:nowrap}
+/* 統計：表示する列を選ぶ */
+.colpick{display:flex;flex-wrap:wrap;gap:4px 14px;max-width:1000px;border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:8px 12px;margin:0 0 10px;font-size:12px}
+.colpick[hidden]{display:none}
+.colpick label{display:flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap}
+.colpick input{accent-color:var(--acc)}
+.colpick .cpa{margin-left:auto;display:flex;gap:10px}
+/* 試合のハイライト */
+.hl{display:flex;flex-wrap:wrap;gap:6px 18px;margin:-2px 0 10px;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:12.5px}
+.hl:empty{display:none}
+.hl .hi{display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap}
+.hl .hk{color:var(--sub);font-size:11.5px;margin-right:2px}
+/* 役職で絞り込み */
+.rf{display:flex;gap:6px;align-items:center;margin:-2px 0 8px}
+.rf select{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line2);border-radius:7px;padding:3px 6px;font-size:12px}
+.rchips{display:flex;flex-wrap:wrap;gap:4px 5px;align-items:center;margin:0 0 8px}
+.rchips .chip{font-size:11px;padding:1px 9px}
+.rchips label{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--sub);cursor:pointer;margin-left:auto}
+.rchips input{accent-color:var(--acc);margin:0}
+.rf select.on{border-color:var(--acc);color:#cfe0ff;background:#1d2a47}
 .vsug{display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:2px 4px 8px}
 .vsug .chip{font-size:11.5px;padding:1px 9px}
 .edit{background:none;border:none;color:var(--sub);cursor:pointer;padding:0 3px;font-size:12px;border-radius:4px}
@@ -66,7 +85,9 @@ button,select,input{font:inherit;color:inherit}
 #empty li{margin:6px 0}
 #empty code{background:#111318;border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:12px;word-break:break-all}
 .titlebar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.titlebar h1{margin:0;font-size:22px;font-weight:700}
+.titlebar h1{margin:0;font-size:22px;font-weight:700;white-space:nowrap}
+#stats > .titlebar{gap:12px}
+#stats > .titlebar > span{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
 .tt{min-width:0}
 .crumb{font-size:12px;color:var(--sub);margin-bottom:2px}
 .tline{display:flex;align-items:center;gap:8px;min-width:0}
@@ -211,7 +232,10 @@ table.st{overflow:visible}
 #heatBox canvas{cursor:default}
 /* 新しいバージョンのお知らせ */
 #upd{font-size:12px;border:1px solid #3d6b3f;background:#17291a;color:#cdeccf;border-radius:7px;padding:6px 9px;margin-bottom:8px;display:flex;gap:6px;align-items:flex-start}
-#upd[hidden]{display:none}
+#upd[hidden],#bak[hidden]{display:none}
+#bak{font-size:12px;border:1px solid #6b5520;background:#2a2312;color:#f3dfa8;border-radius:7px;padding:6px 9px;margin-bottom:8px;display:flex;gap:6px;align-items:flex-start}
+#bak a{color:#ffd56b;font-weight:700}
+#bak span{flex:1}
 #upd a{color:#8fe3a8;font-weight:700}
 #upd span{flex:1}
 /* 結果を画像にする */
@@ -221,6 +245,7 @@ table.st{overflow:visible}
 #shotMenu input{accent-color:var(--acc)}
 #shotBtn.on{border-color:var(--acc);color:#cfe0ff;background:#1d2a47}
 #sCards{grid-template-columns:repeat(6,1fr)}
+#sCards .card:last-child .v{white-space:normal;font-size:13.5px;line-height:1.6} /* いちばん勝った人は、何人もいると折り返す */
 @media (max-width:1000px){#app{grid-template-columns:1fr;height:auto}#side{max-height:40vh}.cards{grid-template-columns:repeat(2,1fr)}.stage{grid-template-columns:minmax(0,1fr);grid-template-areas:"map" "opts" "ctrl" "below";gap:10px 0}.opts{width:100%}#sCards{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
@@ -229,8 +254,11 @@ table.st{overflow:visible}
   <aside id="side">
     <div class="hd"><h2>ゲームデータ <span class="small" style="font-weight:400" title="NoS 戦歴ビューアのバージョン" id="ver"></span></h2><span><button class="icon" id="statsBtn" title="統計（勝率など）">📊</button> <button class="icon" id="pick" title="フォルダを読み込む">📁</button> <button class="icon" id="reload" title="再読み込み（先に open-viewer.cmd を実行しておくと、最新の試合が入ります）">⟳</button></span></div>
     <div id="upd" hidden></div>
+    <div id="bak" class="bak" hidden></div>
     <div class="chips"><button class="chip on" data-f="all">すべて</button><button class="chip" data-f="marked">マーク済み</button><button class="chip" data-f="trash" id="trashChip" hidden title="一覧から消した試合（ここから戻せます）"></button></div>
     <input id="q" placeholder="名前・役職・村や試合の名前・無効試合などで絞り込み">
+    <div id="rf" class="rf" title="役職や陣営で試合を絞り込みます"><select id="rfRole"></select><select id="rfWho"></select><button class="edit" id="rfClear" title="役職の絞り込みをやめる" hidden>✕</button></div>
+    <div class="rchips" id="resChips"><button class="chip" data-r="crewmate" title="クルーメイト勝利の試合だけ（もう一度押すと解除）">クルー勝ち</button><button class="chip" data-r="impostor" title="インポスター勝利の試合だけ（もう一度押すと解除）">インポスター勝ち</button><button class="chip" data-r="nogame" title="無効試合だけ（もう一度押すと解除）">無効</button><label title="チェックすると、無効試合を一覧と統計に出しません（「無効」ボタンを押したときは出ます）"><input type="checkbox" id="hideNogame">無効を隠す</label></div>
     <div id="games"></div>
     <details class="note" id="howto" style="border:1px solid #2f4f86;background:#18233a;border-radius:7px;padding:6px 9px;color:#cfd8ea">
       <summary style="cursor:pointer">🔄 試合が終わるたびに <b>open-viewer.cmd</b> をダブルクリック</summary>
@@ -249,7 +277,7 @@ table.st{overflow:visible}
       </ol>
     </div>
     <div id="detail" hidden>
-      <div class="titlebar"><div class="tt"><div class="crumb" id="crumb"></div><div class="tline"><h1 id="title"></h1><button class="edit" id="gameNameBtn" title="この試合に名前を付ける">✎ 名前</button></div></div><span style="display:flex;gap:6px"><button class="icon" id="shotBtn" title="試合結果を画像にする（X や Discord に貼れます）">📷</button><button class="icon" id="delBtn"></button><button class="icon" id="star" title=""></button></span></div>
+      <div class="titlebar"><div class="tt"><div class="crumb" id="crumb"></div><div class="tline"><h1 id="title"></h1><button class="edit" id="gameNameBtn" title="この試合に名前を付ける">✎ 名前</button><button class="edit" id="cutBtn" title="この試合から別の村にする（同じ夜に別の集まりで遊んだときなど）">✂ ここから別の村</button></div></div><span style="display:flex;gap:6px"><button class="icon" id="shotBtn" title="試合結果を画像にする（X や Discord に貼れます）">📷</button><button class="icon" id="delBtn"></button><button class="icon" id="star" title=""></button></span></div>
       <div id="shotMenu" hidden>
         <b>試合結果を画像にする</b>
         <label title="名前を P1・P2… に置き換えます（マップの上の名前も）"><input type="checkbox" id="shotHide">名前を隠す</label>
@@ -258,6 +286,7 @@ table.st{overflow:visible}
         <span class="small">マップは、いま表示している場面（再生位置）が写ります。</span>
       </div>
       <div class="result" id="result"></div>
+      <div class="hl" id="hl"></div>
       <div class="cards">
         <div class="card"><div class="k">日時</div><div class="v" id="cStart"></div></div>
         <div class="card"><div class="k">試合時間</div><div class="v" id="cDur"></div></div>
@@ -301,21 +330,23 @@ table.st{overflow:visible}
           <tr><td><kbd>Space</kbd></td><td>再生／一時停止</td><td><kbd>←</kbd><kbd>→</kbd></td><td>3秒戻る／進む</td></tr>
           <tr><td><kbd>Q</kbd><kbd>E</kbd></td><td>前のキル／次のキル</td><td>再生バーの印</td><td>押すとそのキルの少し前へ</td></tr>
           <tr><td>ホイール</td><td>マップを拡大・縮小</td><td>ドラッグ</td><td>マップを動かす（⤢ で元に戻す）</td></tr>
+          <tr><td><kbd>↑</kbd><kbd>↓</kbd></td><td>一覧の前／次の試合へ</td><td></td><td></td></tr>
           <tr><td>キャラをクリック</td><td>その人のルートを表示</td><td>プレイヤー表の「ターン○ ○:○○」</td><td>その人が死んだ場面へ</td></tr>
         </table>
       </div>
       </div>
       <div id="below"></div>
       </div>
-      <div class="phead"><h3>プレイヤー</h3><label title="会議ごとに誰に投票したかを表示します"><input type="checkbox" id="oVotes" checked>投票先を表示</label></div>
+      <div class="phead"><h3>プレイヤー</h3><span style="display:flex;gap:14px;align-items:center"><label title="選ぶと、左の一覧の各試合に自分の役職と勝ち負けが出ます（統計画面の「自分」と同じ）">自分 <select class="sel2" id="pMe"></select></label><label title="会議ごとに誰に投票したかを表示します"><input type="checkbox" id="oVotes" checked>投票先を表示</label></span></div>
       <table id="ptable"><thead><tr><th>名前</th><th>役職</th><th>タスク</th><th style="text-align:right">キル</th><th>状態</th><th class="vcol">投票（数字は何回目の会議か）</th><th></th></tr></thead><tbody id="players"></tbody></table>
     </div>
     <div id="stats" hidden>
-      <div class="titlebar"><h1>統計</h1><span><label class="small" title="選ぶと、左の一覧の各試合に自分の役職と勝ち負けが出ます">自分 <select class="sel2" id="sMe"></select></label><button class="chip" id="cfgExport" title="まとめた名前・★マーク・視界の広さ・村や試合の名前・自分の名前・消した試合をファイルに保存します">⤓ 設定を書き出す</button> <button class="chip" id="cfgImport" title="書き出したファイルから、まとめた名前・★マーク・視界の広さ・村や試合の名前・自分の名前・消した試合を読み込みます">⤒ 設定を読み込む</button> <select id="sVil" title="集計する村"></select> <select id="sMap"></select> <button class="icon" id="statsClose" title="試合に戻る">✕</button></span></div>
+      <div class="titlebar"><h1>統計</h1><span><label class="small" title="選ぶと、左の一覧の各試合に自分の役職と勝ち負けが出ます">自分 <select class="sel2" id="sMe"></select></label><button class="chip" id="cfgExport" title="まとめた名前・★マーク・視界の広さ・村や試合の名前・自分の名前・消した試合・村の分け方をファイルに保存します">⤓ 設定を書き出す</button> <button class="chip" id="cfgImport" title="書き出したファイルから、まとめた名前・★マーク・視界の広さ・村や試合の名前・自分の名前・消した試合・村の分け方を読み込みます">⤒ 設定を読み込む</button> <select id="sVil" title="集計する村"></select> <select id="sMap"></select> <button class="icon" id="statsClose" title="試合に戻る">✕</button></span></div>
       <input type="file" id="cfgFile" accept=".json,application/json" hidden>
       <div class="small" id="sScope" style="margin:-8px 0 12px"></div>
       <div class="cards" id="sCards"></div>
-      <h3>プレイヤー</h3>
+      <div class="phead"><h3>プレイヤー</h3><button class="chip" id="colBtn" title="プレイヤー表に出す項目を選びます"></button></div>
+      <div id="colPick" class="colpick" hidden></div>
       <div class="small" style="margin:-4px 0 6px">行をクリックすると、下の「役職」がその人の成績になります。見出しをクリックで並べ替え。勝率は無効試合を除いて計算します。</div>
       <div id="mergeBar" class="small" style="margin:0 0 6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;min-height:26px"></div>
       <div class="tw"><table class="st" id="sPlayers"></table></div>
@@ -469,6 +500,14 @@ async function buildFloors(){
   const byMap = {};
   for(const g of games) (byMap[g.rec.mapId] ||= []).push(g);
   for(const [mapId, list] of Object.entries(byMap)){
+    // マップ画像があるマップは、おおまかな形を作らない（試合が多いと、ここがいちばん時間がかかる）。ベントの位置だけ集める
+    const imgKeys = Object.keys(floors).filter(k => k.startsWith(mapId + '-') && floors[k].image);
+    if(imgKeys.length){
+      const vm = new Map();
+      for(const g of list) for(const ob of g.rec.mapObjects||[]) if(ob.kindId === 'vent') vm.set(ob.x.toFixed(1)+','+ob.y.toFixed(1), ob);
+      for(const k of imgKeys) floors[k].vents = [...vm.values()];
+      continue;
+    }
     let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
     for(const g of list) for(const s of g.segs) for(const t of s.tracks.values()){ const p=t.points, st=t.states||[]; for(let i=0;i<p.length/2;i++){ if(st[i]&1) continue; const x=p[2*i], y=p[2*i+1]; if(x<minX)minX=x; if(x>maxX)maxX=x; if(y<minY)minY=y; if(y>maxY)maxY=y; } }
     if(!isFinite(minX)) continue;
@@ -531,18 +570,34 @@ function buildVillages(){
   villages = [];
   let v = null;
   for(const g of games.slice().sort((a,b) => a.started - b.started)){
-    if(!v || g.started - v.last.ended > VILLAGE_GAP){ v = { id: g.id, games: [], start: g.started, shown: 0 }; villages.push(v); }
+    // 手で分けた試合（cuts）からは新しい村、手でまとめた試合（joins）は時間があいていても前の村のまま
+    const gap = v && g.started - v.last.ended > VILLAGE_GAP;
+    if(!v || villageEdits.cuts.has(g.id) || (gap && !villageEdits.joins.has(g.id))){ v = { id: g.id, games: [], start: g.started, shown: 0 }; villages.push(v); }
     v.games.push(g); v.last = g; g.village = v;
     g.no = isHidden(g) ? null : ++v.shown;
   }
   villages.reverse(); // 新しい村が上
 }
+// ---- 村を手で分ける・まとめる（このブラウザに保存。設定の書き出しにも入る）----
+const VEDIT_KEY = 'nos-viewer-village-edits';
+let villageEdits = { cuts: new Set(), joins: new Set() };
+try { const d = JSON.parse(localStorage.getItem(VEDIT_KEY) || '{}') || {}; villageEdits = { cuts: new Set(d.cuts || []), joins: new Set(d.joins || []) }; } catch(_) {}
+const saveVillageEdits = () => { noteChange(); try { localStorage.setItem(VEDIT_KEY, JSON.stringify({ cuts: [...villageEdits.cuts], joins: [...villageEdits.joins] })); } catch(_) { toast('保存できませんでした（このページを閉じると元に戻ります）'); } };
+function editVillages(fn, msg){
+  const prev = { cuts: new Set(villageEdits.cuts), joins: new Set(villageEdits.joins) };
+  fn(); saveVillageEdits(); buildVillages(); renderList(); if(cur){ renderTitle(); }
+  toastUndo(msg, () => { villageEdits = prev; saveVillageEdits(); buildVillages(); renderList(); if(cur) renderTitle(); });
+}
+// 村 v を、ひとつ前（古いほう）の村にまとめる
+function joinPrevVillage(v){ const g = v.games[0]; editVillages(() => { villageEdits.cuts.delete(g.id); villageEdits.joins.add(g.id); }, `${villageLabel(v)}を前の村にまとめました`); }
+// 試合 g から別の村にする
+function cutVillageAt(g){ editVillages(() => { villageEdits.joins.delete(g.id); villageEdits.cuts.add(g.id); }, `${noLabel(g)}（${hm(g.started)}）から別の村にしました`); }
 // ---- 消した試合（このビューアの中だけ。ゲームの記録や backup は消さない。このブラウザに保存）----
 const HIDE_KEY = 'nos-viewer-hidden';
 let hiddenIds = new Set();
 try { hiddenIds = new Set(JSON.parse(localStorage.getItem(HIDE_KEY) || '[]')); } catch(_) {}
 const isHidden = g => hiddenIds.has(g.id);
-const saveHidden = () => { try { localStorage.setItem(HIDE_KEY, JSON.stringify([...hiddenIds])); } catch(_) { toast('保存できませんでした（このページを閉じると元に戻ります）'); } };
+const saveHidden = () => { noteChange(); try { localStorage.setItem(HIDE_KEY, JSON.stringify([...hiddenIds])); } catch(_) { toast('保存できませんでした（このページを閉じると元に戻ります）'); } };
 const noLabel = g => g.no ? `第${g.no}試合` : '消した試合';
 // list の試合を消す（on=false で戻す）。元に戻すボタン付きのお知らせを出す
 function setHidden(list, on, what){
@@ -566,7 +621,7 @@ function renderDelBtn(){
 const NAMES_KEY = 'nos-viewer-names';
 let names = { villages: {}, games: {} };
 try { const d = JSON.parse(localStorage.getItem(NAMES_KEY) || '{}') || {}; names = { villages: d.villages || {}, games: d.games || {} }; } catch(_) {}
-function saveNames(){ try { localStorage.setItem(NAMES_KEY, JSON.stringify(names)); return true; } catch(_) { toast('名前を保存できませんでした（このページを閉じると元に戻ります）'); return false; } }
+function saveNames(){ noteChange(); try { localStorage.setItem(NAMES_KEY, JSON.stringify(names)); return true; } catch(_) { toast('名前を保存できませんでした（このページを閉じると元に戻ります）'); return false; } }
 const md = d => `${d.getMonth()+1}/${d.getDate()}`;
 const hm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 const villageName = v => names.villages[v.id] || '';
@@ -596,7 +651,7 @@ const saveFold = () => { try { localStorage.setItem(FOLD_KEY, JSON.stringify([..
 // ---- 自分の名前：選ぶと一覧に自分の役職と勝ち負けが出る ----
 const ME_KEY = 'nos-viewer-me';
 let me = ''; try { me = localStorage.getItem(ME_KEY) || ''; } catch(_) {}
-function setMe(n){ me = n; try { if(n) localStorage.setItem(ME_KEY, n); else localStorage.removeItem(ME_KEY); } catch(_) {} renderList(); }
+function setMe(n){ me = n; noteChange(); try { if(n) localStorage.setItem(ME_KEY, n); else localStorage.removeItem(ME_KEY); } catch(_) {} renderList(); }
 // 一覧に役職と勝ち負けを出す人：試合の画面でプレイヤーを選んでいればその人、いなければ「自分」
 // 選んだ人は、別の試合に移っても（同じ名前の人がいれば）選んだままにする
 let pickedName = null;
@@ -612,13 +667,64 @@ function focusName(){
 }
 const meIn = (g, f) => f ? [...g.players.values()].find(p => canon(p.name) === f.name) : null;
 
-function listed(f = filter){ // 左の一覧に出ている試合（絞り込み後）
-  const q = $('#q').value.trim().toLowerCase();
-  return games.filter(g => f === 'trash' ? isHidden(g) : !isHidden(g) && (f !== 'marked' || isMarked(g))).filter(g => !q ||
-      // 村や試合の名前・勝敗（「無効試合」など）・マップ名でも探せる
-      (villageName(g.village) + ' ' + gameName(g) + ' ' + resText(g) + ' ' + (MAPS[g.rec.mapId] ?? '')).toLowerCase().includes(q) ||
-      [...g.players.values()].some(p => (p.name + ' ' + canon(p.name) + ' ' + plain(p.roleText) + ' ' + p.roleId).toLowerCase().includes(q)));
+// ---- 役職で絞り込み：role＝役職 ID か「team:imp」などの陣営、who＝誰でも／自分／選んだ人 ----
+const roleF = { role: '', who: 'any' };
+function roleMatch(g){
+  if(!roleF.role) return true;
+  const ok = p => roleF.role.startsWith('team:') ? teamOf(g, p) === roleF.role.slice(5) : p.roleId === roleF.role;
+  if(roleF.who === 'any') return [...g.players.values()].some(ok);
+  const name = roleF.who === 'me' ? me : pickedName;
+  if(!name) return true; // 自分／選んだ人が決まっていないときは絞り込まない
+  const p = [...g.players.values()].find(p => canon(p.name) === name);
+  return !!p && ok(p);
 }
+function renderRoleFilter(){
+  // 記録に出てきた役職を、陣営（インポスター側 → クルー側）・名前の順に並べる
+  const roles = new Map();
+  for(const g of games) for(const p of g.players.values()) if(!roles.has(p.roleId)) roles.set(p.roleId, { p, g });
+  const list = [...roles.values()].sort((a, b) => isRed(b.p) - isRed(a.p) || roleLabel(a.p).localeCompare(roleLabel(b.p)));
+  const rs = $('#rfRole');
+  rs.innerHTML = '<option value="">役職：すべて</option>' +
+    '<optgroup label="陣営"><option value="team:imp">インポスター陣営</option><option value="team:crew">クルー陣営</option>' +
+    (games.some(g => [...g.players.values()].some(p => teamOf(g, p) === 'other')) ? '<option value="team:other">第三陣営</option>' : '') + '</optgroup>' +
+    '<optgroup label="役職">' + list.map(({ p }) => `<option value="${esc(p.roleId)}">${esc(roleLabel(p))}</option>`).join('') + '</optgroup>';
+  rs.value = roleF.role;
+  const ws = $('#rfWho');
+  ws.innerHTML = `<option value="any">誰でも</option>` +
+    `<option value="me"${me ? '' : ' disabled'}>自分${me ? `（${esc(me)}）` : '（統計で選ぶと使えます）'}</option>` +
+    `<option value="picked"${pickedName ? '' : ' disabled'}>選んだ人${pickedName ? `（${esc(pickedName)}）` : '（試合でキャラを選ぶと使えます）'}</option>`;
+  if((roleF.who === 'me' && !me) || (roleF.who === 'picked' && !pickedName)) roleF.who = 'any';
+  ws.value = roleF.who;
+  rs.classList.toggle('on', !!roleF.role); ws.classList.toggle('on', !!roleF.role && roleF.who !== 'any');
+  $('#rfClear').hidden = !roleF.role;
+}
+$('#rfRole').onchange = e => { roleF.role = e.target.value; renderList(); };
+$('#rfWho').onchange = e => { roleF.who = e.target.value; renderList(); };
+$('#rfClear').onclick = () => { roleF.role = ''; roleF.who = 'any'; renderList(); };
+
+function listed(f = filter){ // 左の一覧に出ている試合（絞り込み後）
+  // スペースで区切った言葉を、全部含む試合だけ出す（例：「まんだ シェリフ」）
+  const words = $('#q').value.trim().toLowerCase().split(/[\s　]+/).filter(Boolean);
+  return games.filter(g => f === 'trash' ? isHidden(g) : !isHidden(g) && (f !== 'marked' || isMarked(g)))
+    .filter(g => resF ? g.cond === resF : !(hideNogame && g.cond === 'nogame' && f !== 'trash'))
+    .filter(roleMatch).filter(g => {
+      if(!words.length) return true;
+      // 村や試合の名前・勝敗（「無効試合」など）・マップ名・プレイヤーの名前と役職から探す
+      const hay = (villageName(g.village) + ' ' + gameName(g) + ' ' + resText(g) + ' ' + (MAPS[g.rec.mapId] ?? '') + ' ' +
+        [...g.players.values()].map(p => p.name + ' ' + canon(p.name) + ' ' + plain(p.roleText) + ' ' + p.roleId).join(' ')).toLowerCase();
+      return words.every(w => hay.includes(w));
+    });
+}
+// ---- 勝敗で絞り込み（ボタン）と、無効試合を隠す設定（このブラウザに保存）----
+let resF = '';
+const NOGAME_KEY = 'nos-viewer-hide-nogame';
+let hideNogame = false; try { hideNogame = localStorage.getItem(NOGAME_KEY) === '1'; } catch(_) {}
+function renderResFilter(){
+  document.querySelectorAll('#resChips [data-r]').forEach(b => b.classList.toggle('on', b.dataset.r === resF));
+  $('#hideNogame').checked = hideNogame;
+}
+document.querySelectorAll('#resChips [data-r]').forEach(b => b.onclick = () => { resF = resF === b.dataset.r ? '' : b.dataset.r; renderList(); });
+$('#hideNogame').onchange = e => { hideNogame = e.target.checked; try { localStorage.setItem(NOGAME_KEY, hideNogame ? '1' : '0'); } catch(_) {} renderList(); };
 function gameItem(g, f){
   const n = gameName(g), m = meIn(g, f);
   let mine = '';
@@ -633,6 +739,7 @@ function gameItem(g, f){
     `<div class="meta">${esc(MAPS[g.rec.mapId] ?? 'Map ' + g.rec.mapId)} · ${g.players.size}人 · ${fmtMin(durOf(g))}</div>` + mine + `</div>`;
 }
 function renderList(){
+  renderRoleFilter(); renderResFilter();
   if(statsOpen) renderStats();
   const show = new Set(listed()), q = $('#q').value.trim(), f = focusName();
   // 選んだ人の役職と勝ち負けを出しているときは、一覧の上に誰の分かを出す
@@ -646,12 +753,13 @@ function renderList(){
       `<span class="vn${vn ? '' : ' dflt'}">${esc(vn ? `${md(v.start)} ${vn}` : villageLabel(v))}</span>` +
       `<span class="vc">${filter === 'trash' ? list.length : (list.length === v.shown ? '' : list.length + '/') + v.shown}試合</span>` +
       `<button class="edit" data-ved="${esc(v.id)}" title="この村に名前を付ける">✎</button>` +
+      (filter !== 'trash' && villages.indexOf(v) < villages.length - 1 ? `<button class="edit" data-vjoin="${esc(v.id)}" title="ひとつ前（下）の村とまとめる（休憩が長くて分かれたときなど）">⤓</button>` : '') +
       (filter === 'trash' ? `<button class="edit" data-vdel="${esc(v.id)}" title="この村の消した試合を、すべて一覧に戻す">↩</button>`
         : `<button class="edit" data-vdel="${esc(v.id)}" title="この村を一覧から消す（ビューアの中だけ。ゲームの記録は消えません）">🗑</button>`) + `</div>`;
     if(!closed) html += list.slice().reverse().map(g => gameItem(g, f)).join('');
   }
   // 絞り込み中は、出ている試合をまとめて消せる（例：「無効試合」で絞り込んで全部消す）
-  if(q && show.size && filter !== 'trash') html = `<div style="padding:0 2px 8px"><button class="chip" id="delShown" title="いま一覧に出ている試合を、まとめて一覧から消します（ビューアの中だけ。「消した試合」から戻せます）">🗑 絞り込んだ ${show.size} 試合をまとめて消す</button></div>` + html;
+  if((q || resF || roleF.role) && show.size && filter !== 'trash') html = `<div style="padding:0 2px 8px"><button class="chip" id="delShown" title="いま一覧に出ている試合を、まとめて一覧から消します（ビューアの中だけ。「消した試合」から戻せます）">🗑 絞り込んだ ${show.size} 試合をまとめて消す</button></div>` + html;
   if(filter === 'trash') html = `<div class="small" style="padding:2px 4px 8px">一覧から消した試合です。試合を選んで右上の ↩、または村の ↩ で一覧に戻せます。</div>` + html;
   $('#games').innerHTML = html || (filter === 'trash' ? '<div class="dim" style="padding:8px">消した試合はありません</div>' : '<div class="dim" style="padding:8px">該当なし</div>');
   // 「消した試合」のボタンは、消した試合があるときだけ出す
@@ -660,6 +768,8 @@ function renderList(){
 }
 $('#games').addEventListener('click', e => {
   if(e.target.closest('#delShown')){ const list = listed(); setHidden(list, true, `絞り込んだ ${list.length} 試合`); return; }
+  const vj = e.target.closest('[data-vjoin]');
+  if(vj){ e.stopPropagation(); joinPrevVillage(villages.find(x => x.id === vj.dataset.vjoin)); return; }
   const del = e.target.closest('[data-vdel]');
   if(del){
     e.stopPropagation();
@@ -693,7 +803,7 @@ $('#games').addEventListener('click', e => {
   const el = e.target.closest('.g'); if(el) select(games.find(x => x.id === el.dataset.id));
 });
 $('#q').addEventListener('input', renderList);
-document.querySelectorAll('#side .chip').forEach(b => b.onclick = () => { filter = b.dataset.f; document.querySelectorAll('#side .chip').forEach(x => x.classList.toggle('on', x === b)); renderList(); });
+document.querySelectorAll('#side .chip[data-f]').forEach(b => b.onclick = () => { filter = b.dataset.f; document.querySelectorAll('#side .chip[data-f]').forEach(x => x.classList.toggle('on', x === b)); renderList(); });
 $('#reload').onclick = () => location.reload();
 
 // ---- マーク：★を押すとビューアの中で付け外しできる（このブラウザに保存。ゲームのマークは変わらない）----
@@ -712,7 +822,7 @@ $('#star').onclick = () => {
   if(!cur) return;
   const next = !isMarked(cur);
   if(next === cur.marked) delete markOverrides[cur.id]; else markOverrides[cur.id] = next;
-  try { localStorage.setItem(MARK_KEY, JSON.stringify(markOverrides)); } catch(_) { toast('マークを保存できませんでした（このページを閉じると元に戻ります）'); }
+  noteChange(); try { localStorage.setItem(MARK_KEY, JSON.stringify(markOverrides)); } catch(_) { toast('マークを保存できませんでした（このページを閉じると元に戻ります）'); }
   renderStar(); renderList();
 };
 
@@ -759,8 +869,10 @@ function renderTitle(){
   const h = $('#title');
   h.textContent = n || noLabel(g); h.classList.toggle('dflt', !n);
   $('#gameNameBtn').textContent = n ? '✎' : '✎ 名前';
+  $('#cutBtn').hidden = !v || v.games[0] === g; // 村の最初の試合では分けられない
 }
-$('#delBtn').onclick = () => { if(cur) setHidden([cur], !isHidden(cur), isHidden(cur) ? 'この試合' : `${noLabel(cur)}（${hm(cur.started)}）`); };
+$('#cutBtn').onclick = () => { if(cur) cutVillageAt(cur); };
+$('#delBtn').onclick =() => { if(cur) setHidden([cur], !isHidden(cur), isHidden(cur) ? 'この試合' : `${noLabel(cur)}（${hm(cur.started)}）`); };
 $('#gameNameBtn').onclick =() => { if(cur) editInline($('#title'), gameName(cur), '例：シェリフ大活躍の回', n => setGameName(cur, n)); };
 
 // ---- 試合結果の帯 ----
@@ -804,7 +916,45 @@ function winReason(g, nm = p => p ? p.name : '?'){
   }
   return esc(REASON[g.reason] || g.reason || '');
 }
+// ---- 試合のハイライト：試合の流れを数項目で。時刻のボタンを押すとその場面へ ----
+function renderHighlights(){
+  const g = cur, items = [], jumps = [];
+  const when = t => { const w = whereAt(g, t); if(!w) return ''; jumps.push(w); return `<button class="when" data-hj="${jumps.length - 1}" title="その場面へ移動">${esc(w.label)}</button>`; };
+  const kills = g.events.filter(e => e.detailTranslationKey === 'statistics.events.kill' && e.sourceId != null);
+  // 最初のキル
+  const fk = kills[0];
+  if(fk) items.push(`<span class="hi"><span class="hk">最初のキル</span>${pchip(fk.sourceId)} → ${(fk.targetIds || []).map(pchip).join('・')}${when(fk.time)}</span>`);
+  // いちばんキルした人
+  const kc = new Map();
+  for(const e of kills) kc.set(e.sourceId, (kc.get(e.sourceId) || 0) + ((e.targetIds || []).length || 1));
+  const top = [...kc.entries()].sort((a, b) => b[1] - a[1])[0];
+  if(top && top[1] >= 2) items.push(`<span class="hi"><span class="hk">いちばんキル</span>${pchip(top[0])} ${top[1]}キル</span>`);
+  // 会議で追放された人（陣営つき）
+  const ex = g.events.filter(e => e.detailTranslationKey === 'statistics.events.exiled');
+  if(ex.length) items.push(`<span class="hi"><span class="hk">追放</span>${ex.map(e => (e.targetIds || []).map(id => {
+    const p = g.players.get(id), t = p ? teamOf(g, p) : '';
+    return `${pchip(id)}<span class="small">（${t === 'imp' ? '<span style="color:#ff8b8b">インポスター陣営</span>' : t === 'other' ? '第三陣営' : 'クルー陣営'}）</span>`;
+  }).join('・')).join(' → ')}</span>`);
+  // シェリフの成果
+  for(const p of g.players.values()){
+    if(p.roleId !== 'sheriff') continue;
+    const shots = g.events.filter(e => e.sourceId === p.playerId && (e.detailTranslationKey === 'statistics.events.kill' || e.detailTranslationKey === 'statistics.events.misfire'));
+    const txt = shots.length ? shots.map(e => {
+      const tg = (e.targetIds || []).map(pchip).join('・');
+      const hit = e.detailTranslationKey === 'statistics.events.kill' && (e.targetIds || []).every(t => { const q = g.players.get(t); return q && teamOf(g, q) === 'imp'; });
+      return `${hit ? '<span style="color:#8fe3a8">的中</span>' : '<span style="color:#ff9a9a">誤射</span>'} ${tg}${when(e.time)}`;
+    }).join('　') : '<span class="dim">撃たなかった</span>';
+    items.push(`<span class="hi"><span class="hk">シェリフ</span>${pchip(p.playerId)}：${txt}</span>`);
+  }
+  // 最後まで生き残った人数
+  const alive = [...g.players.values()].filter(p => p.stateTranslationKey === 'state.alive').length;
+  items.push(`<span class="hi"><span class="hk">生き残り</span>${alive}人 / ${g.players.size}人</span>`);
+  const el = $('#hl');
+  el.innerHTML = g.cond === 'nogame' && !kills.length ? '' : items.join('');
+  el.querySelectorAll('[data-hj]').forEach(b => b.onclick = () => jumps[+b.dataset.hj].go());
+}
 function renderResult(){
+  renderHighlights();
   const g = cur, el = $('#result');
   el.className = 'result ' + (resCls(g) || 'none');
   // 勝った人を、勝ち方（陣営・役職）ごとに分ける
@@ -858,6 +1008,12 @@ function votesCell(g, p){
 }
 function renderPlayers(){
   const g = cur;
+  // 「自分」の選択欄：この試合にいる人から選べる（いまの「自分」がこの試合にいなくても、そのまま残す）
+  const here = [...new Set([...g.players.values()].map(p => canon(p.name)))];
+  const pm = $('#pMe');
+  pm.innerHTML = `<option value="">（選ばない）</option>` + (me && !here.includes(me) ? `<option value="${esc(me)}">${esc(me)}</option>` : '') +
+    here.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  pm.value = me;
   const kills = new Map();
   for(const e of g.events) if(e.detailTranslationKey === 'statistics.events.kill' && e.sourceId != null) kills.set(e.sourceId, (kills.get(e.sourceId) || 0) + ((e.targetIds || []).length || 1));
   const teamOrder = p => isRed(p) ? 0 : 1;
@@ -927,9 +1083,10 @@ const ALIAS_KEY = 'nos-viewer-aliases';
 let aliases = {};
 try { aliases = JSON.parse(localStorage.getItem(ALIAS_KEY) || '{}') || {}; } catch(_) { aliases = {}; }
 const canon = n => Object.prototype.hasOwnProperty.call(aliases, n) ? aliases[n] : n;
-function saveAliases(){ try { localStorage.setItem(ALIAS_KEY, JSON.stringify(aliases)); return true; } catch(_) { return false; } }
+function saveAliases(){ noteChange(); try { localStorage.setItem(ALIAS_KEY, JSON.stringify(aliases)); return true; } catch(_) { return false; } }
 const mergeSel = new Set();
-function mergeNames(keys, target, force){
+// msg：終わったときのお知らせ（名前を変えたときは「○○を△△に変えました」にする）
+function mergeNames(keys, target, force, msg){
   const set = new Set(keys);
   // 同じ試合に両方の名前がいるなら別人のはず。ダイアログは出せない環境があるので、ページ内で確認する
   const clash = games.filter(g => new Set([...g.players.values()].map(p => canon(p.name)).filter(n => set.has(n))).size > 1).length;
@@ -937,18 +1094,28 @@ function mergeNames(keys, target, force){
     const bar = $('#mergeBar');
     bar.innerHTML = `<span style="color:#ffb35c">⚠ この名前どうしが同じ試合に同時にいたことがあります（${clash} 試合）。別の人の可能性があります。</span> ` +
       `<button class="chip" id="mgForce">それでもまとめる</button> <button class="chip" id="mgBack">やめる</button>`;
-    $('#mgForce').onclick = () => mergeNames(keys, target, true);
+    $('#mgForce').onclick = () => mergeNames(keys, target, true, msg);
     $('#mgBack').onclick = () => renderStats();
     return;
   }
-  lastMerge = { prev: { ...aliases }, target };
+  lastMerge = { prev: { ...aliases }, target, msg };
   for(const [a, c] of Object.entries(aliases)) if(set.has(c)) aliases[a] = target;
   for(const k of keys) if(k !== target) aliases[k] = target;
   delete aliases[target];
   const saved = saveAliases(); mergeSel.clear();
   if(statsWho && set.has(statsWho)) statsWho = target;
-  renderStats(); renderList();
-  toast(`${keys.length} つの名前を「${target}」にまとめました` + (saved ? '' : '（このブラウザでは保存できないため、ページを閉じると元に戻ります）'));
+  // 自分・選んだ人の名前も、新しい名前に付け替える
+  if(me && set.has(me)) setMe(target);
+  if(pickedName && set.has(pickedName)) pickedName = target;
+  renderStats(); renderList(); if(cur && !statsOpen) renderPlayers();
+  toast((msg || `${keys.length} つの名前を「${target}」にまとめました`) + (saved ? '' : '（このブラウザでは保存できないため、ページを閉じると元に戻ります）'));
+}
+// 名前を変える（まとめなくても1人だけ変えられる）。すでにいる別の人の名前にしたときは、その人とまとめる
+function renameName(old, name){
+  name = name.trim().slice(0, 40);
+  if(!name || name === old) { renderStats(); return; }
+  const exists = games.some(g => [...g.players.values()].some(p => canon(p.name) === name));
+  mergeNames(exists ? [old, name] : [old], name, false, exists ? `「${old}」を「${name}」にまとめました` : `「${old}」を「${name}」に変えました`);
 }
 let lastMerge = null; // 直前のまとめ（元に戻す用）
 function splitName(target){
@@ -968,17 +1135,21 @@ function resetAllAliases(){
 }
 // ---- 設定の書き出し・読み込み（まとめた名前と★マーク。別のブラウザや PC に引き継ぐ用）----
 function exportSettings(){
-  const data = { app: 'nos-record-viewer', kind: 'settings', version: 1, exportedAt: new Date().toISOString(), aliases, marks: markOverrides, vision: visionMul, names, me, hidden: [...hiddenIds] };
+  const data = { app: 'nos-record-viewer', kind: 'settings', version: 1, exportedAt: new Date().toISOString(), aliases, marks: markOverrides, vision: visionMul, names, me, hidden: [...hiddenIds], villageEdits: { cuts: [...villageEdits.cuts], joins: [...villageEdits.joins] } };
   const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
   const d = new Date(), a = document.createElement('a');
   a.href = url; a.download = `nos-viewer-settings_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}.json`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 5000);
-  try { localStorage.setItem(AUTO_KEY, data.exportedAt); } catch(_) {} // 自分で書き出した設定は、自動読み込みしなくてよい
+  try { localStorage.setItem(AUTO_KEY, data.exportedAt); localStorage.removeItem(PENDING_KEY); } catch(_) {} // 自分で書き出した設定は、自動読み込みしなくてよい。書き出し忘れのお知らせも消す
   toast(`設定を書き出しました（ダウンロードフォルダ）。次に open-viewer.cmd を実行すると backup フォルダにも保存され、別のブラウザで開いたときに自動で読み込まれます`);
   clearTimeout(toast.h); toast.h = setTimeout(() => $('#toast').style.display = 'none', 7000);
 }
 function importSettings(text, auto){
+  noteChange.off = true; // 読み込んだ設定は、書き出し忘れのお知らせの対象にしない
+  try { importSettingsBody(text, auto); } finally { noteChange.off = false; }
+}
+function importSettingsBody(text, auto){
   let d;
   try { d = JSON.parse(text.replace(/^﻿/, '')); } catch(_) { d = null; }
   if(!d || d.app !== 'nos-record-viewer' || d.kind !== 'settings'){ toast('このファイルはビューアの設定ファイルではありません'); return; }
@@ -1001,7 +1172,14 @@ function importSettings(text, auto){
   }
   if(typeof d.me === 'string' && d.me && !me) setMe(d.me);
   let nH = 0;
-  if(Array.isArray(d.hidden)){ for(const id of d.hidden) if(typeof id === 'string' && !hiddenIds.has(id)){ hiddenIds.add(id); nH++; } saveHidden(); buildVillages(); }
+  if(Array.isArray(d.hidden)){ for(const id of d.hidden) if(typeof id === 'string' && !hiddenIds.has(id)){ hiddenIds.add(id); nH++; } saveHidden(); }
+  if(isMap(d.villageEdits)){
+    for(const k of ['cuts', 'joins']) if(Array.isArray(d.villageEdits[k])) for(const id of d.villageEdits[k]) if(typeof id === 'string'){
+      villageEdits[k].add(id); villageEdits[k === 'cuts' ? 'joins' : 'cuts'].delete(id);
+    }
+    saveVillageEdits();
+  }
+  buildVillages();
   saveAliases();
   try { localStorage.setItem(MARK_KEY, JSON.stringify(markOverrides)); } catch(_) {}
   lastMerge = null; mergeSel.clear();
@@ -1020,6 +1198,22 @@ function autoLoadSettings(){
   if(done === String(s.exportedAt)) return;
   importSettings(JSON.stringify(s), true);
 }
+// ---- 設定の書き出し忘れのお知らせ：まだ書き出していない変更が3日以上前からあると、左上でおすすめする ----
+const PENDING_KEY = 'nos-viewer-unexported';
+const REMIND_AFTER = 3 * 86400000;
+function noteChange(){ // 名前・★・まとめなどを変えたときに呼ぶ（書き出すまで、最初に変えた時刻を覚えておく）
+  if(noteChange.off) return;
+  try { if(!localStorage.getItem(PENDING_KEY)) localStorage.setItem(PENDING_KEY, JSON.stringify({ since: Date.now() })); } catch(_) {}
+}
+function checkBackupReminder(){
+  let p = null; try { p = JSON.parse(localStorage.getItem(PENDING_KEY) || 'null'); } catch(_) {}
+  const el = $('#bak');
+  if(!p || Date.now() - p.since < REMIND_AFTER || (p.snooze && Date.now() < p.snooze)){ el.hidden = true; return; }
+  el.innerHTML = `<span>💾 名前や★などの変更を、まだ書き出していません。書き出しておくと、ブラウザのデータを消しても元に戻せます。<br><a href="#" id="bakDo">設定を書き出す</a></span><button class="edit" id="bakX" title="3日後にもう一度お知らせします">✕</button>`;
+  el.hidden = false;
+  $('#bakDo').onclick = e => { e.preventDefault(); exportSettings(); el.hidden = true; };
+  $('#bakX').onclick = () => { p.snooze = Date.now() + REMIND_AFTER; try { localStorage.setItem(PENDING_KEY, JSON.stringify(p)); } catch(_) {} el.hidden = true; };
+}
 $('#cfgExport').onclick = exportSettings;
 $('#cfgImport').onclick = () => $('#cfgFile').click();
 $('#cfgFile').onchange = async e => { const f = e.target.files[0]; e.target.value = ''; if(f) importSettings(await f.text()); };
@@ -1030,7 +1224,7 @@ function renderMergeBar(S){
   const groups = new Set(Object.values(aliases)).size;
   if(keys.length < 2){
     if(keys.length) bar.innerHTML = '<span class="dim">もう1人以上チェックすると、1人にまとめられます。</span> <button class="chip" id="mgCancel">選択を解除</button>';
-    else if(lastMerge) bar.innerHTML = `<span>${lastMerge.target ? `「${esc(lastMerge.target)}」にまとめました。` : 'まとめた名前をすべて元に戻しました。'}</span> <button class="chip on" id="mgUndo">↶ 元に戻す</button>`;
+    else if(lastMerge) bar.innerHTML = `<span>${lastMerge.msg ? esc(lastMerge.msg) + '。' : lastMerge.target ? `「${esc(lastMerge.target)}」にまとめました。` : 'まとめた名前をすべて元に戻しました。'}</span> <button class="chip on" id="mgUndo">↶ 元に戻す</button>`;
     else bar.innerHTML = '<span class="dim">名前を変えた人は、左のチェックで2行以上選ぶと1人にまとめられます。</span>' +
       (groups ? ` <span class="dim">（いま ${groups} 人分まとめています）</span> <button class="chip" id="mgReset">まとめをすべて元に戻す</button>` : '');
     const u = $('#mgUndo'); if(u) u.onclick = undoMerge;
@@ -1071,7 +1265,8 @@ function computeStats(list){
       team.set(p.playerId, t);
       const key = canon(p.name);
       let s = P.get(key);
-      if(!s) P.set(key, s = { name: key, names: new Set(), n: 0, w: 0, crew: rec(), imp: rec(), other: rec(), sheriff: rec(), kills: 0, deaths: 0, first: 0, alive: 0, exiled: 0, exiledCrew: 0, exiledImp: 0, vHit: 0, vTot: 0, roles: new Map() });
+      if(!s) P.set(key, s = { name: key, names: new Set(), n: 0, w: 0, crew: rec(), imp: rec(), other: rec(), sheriff: rec(), kills: 0, deaths: 0, first: 0, alive: 0, exiled: 0, exiledCrew: 0, exiledImp: 0, vHit: 0, vTot: 0, roles: new Map(),
+        shHit: 0, shMiss: 0, report: 0, emergency: 0, emergency1: 0, votes: 0, skips: 0 });
       s.names.add(p.name);
       s.color = p.color; byId.set(p.playerId, s);
       s.n++; if(win) s.w++;
@@ -1103,8 +1298,26 @@ function computeStats(list){
       firstKill = false;
     }
     for(const v of g.rec.voteResults || []) for(const x of v.votes || []){
+      // 会議の統計：投票した回数とスキップの回数（未投票は数えない）
+      if(byId.has(x.voterId) && x.votedForId !== 254){ const s = byId.get(x.voterId); s.votes++; if(x.votedForId === 253) s.skips++; }
       if(x.votedForId >= 253 || team.get(x.voterId) !== 'crew' || !byId.has(x.voterId)) continue;
       const s = byId.get(x.voterId); s.vTot++; if(team.get(x.votedForId) === 'imp') s.vHit++;
+    }
+    for(const e of g.events){
+      const s = e.sourceId != null && byId.get(e.sourceId); if(!s) continue;
+      const k = e.detailTranslationKey;
+      // 通報・緊急会議を開いた回数
+      if(k === 'statistics.events.report') s.report++;
+      else if(k === 'statistics.events.emergency'){
+        s.emergency++;
+        // ターン1（最初の会議の前）で緊急ボタンを押した＝その試合の最初の会議が、この人の緊急会議
+        if(g.meetings[0] && g.meetings[0].start === e) s.emergency1++;
+      }
+      // シェリフの成績：インポスター陣営を撃てた回数と、誤射した回数
+      else if(g.players.get(e.sourceId).roleId === 'sheriff'){
+        if(k === 'statistics.events.kill') for(const t of e.targetIds || []){ if(team.get(t) === 'imp') s.shHit++; else s.shMiss++; }
+        else if(k === 'statistics.events.misfire') s.shMiss++;
+      }
     }
   }
   return { ov, P: [...P.values()], R: [...R.values()], M: [...M.values()] };
@@ -1172,33 +1385,50 @@ function renderStats(){
     ['インポスター勝利', valid ? `${ov.imp}（${Math.round(ov.imp/valid*100)}%）` : '-'],
     ['無効試合', `${ov.nogame}`],
     ['平均試合時間', ov.n ? fmtSec(ov.dur / ov.n) : '-'],
-    ['いちばん勝った人', (() => { // 勝ち数が多い順。並んだら勝率の高いほう
-      const top = S.P.filter(p => p.w).sort((a, b) => b.w - a.w || b.w / b.n - a.w / a.n)[0];
-      return top ? `${swatch(top.color)}${esc(top.name)}<span class="small">（${top.w}勝）</span>` : '-';
+    ['いちばん勝った人', (() => { // 勝ち数がいちばん多い人。同じ勝ち数の人が何人もいれば全員出す（多いときは3人まで＋ほか○人）
+      const max = Math.max(0, ...S.P.map(p => p.w));
+      if(!max) return '-';
+      const tops = S.P.filter(p => p.w === max).sort((a, b) => a.name.localeCompare(b.name));
+      const nw = h => `<span style="white-space:nowrap">${h}</span>`;
+      const shown = tops.slice(0, 3).map(p => nw(`${swatch(p.color)}${esc(p.name)}`)).join(' ');
+      return `<span title="${esc(tops.map(p => p.name).join('、'))}（${max}勝）">${shown}${tops.length > 3 ? ` <span class="small">${nw(`ほか${tops.length - 3}人`)}</span>` : ''} <span class="small">${nw(`（${max}勝${tops.length > 1 ? `・${tops.length}人` : ''}）`)}</span></span>`;
     })()],
   ].map(([k, v]) => `<div class="card"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
 
   if(statsWho && !S.P.some(p => p.name === statsWho)) statsWho = null;
   for(const k of [...mergeSel]) if(!S.P.some(p => p.name === k)) mergeSel.delete(k);
-  sortTable('sPlayers', [
+  const pCols = [
     { k: 'sel', label: '', v: r => mergeSel.has(r.name) ? 1 : 0, h: r => `<input type="checkbox" class="mg" data-n="${esc(r.name)}" title="まとめる名前として選ぶ"${mergeSel.has(r.name) ? ' checked' : ''}>` },
-    { k: 'name', label: '名前', v: r => r.name, h: r => swatch(r.color) + esc(r.name) +
+    { k: 'name', label: '名前', v: r => r.name, h: r => swatch(r.color) + `<span class="pn">${esc(r.name)}</span> <button class="edit" data-ren="${esc(r.name)}" title="名前を変える（統計や一覧での表示名。ゲームの記録は変わりません）">✎</button>` +
       (r.names.size > 1 || [...r.names][0] !== r.name ? `<div class="small">別名：${[...r.names].filter(n => n !== r.name).map(esc).join('、') || '-'} <button class="lnk" data-split="${esc(r.name)}" title="まとめを解除して、元の名前ごとに分ける">↶ 元に戻す</button></div>` : '') },
     { k: 'n', label: '試合', num: 1, v: r => r.n, h: r => r.n },
     { k: 'w', label: '勝率', v: r => rateVal(r.w, r.n), h: r => rate(r.w, r.n) },
-    { k: 'crew', label: 'クルー陣営', v: r => rateVal(r.crew.w, r.crew.n), h: r => rate(r.crew.w, r.crew.n, 'crew') },
-    { k: 'imp', label: 'インポスター陣営', v: r => rateVal(r.imp.w, r.imp.n), h: r => rate(r.imp.w, r.imp.n, 'imp') },
-    { k: 'sheriff', label: 'シェリフ', v: r => rateVal(r.sheriff.w, r.sheriff.n), h: r => rate(r.sheriff.w, r.sheriff.n, 'sheriff') },
+    { k: 'crew', label: 'クルー陣営勝率', tip: 'クルー陣営だったときの勝率', v: r => rateVal(r.crew.w, r.crew.n), h: r => rate(r.crew.w, r.crew.n, 'crew') },
+    { k: 'imp', label: 'インポスター陣営勝率', tip: 'インポスター陣営だったときの勝率', v: r => rateVal(r.imp.w, r.imp.n), h: r => rate(r.imp.w, r.imp.n, 'imp') },
+    { k: 'sheriff', label: 'シェリフ勝率', tip: 'シェリフだったときの勝率', v: r => rateVal(r.sheriff.w, r.sheriff.n), h: r => rate(r.sheriff.w, r.sheriff.n, 'sheriff') },
+    { k: 'shot', label: 'シェリフ的中率', tip: 'シェリフのとき、インポスター陣営を撃てた割合（撃てた回数／撃った回数。誤射も含む）', v: r => rateVal(r.shHit, r.shHit + r.shMiss), h: r => rate(r.shHit, r.shHit + r.shMiss, 'sheriff') },
     { k: 'kills', label: 'キル', num: 1, v: r => r.kills, h: r => r.kills },
     { k: 'deaths', label: 'キルされた', num: 1, v: r => r.deaths, h: r => r.deaths },
     { k: 'first', label: '最初にキルされた', v: r => rateVal(r.first, r.n), h: r => rate(r.first, r.n, 'first') },
     { k: 'alive', label: '最後まで生存', v: r => rateVal(r.alive, r.n), h: r => rate(r.alive, r.n) },
     { k: 'exC', label: 'クルーで被追放', v: r => rateVal(r.exiledCrew, r.crew.n), h: r => rate(r.exiledCrew, r.crew.n, 'crew') },
     { k: 'exI', label: 'インポスターで被追放', v: r => rateVal(r.exiledImp, r.imp.n), h: r => rate(r.exiledImp, r.imp.n, 'imp') },
-    { k: 'vote', label: '投票的中', v: r => rateVal(r.vHit, r.vTot), h: r => rate(r.vHit, r.vTot) },
-  ], S.P, { sel: r => r.name === statsWho, click: r => { statsWho = statsWho === r.name ? null : r.name; renderStats(); } });
+    { k: 'vote', label: '投票的中率', tip: 'クルー陣営のとき、インポスター陣営に投票した割合', v: r => rateVal(r.vHit, r.vTot), h: r => rate(r.vHit, r.vTot) },
+    { k: 'report', label: '通報', tip: '死体を見つけて通報した回数', num: 1, v: r => r.report, h: r => r.report || '<span class="dim">-</span>' },
+    { k: 'emergency', label: '緊急会議', tip: '緊急ボタンで会議を開いた回数', num: 1, v: r => r.emergency, h: r => r.emergency || '<span class="dim">-</span>' },
+    { k: 'emergency1', label: 'ターン1の緊急会議', tip: 'ターン1（最初の会議の前）で緊急ボタンを押した回数', num: 1, v: r => r.emergency1, h: r => r.emergency1 || '<span class="dim">-</span>' },
+    { k: 'skip', label: 'スキップ率', tip: '会議で投票したうち、スキップした割合（未投票は数えない）', v: r => rateVal(r.skips, r.votes), h: r => rate(r.skips, r.votes, 'exile') },
+  ];
+  renderColPick(pCols);
+  sortTable('sPlayers', pCols.filter(c => !hiddenCols.has(c.k)), S.P, { sel: r => r.name === statsWho, click: r => { statsWho = statsWho === r.name ? null : r.name; renderStats(); } });
   $('#sPlayers').querySelectorAll('.mg').forEach(cb => cb.onchange = () => { lastMerge = null; if(cb.checked) mergeSel.add(cb.dataset.n); else mergeSel.delete(cb.dataset.n); renderMergeBar(S); });
   $('#sPlayers').querySelectorAll('[data-split]').forEach(b => b.onclick = () => splitName(b.dataset.split));
+  $('#sPlayers').querySelectorAll('[data-ren]').forEach(b => b.onclick = e => {
+    e.stopPropagation();
+    const old = b.dataset.ren, host = b.parentElement.querySelector('.pn');
+    b.hidden = true;
+    editInline(host, old, '新しい名前', n => renameName(old, n));
+  });
   renderMergeBar(S);
 
   const who = statsWho && S.P.find(p => p.name === statsWho);
@@ -1254,6 +1484,25 @@ function renderStats(){
   // ---- キルが起きた場所 ----
   renderHeatCtl(list, fp ? fp.name : null, scope ? sv.options[sv.selectedIndex].text.replace(/（[^（）]*試合）$/, '') : '');
 }
+
+// ---- 統計のプレイヤー表で、表示する列を選ぶ（このブラウザに保存）。チェック欄・名前・試合数はいつも出す ----
+const COLS_KEY = 'nos-viewer-stat-cols-hidden';
+const FIXED_COLS = new Set(['sel', 'name', 'n']);
+let hiddenCols = new Set();
+try { hiddenCols = new Set(JSON.parse(localStorage.getItem(COLS_KEY) || '[]')); } catch(_) {}
+function renderColPick(cols){
+  const box = $('#colPick');
+  const pick = cols.filter(c => !FIXED_COLS.has(c.k));
+  $('#colBtn').textContent = `☰ 表示する列（${pick.filter(c => !hiddenCols.has(c.k)).length}/${pick.length}）`;
+  if(box.hidden) return;
+  box.innerHTML = pick.map(c => `<label title="${esc(c.tip || '')}"><input type="checkbox" data-col="${c.k}"${hiddenCols.has(c.k) ? '' : ' checked'}>${esc(c.label)}</label>`).join('') +
+    `<span class="cpa"><button class="lnk" id="colAll">すべて表示</button><button class="lnk" id="colWin">勝率だけ</button></span>`;
+  const save = () => { try { localStorage.setItem(COLS_KEY, JSON.stringify([...hiddenCols])); } catch(_) {} renderStats(); };
+  box.querySelectorAll('[data-col]').forEach(cb => cb.onchange = () => { if(cb.checked) hiddenCols.delete(cb.dataset.col); else hiddenCols.add(cb.dataset.col); save(); });
+  $('#colAll').onclick = () => { hiddenCols.clear(); save(); };
+  $('#colWin').onclick = () => { hiddenCols = new Set(pick.map(c => c.k).filter(k => !['w', 'crew', 'imp', 'sheriff'].includes(k))); save(); };
+}
+$('#colBtn').onclick = () => { const b = $('#colPick'); b.hidden = !b.hidden; $('#colBtn').classList.toggle('on', !b.hidden); renderStats(); };
 
 // 相手ごとの集計（無効試合は除く）
 function computeRivals(list, name){
@@ -1409,6 +1658,7 @@ $('#statsBtn').onclick = () => openStats(!statsOpen);
 $('#statsClose').onclick = () => openStats(false);
 $('#sMap').onchange = renderStats;
 $('#sVil').onchange = renderStats;
+$('#pMe').onchange = e => { setMe(e.target.value); toast(e.target.value ? `「${e.target.value}」を自分にしました。左の一覧に役職と勝ち負けが出ます` : '自分の名前の設定を外しました'); };
 $('#sMe').onchange = e => { setMe(e.target.value); toast(e.target.value ? `「${e.target.value}」を自分にしました。左の一覧に役職と勝ち負けが出ます` : '自分の名前の設定を外しました'); };
 
 // ================= 再生 =================
@@ -1512,7 +1762,15 @@ $('#helpBtn').onclick =() => { const h = $('#help'); h.hidden = !h.hidden; $('#h
 $('#prevKill').onclick = () => jumpKill(-1);
 $('#nextKill').onclick = () => jumpKill(1);
 addEventListener('keydown', e => {
-  if(!cur || statsOpen || e.target.tagName === 'INPUT' && e.target.type !== 'range') return;
+  if(!cur || statsOpen || e.target.tagName === 'INPUT' && e.target.type !== 'range' || e.target.tagName === 'SELECT') return;
+  // ↑↓：一覧の前後の試合へ（一覧に出ている順。たたんだ村は飛ばす）
+  if(e.key === 'ArrowUp' || e.key === 'ArrowDown'){
+    const items = [...document.querySelectorAll('#games .g')];
+    const i = items.findIndex(el => el.dataset.id === cur.id);
+    const next = items[i < 0 ? 0 : i + (e.key === 'ArrowDown' ? 1 : -1)];
+    if(next){ e.preventDefault(); select(games.find(g => g.id === next.dataset.id)); next.scrollIntoView({ block: 'nearest' }); }
+    return;
+  }
   if(e.key === 'q' || e.key === 'Q'){ jumpKill(-1); return; }
   if(e.key === 'e' || e.key === 'E'){ jumpKill(1); return; }
   if(e.code === 'Space'){ e.preventDefault(); $('#play').click(); }
@@ -1633,7 +1891,7 @@ function renderVisionCfg(){
     VISION_STEPS.map(v => `<option value="${v}"${v === visionOf(p) ? ' selected' : ''}>×${v}</option>`).join('') + `</select></div>`).join('') +
     '<div class="note">ゲームの設定は記録に残らないので、遊んだときの設定に合わせてください。<button class="lnk" id="visionReset">初期値に戻す</button></div>';
   box.querySelectorAll('select').forEach(s => s.onchange = () => {
-    visionMul[s.dataset.role] = +s.value;
+    visionMul[s.dataset.role] = +s.value; noteChange();
     try { localStorage.setItem(VISION_KEY, JSON.stringify(visionMul)); } catch(_) {}
     draw();
   });
@@ -1846,7 +2104,7 @@ $('#shotCopy').onclick = async () => {
 
 // ================= 新しいバージョンのお知らせ =================
 // 開いたときに GitHub で最新版の番号だけを確かめる（半日に1回。こちらから送るものはありません）
-const VERSION = '1.5';
+const VERSION = '1.6';
 const REPO = 'MandanoRyuseigun/nos-record-viewer';
 const UPD_KEY = 'nos-viewer-update';
 $('#ver').textContent = 'v' + VERSION;
@@ -1889,7 +2147,7 @@ addEventListener('dragleave', e => { if(e.target === $('#drop')) $('#drop').styl
 addEventListener('drop', e => { e.preventDefault(); $('#drop').style.display = 'none'; fromFiles([...e.dataTransfer.files]); });
 
 if(!window.DecompressionStream) $('#empty').textContent = 'このブラウザは gzip の展開に対応していません。Chrome / Edge / Firefox の最新版で開いてください。';
-loadRecords(window.__NOS_RECORDS__ || []).then(autoLoadSettings);
+loadRecords(window.__NOS_RECORDS__ || []).then(autoLoadSettings).then(checkBackupReminder);
 </script>
 </body>
 </html>
