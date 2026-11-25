@@ -244,15 +244,64 @@ table.st{overflow:visible}
 #shotMenu label{display:flex;align-items:center;gap:5px;cursor:pointer}
 #shotMenu input{accent-color:var(--acc)}
 #shotBtn.on{border-color:var(--acc);color:#cfe0ff;background:#1d2a47}
-#sCards{grid-template-columns:repeat(6,1fr)}
+/* ---- プレイヤーページ・村のページ（1.7）---- */
+#pvBtn.on{border-color:var(--acc);color:#cfe0ff;background:#1d2a47}
+.pg > .titlebar{gap:12px}
+.pg > .titlebar > span{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
+.pg .sub{font-size:12px;color:var(--sub);margin:-8px 0 12px}
+.pg .cards{max-width:1000px}
+.pg h3 .dim{font-weight:400}
+.back{background:none;border:1px solid var(--line2);border-radius:6px;color:#cfe0ff;cursor:pointer;font-size:12px;padding:2px 10px}
+.back:hover{border-color:var(--acc)}
+.pv{background:none;border:none;color:var(--sub);cursor:pointer;padding:0 3px;font-size:12px;border-radius:4px}
+.pv:hover{color:var(--text);background:#2a2e38}
+/* 相性・記録の小さなカード */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;max-width:1000px}
+.tile{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:9px 12px;min-width:0}
+.tile .k{font-size:11px;color:var(--sub);margin-bottom:3px}
+.tile .v{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .v .small{font-size:11px}
+/* 表彰（金賞・銀賞） */
+.awards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;max-width:1000px}
+.aw{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:8px 12px;min-width:0}
+.aw .md{flex:none;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px}
+.aw.gold{border-color:#6b5a1f;background:linear-gradient(90deg,#2c2612,var(--panel) 60%)}
+.aw.gold .md{background:radial-gradient(circle at 35% 30%,#fff1a8,#e2b93b 55%,#8a6a12);box-shadow:0 0 0 2px #5a4a14}
+.aw.silver .md{background:radial-gradient(circle at 35% 30%,#ffffff,#b9c0cc 55%,#6c7380);box-shadow:0 0 0 2px #464b56}
+.aw .an{font-weight:700;font-size:13.5px}
+.aw.gold .an{color:#ffe08a}
+.aw .ad{font-size:11px;color:var(--sub)}
+.aw .aw2{min-width:0;flex:1}
+.aw .who{font-size:12.5px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.aw.none{opacity:.45}
+.aw .val{font-size:11.5px;color:#c9cdd6;margin-left:4px}
+.medalh{display:flex;align-items:center;gap:8px}
+/* その夜の流れ（勝ち負け・陣営の並び）*/
+.flow{display:inline-flex;gap:2px;vertical-align:middle;flex-wrap:wrap}
+.flow i{display:inline-block;width:14px;height:14px;border-radius:3px;font-style:normal;font-size:10px;line-height:14px;text-align:center;color:#fff;font-weight:700}
+.flow i.c{background:#2f6fb0}.flow i.r{background:#b03a3a}.flow i.o{background:#7a5bb0}.flow i.n{background:#3a3f4c}
+.flow i.lose{opacity:.45}
+.tag{display:inline-block;border-radius:4px;padding:0 6px;font-size:11px;margin:0 3px 2px 0;white-space:nowrap}
+.tag.good{background:#1f3d2a;color:#8fe3a8}.tag.bad{background:#3a2226;color:#ff9a9a}.tag.red{background:#3d1d22;color:#ff8b8b}.tag.blue{background:#172d45;color:#8cc8ff}
+.vhl{display:flex;flex-direction:column;gap:5px;max-width:1000px;border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:9px 14px;font-size:12.5px}
+.vhl .hk{color:var(--sub);font-size:11.5px;display:inline-block;min-width:92px}
+.vh.on{background:#1c2233;border-radius:6px 6px 0 0}
+.shotmenu{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:8px 12px;margin:-4px 0 10px;font-size:12.5px;max-width:1000px}
+.shotmenu[hidden]{display:none}
+.shotmenu label{display:flex;align-items:center;gap:5px;cursor:pointer}
+.shotmenu input{accent-color:var(--acc)}
+#vvShotBtn.on,#pvShotBtn.on{border-color:var(--acc);color:#cfe0ff;background:#1d2a47}
+.vh .vn.lnkv{cursor:pointer}
+.vh .vn.lnkv:hover{text-decoration:underline}
+#sCards,#pvCards,#vvCards{grid-template-columns:repeat(6,1fr)}
 #sCards .card:last-child .v{white-space:normal;font-size:13.5px;line-height:1.6} /* いちばん勝った人は、何人もいると折り返す */
-@media (max-width:1000px){#app{grid-template-columns:1fr;height:auto}#side{max-height:40vh}.cards{grid-template-columns:repeat(2,1fr)}.stage{grid-template-columns:minmax(0,1fr);grid-template-areas:"map" "opts" "ctrl" "below";gap:10px 0}.opts{width:100%}#sCards{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:1000px){#app{grid-template-columns:1fr;height:auto}#side{max-height:40vh}.cards{grid-template-columns:repeat(2,1fr)}.stage{grid-template-columns:minmax(0,1fr);grid-template-areas:"map" "opts" "ctrl" "below";gap:10px 0}.opts{width:100%}#sCards,#pvCards,#vvCards{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
 <div id="app">
   <aside id="side">
-    <div class="hd"><h2>ゲームデータ <span class="small" style="font-weight:400" title="NoS 戦歴ビューアのバージョン" id="ver"></span></h2><span><button class="icon" id="statsBtn" title="統計（勝率など）">📊</button> <button class="icon" id="pick" title="フォルダを読み込む">📁</button> <button class="icon" id="reload" title="再読み込み（先に open-viewer.cmd を実行しておくと、最新の試合が入ります）">⟳</button></span></div>
+    <div class="hd"><h2>ゲームデータ <span class="small" style="font-weight:400" title="NoS 戦歴ビューアのバージョン" id="ver"></span></h2><span><button class="icon" id="statsBtn" title="統計（勝率など）">📊</button> <button class="icon" id="pvBtn" title="プレイヤーごとのページ">👤</button> <button class="icon" id="pick" title="フォルダを読み込む">📁</button> <button class="icon" id="reload" title="再読み込み（先に open-viewer.cmd を実行しておくと、最新の試合が入ります）">⟳</button></span></div>
     <div id="upd" hidden></div>
     <div id="bak" class="bak" hidden></div>
     <div class="chips"><button class="chip on" data-f="all">すべて</button><button class="chip" data-f="marked">マーク済み</button><button class="chip" data-f="trash" id="trashChip" hidden title="一覧から消した試合（ここから戻せます）"></button></div>
@@ -364,6 +413,52 @@ table.st{overflow:visible}
       <h3>キルが起きた場所</h3>
       <div class="heatbar"><select class="sel2" id="hMap"></select><select class="sel2" id="hMode"></select><span class="small" id="hNote"></span></div>
       <div class="mapbox" id="heatBox"><canvas id="heat"></canvas></div>
+    </div>
+    <!-- プレイヤーごとのページ -->
+    <div id="pview" class="pg" hidden>
+      <div class="titlebar"><div class="tt"><div class="crumb" id="pvCrumb">プレイヤー</div><div class="tline"><h1 id="pvTitle"></h1></div></div><span><button class="back" id="pvBack" hidden>← 統計に戻る</button><select class="sel2" id="pvWho" title="ほかの人のページへ"></select><select class="sel2" id="pvVil" title="集計する村（統計と同じ）"></select><button class="icon" id="pvShotBtn" title="このページを画像にする（X や Discord に貼れます）">📷</button><button class="icon" id="pvClose" title="試合に戻る">✕</button></span></div>
+      <div id="pvShotMenu" class="shotmenu" hidden></div>
+      <div class="sub" id="pvScope"></div>
+      <div class="cards" id="pvCards"></div>
+      <h3>受賞</h3>
+      <div class="small" style="margin:-4px 0 6px">選んでいる村ごとに表彰を出して、この人がもらった賞を数えています。</div>
+      <div id="pvAwards"></div>
+      <h3>記録</h3>
+      <div class="tiles" id="pvRecords"></div>
+      <h3>役職ごとの成績</h3>
+      <div class="tw"><table class="st" id="pvRoles"></table></div>
+      <h3 id="pvTrendTitle">勝率の推移</h3>
+      <div class="small" id="pvTrendNote" style="margin:-4px 0 6px"></div>
+      <div class="chartbox" id="pvTrend"></div>
+      <h3>相性</h3>
+      <div class="tiles" id="pvPairs"></div>
+      <div style="height:8px"></div>
+      <div class="tw"><table class="st" id="pvRivals"></table></div>
+      <h3>会議とシェリフ</h3>
+      <div class="tiles" id="pvMeet"></div>
+      <h3>キルの場所</h3>
+      <div class="heatbar"><select class="sel2" id="pvhMap"></select><select class="sel2" id="pvhMode"><option value="victim">キルされた場所</option><option value="killer">キルした場所</option></select><span class="small" id="pvhNote"></span></div>
+      <div class="mapbox" id="pvHeatBox"><canvas id="pvHeat"></canvas></div>
+      <h3>最近の試合</h3>
+      <div class="small" style="margin:-4px 0 6px">押すと、その試合を開きます。</div>
+      <div class="tw"><table class="st" id="pvGames"></table></div>
+    </div>
+    <!-- 村のページ（その夜の記録） -->
+    <div id="vview" class="pg" hidden>
+      <div class="titlebar"><div class="tt"><div class="crumb">村の記録</div><div class="tline"><h1 id="vvTitle"></h1><button class="edit" id="vvName" title="この村に名前を付ける">✎</button></div></div><span><button class="chip" id="vvPrev" title="ひとつ前（古い）の村">◀ 前の村</button><button class="chip" id="vvNext" title="ひとつ後（新しい）の村">次の村 ▶</button><button class="icon" id="vvShotBtn" title="表彰を画像にする（X や Discord に貼れます）">📷</button><button class="icon" id="vvClose" title="試合に戻る">✕</button></span></div>
+      <div id="vvShotMenu" class="shotmenu" hidden></div>
+      <div class="sub" id="vvSub"></div>
+      <div class="cards" id="vvCards"></div>
+      <h3>表彰</h3>
+      <div id="vvAwards"></div>
+      <h3>ハイライト</h3>
+      <div class="vhl" id="vvHl"></div>
+      <h3>参加者 <span class="dim">— その夜の流れ</span></h3>
+      <div class="small" style="margin:-4px 0 6px">四角は試合の順に、陣営（<span style="color:#5fb2ff">青＝クルー陣営</span>・<span style="color:#ff6b6b">赤＝インポスター陣営</span>・紫＝第三陣営）と勝ち負け（○＝勝ち、うすい●＝負け）を表します。名前を押すとプレイヤーページへ。</div>
+      <div class="tw"><table class="st" id="vvPlayers"></table></div>
+      <h3>試合の履歴</h3>
+      <div class="small" style="margin:-4px 0 6px">押すと、その試合を開きます。</div>
+      <div class="tw"><table class="st" id="vvGames"></table></div>
     </div>
   </main>
 </div>
@@ -732,7 +827,7 @@ function gameItem(g, f){
     const wl = g.cond === 'nogame' ? '<span class="wl none">無効</span>' : g.winners.has(m.playerId) ? '<span class="wl win">勝ち</span>' : '<span class="wl lose">負け</span>';
     mine = `<div class="me">${wl}<span>${rich(m.roleText) || esc(m.roleId)}</span></div>`;
   }
-  return `<div class="g${g===cur && !statsOpen?' sel':''}" data-id="${esc(g.id)}">` +
+  return `<div class="g${g===cur && !statsOpen && !pageOpen?' sel':''}" data-id="${esc(g.id)}">` +
     `<div class="dt"><span>${noLabel(g)}　${hm(g.started)}</span><span>${isMarked(g)?'★':''}</span></div>` +
     (n ? `<div class="gn" title="${esc(n)}">${esc(n)}</div>` : '') +
     `<div class="rs ${resCls(g)}">${esc(resText(g))}</div>` +
@@ -744,13 +839,15 @@ function renderList(){
   const show = new Set(listed()), q = $('#q').value.trim(), f = focusName();
   // 選んだ人の役職と勝ち負けを出しているときは、一覧の上に誰の分かを出す
   let html = f && f.picked ? `<div class="small" style="padding:2px 4px 6px;display:flex;align-items:center;gap:6px"><span style="flex:1">役職・勝ち負け：<b style="color:var(--text)">${esc(f.name)}</b></span><button class="edit" id="unpick" title="選ぶのをやめる${me ? `（「${esc(me)}」の表示に戻ります）` : ''}">✕ 解除</button></div>` : '';
+  if(pageOpen === 'player') renderPlayerPage();
+  else if(pageOpen === 'village') renderVillagePage();
   for(const v of villages){
     const list = v.games.filter(g => show.has(g));
     if(!list.length) continue;
     const closed = !q && filter !== 'trash' && folded.has(v.id);
     const vn = villageName(v);
-    html += `<div class="vh${closed ? ' closed' : ''}" data-v="${esc(v.id)}" title="押すと、たたむ／開く"><span class="tw2">▼</span>` +
-      `<span class="vn${vn ? '' : ' dflt'}">${esc(vn ? `${md(v.start)} ${vn}` : villageLabel(v))}</span>` +
+    html += `<div class="vh${closed ? ' closed' : ''}${pageOpen === 'village' && vvCur === v.id ? ' on' : ''}" data-v="${esc(v.id)}" title="押すと、たたむ／開く"><span class="tw2">▼</span>` +
+      `${filter === 'trash' ? `<span class="vn${vn ? '' : ' dflt'}">` : `<span class="vn lnkv${vn ? '' : ' dflt'}" data-vopen="${esc(v.id)}" title="この村の記録（参加者・表彰・ハイライト）を開く">`}${esc(vn ? `${md(v.start)} ${vn}` : villageLabel(v))}</span>` +
       `<span class="vc">${filter === 'trash' ? list.length : (list.length === v.shown ? '' : list.length + '/') + v.shown}試合</span>` +
       `<button class="edit" data-ved="${esc(v.id)}" title="この村に名前を付ける">✎</button>` +
       (filter !== 'trash' && villages.indexOf(v) < villages.length - 1 ? `<button class="edit" data-vjoin="${esc(v.id)}" title="ひとつ前（下）の村とまとめる（休憩が長くて分かれたときなど）">⤓</button>` : '') +
@@ -798,6 +895,8 @@ $('#games').addEventListener('click', e => {
   }
   if(e.target.closest('.nameIn')) return;
   if(e.target.closest('#unpick')){ pickPlayer(null); return; }
+  const vo = e.target.closest('[data-vopen]');
+  if(vo){ openVillage(villages.find(x => x.id === vo.dataset.vopen)); return; }
   const vh = e.target.closest('.vh');
   if(vh){ const id = vh.dataset.v; if(folded.has(id)) folded.delete(id); else folded.add(id); saveFold(); renderList(); return; }
   const el = e.target.closest('.g'); if(el) select(games.find(x => x.id === el.dataset.id));
@@ -836,6 +935,7 @@ function select(g){
   cur = g; stop();
   const keep = pickedName && [...g.players.values()].find(p => canon(p.name) === pickedName);
   selPlayer = keep ? keep.playerId : null;
+  closePages();
   statsOpen = false; $('#stats').hidden = true; $('#statsBtn').classList.remove('on');
   $('#detail').hidden = false;
   renderTitle();
@@ -1078,6 +1178,8 @@ function renderBelow(){
 // ================= 統計 =================
 // 左の一覧に出ている試合（すべて／マーク済み・検索）から集計する。同じ名前は同じ人として数える。
 let statsOpen = false, statsWho = null;
+let pageOpen = null; // 'player'（プレイヤーページ）／'village'（村のページ）／null
+let vvCur = null, pvName = null, pvFromStats = false; // 開いている村の ID・人の名前、統計から開いたか
 // ---- 名前をまとめる：名前を変えた人を1人として数える（このブラウザに保存）----
 const ALIAS_KEY = 'nos-viewer-aliases';
 let aliases = {};
@@ -1328,8 +1430,9 @@ function rate(w, n, cls){
   const r = w / n;
   return `<span class="rate ${cls||''}"><i><b style="width:${Math.round(r*100)}%"></b></i>${Math.round(r*100)}%<span class="small">（${w}/${n}）</span></span>`;
 }
-function sortTable(id, cols, rows, onRow){
-  const st = sortState[id], col = cols.find(c => c.k === st.k) || cols[0];
+// re：見出しを押して並べ替えたときに描き直す関数（統計以外の画面でも使う）
+function sortTable(id, cols, rows, onRow, re = renderStats){
+  const st = sortState[id] || (sortState[id] = { k: cols.some(c => c.k === 'n') ? 'n' : cols[0].k, d: -1 }), col = cols.find(c => c.k === st.k) || cols[0];
   rows = rows.slice().sort((a, b) => { const x = col.v(a), y = col.v(b); return (x < y ? -1 : x > y ? 1 : 0) * st.d || String(a.name).localeCompare(String(b.name)); });
   const el = $('#' + id);
   // 横にスクロールしても名前の列（とチェック欄）が左に残るように固定する
@@ -1338,7 +1441,7 @@ function sortTable(id, cols, rows, onRow){
     { cls: ' stk' + (i === nStick - 1 ? ' stk-last' : '') + (cols[i].k === 'sel' ? ' stk-sel' : ''), css: ` style="left:${i === 0 ? 0 : 34}px"` };
   el.innerHTML = `<thead><tr>${cols.map((c, i) => `<th data-k="${c.k}" class="${c.k===st.k?'on':''}${stk(i).cls}"${stk(i).css}${c.tip ? ` title="${esc(c.tip)}"` : ''}>${c.label}${c.k===st.k?(st.d<0?' ▼':' ▲'):''}</th>`).join('')}</tr></thead>` +
     `<tbody>${rows.map((r, i) => `<tr data-i="${i}"${onRow && onRow.sel(r) ? ' class="sel"' : ''}>${cols.map((c, j) => `<td class="${c.num?'num':''}${stk(j).cls}"${stk(j).css}>${c.h(r)}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="${cols.length}" class="dim">データなし</td></tr>`}</tbody>`;
-  el.querySelectorAll('th').forEach(th => th.onclick = () => { const k = th.dataset.k; if(st.k === k) st.d *= -1; else { st.k = k; st.d = -1; } renderStats(); });
+  el.querySelectorAll('th').forEach(th => th.onclick = () => { const k = th.dataset.k; if(st.k === k) st.d *= -1; else { st.k = k; st.d = -1; } re(); });
   if(onRow) el.querySelectorAll('tbody tr[data-i]').forEach(tr => tr.onclick = e => { if(e.target.closest('input,button,label')) return; onRow.click(rows[+tr.dataset.i]); });
 }
 function swatch(c){ c = c || pcol(null); return `<span class="sw" style="background:${cssColor(c.main)};border-color:${cssColor(c.shadow)}"></span>`; }
@@ -1399,7 +1502,7 @@ function renderStats(){
   for(const k of [...mergeSel]) if(!S.P.some(p => p.name === k)) mergeSel.delete(k);
   const pCols = [
     { k: 'sel', label: '', v: r => mergeSel.has(r.name) ? 1 : 0, h: r => `<input type="checkbox" class="mg" data-n="${esc(r.name)}" title="まとめる名前として選ぶ"${mergeSel.has(r.name) ? ' checked' : ''}>` },
-    { k: 'name', label: '名前', v: r => r.name, h: r => swatch(r.color) + `<span class="pn">${esc(r.name)}</span> <button class="edit" data-ren="${esc(r.name)}" title="名前を変える（統計や一覧での表示名。ゲームの記録は変わりません）">✎</button>` +
+    { k: 'name', label: '名前', v: r => r.name, h: r => swatch(r.color) + `<span class="pn">${esc(r.name)}</span> <button class="pv" data-pv="${esc(r.name)}" title="この人のページを開く">👤</button><button class="edit" data-ren="${esc(r.name)}" title="名前を変える（統計や一覧での表示名。ゲームの記録は変わりません）">✎</button>` +
       (r.names.size > 1 || [...r.names][0] !== r.name ? `<div class="small">別名：${[...r.names].filter(n => n !== r.name).map(esc).join('、') || '-'} <button class="lnk" data-split="${esc(r.name)}" title="まとめを解除して、元の名前ごとに分ける">↶ 元に戻す</button></div>` : '') },
     { k: 'n', label: '試合', num: 1, v: r => r.n, h: r => r.n },
     { k: 'w', label: '勝率', v: r => rateVal(r.w, r.n), h: r => rate(r.w, r.n) },
@@ -1423,6 +1526,7 @@ function renderStats(){
   sortTable('sPlayers', pCols.filter(c => !hiddenCols.has(c.k)), S.P, { sel: r => r.name === statsWho, click: r => { statsWho = statsWho === r.name ? null : r.name; renderStats(); } });
   $('#sPlayers').querySelectorAll('.mg').forEach(cb => cb.onchange = () => { lastMerge = null; if(cb.checked) mergeSel.add(cb.dataset.n); else mergeSel.delete(cb.dataset.n); renderMergeBar(S); });
   $('#sPlayers').querySelectorAll('[data-split]').forEach(b => b.onclick = () => splitName(b.dataset.split));
+  $('#sPlayers').querySelectorAll('[data-pv]').forEach(b => b.onclick = e => { e.stopPropagation(); openPlayer(b.dataset.pv, true); });
   $('#sPlayers').querySelectorAll('[data-ren]').forEach(b => b.onclick = e => {
     e.stopPropagation();
     const old = b.dataset.ren, host = b.parentElement.querySelector('.pn');
@@ -1537,7 +1641,8 @@ function computeRivals(list, name){
 
 // 村ごとの推移のグラフ（SVG）。選んだ人がいればその人の勝率、いなければクルーメイト勝率
 // mark：目立たせる村の ID、scopeLabel：村を絞っているときの名前（全部の村なら空）
-function renderTrend(list, name, color, mark, scopeLabel){
+// ids：描く場所（プレイヤーページでも使う）
+function renderTrend(list, name, color, mark, scopeLabel, ids = { title: '#sTrendTitle', note: '#sTrendNote', box: '#sTrend' }){
   const set = new Set(list);
   // 古い順。消した村など、集計に入る試合がひとつもない村は並べない
   const vs = villages.slice().reverse().filter(v => v.games.some(g => set.has(g)));
@@ -1552,12 +1657,12 @@ function renderTrend(list, name, color, mark, scopeLabel){
     return { v, n, w, r: n ? w / n : null };
   });
   const col = name ? (cssColor(color && color.main) || '#4d86ff') : '#5fb2ff';
-  $('#sTrendTitle').innerHTML = name ? `村ごとの推移 <span class="dim">— ${swatch(color)}${esc(name)} の勝率</span>` : '村ごとの推移 <span class="dim">— クルーメイト勝率</span>';
-  $('#sTrendNote').textContent = (name ? 'その村での勝率です（無効試合を除く）。' : 'その村でクルーメイトが勝った割合です（無効試合を除く）。人を選ぶと、その人の勝率になります。') +
+  $(ids.title).innerHTML = name ? `村ごとの推移 <span class="dim">— ${swatch(color)}${esc(name)} の勝率</span>` : '村ごとの推移 <span class="dim">— クルーメイト勝率</span>';
+  $(ids.note).textContent = (name ? 'その村での勝率です（無効試合を除く）。' : 'その村でクルーメイトが勝った割合です（無効試合を除く）。人を選ぶと、その人の勝率になります。') +
     (scopeLabel ? `右上で選んだ「${scopeLabel}」だけを古い順に並べます。` : mark ? 'すべての村を古い順に並べ、右上で選んだ村を大きい点で示します。' : 'すべての村を古い順に並べます。') +
     '点にマウスを乗せると詳しい数が出ます。';
   const used = pts.filter(p => p.n);
-  if(!used.length){ $('#sTrend').innerHTML = '<div class="dim" style="padding:8px">データなし</div>'; return; }
+  if(!used.length){ $(ids.box).innerHTML = '<div class="dim" style="padding:8px">データなし</div>'; return; }
   const W = 1000, H = 256, L = 44, R = 16, T = 26, B = 62;
   const x = i => pts.length === 1 ? (L + W - R) / 2 : L + i * (W - L - R) / (pts.length - 1);
   const y = r => T + (1 - r) * (H - T - B);
@@ -1584,7 +1689,7 @@ function renderTrend(list, name, color, mark, scopeLabel){
       `<text x="${x(i)}" y="${y(p.r)-10}" fill="#e9ebf0" font-size="11" text-anchor="middle">${Math.round(p.r*100)}%</text></g>`;
   });
   s += `<text x="${(L+W-R)/2}" y="${H-6}" fill="#6f7584" font-size="10.5" text-anchor="middle">点の上の数字＝その村の勝率</text></svg>`;
-  $('#sTrend').innerHTML = s;
+  $(ids.box).innerHTML = s;
 }
 
 // ---- キルが起きた場所（濃いほどキルが多い）----
@@ -1607,14 +1712,19 @@ $('#hMap').onchange = drawHeat;
 $('#hMode').onchange = drawHeat;
 new ResizeObserver(() => { if(statsOpen) drawHeat(); }).observe($('#heat'));
 function drawHeat(){
-  const hc = $('#heat'), x = hc.getContext('2d'), d = devicePixelRatio || 1;
+  if(!heatData || $('#hMap').value === ''){ drawHeatOn($('#heat'), [], 0, 'all', null); $('#hNote').textContent = 'データなし'; return; }
+  const r = drawHeatOn($('#heat'), heatData.list, +$('#hMap').value, $('#hMode').value, heatData.name);
+  $('#hNote').textContent = typeof r === 'string' ? r : `${heatData.scopeLabel ? `「${heatData.scopeLabel}」の ` : ''}${r.games} 試合・キル ${r.spots} 件。赤く濃い場所ほど、キルがよく起きています（白い点が1件ずつの場所）。`;
+}
+// キルの場所を hc に描く。mode：all＝すべて／victim＝name がキルされた場所／killer＝name がキルした場所
+function drawHeatOn(hc, list, mapId, mode, name){
+  const x = hc.getContext('2d'), d = devicePixelRatio || 1;
   const r = hc.getBoundingClientRect(); hc.width = Math.max(1, Math.round(r.width * d)); hc.height = Math.max(1, Math.round(r.height * d));
   x.clearRect(0, 0, hc.width, hc.height);
-  if(!heatData || $('#hMap').value === ''){ $('#hNote').textContent = 'データなし'; return; }
-  const mapId = +$('#hMap').value, mode = $('#hMode').value, name = heatData.name;
-  const gs = heatData.list.filter(g => g.rec.mapId === mapId);
-  const f = gs.length && floorOf(gs[0]);
-  if(!f){ $('#hNote').textContent = 'このマップの形がわかりません'; return; }
+  const gs = list.filter(g => g.rec.mapId === mapId);
+  if(!gs.length) return 'データなし';
+  const f = floorOf(gs[0]);
+  if(!f) return 'このマップの形がわかりません';
   const s = Math.min(hc.width / f.w, hc.height / f.h) * 0.97;
   const ox = (hc.width - f.w * s) / 2 - f.minX * s, oy = (hc.height - f.h * s) / 2 + f.maxY * s;
   const X = v => ox + v * s, Y = v => oy - v * s;
@@ -1644,9 +1754,10 @@ function drawHeat(){
   x.drawImage(layer, 0, 0);
   x.fillStyle = '#fff';
   for(const p of spots){ x.beginPath(); x.arc(X(p.x), Y(p.y), 1.8 * d, 0, 7); x.fill(); }
-  $('#hNote').textContent = `${heatData.scopeLabel ? `「${heatData.scopeLabel}」の ` : ''}${gs.length} 試合・キル ${spots.length} 件。赤く濃い場所ほど、キルがよく起きています（白い点が1件ずつの場所）。`;
+  return { games: gs.length, spots: spots.length };
 }
 function openStats(on){
+  closePages();
   statsOpen = on; stop();
   $('#stats').hidden = !on; $('#detail').hidden = on || !cur; $('#statsBtn').classList.toggle('on', on);
   if(on){ $('#empty').hidden = true; renderStats(); $('#main').scrollTop = 0; }
@@ -1660,6 +1771,762 @@ $('#sMap').onchange = renderStats;
 $('#sVil').onchange = renderStats;
 $('#pMe').onchange = e => { setMe(e.target.value); toast(e.target.value ? `「${e.target.value}」を自分にしました。左の一覧に役職と勝ち負けが出ます` : '自分の名前の設定を外しました'); };
 $('#sMe').onchange = e => { setMe(e.target.value); toast(e.target.value ? `「${e.target.value}」を自分にしました。左の一覧に役職と勝ち負けが出ます` : '自分の名前の設定を外しました'); };
+
+// ================= 1試合ぶんの細かい数（表彰・プレイヤーページ・村のページで使う）=================
+// 試合ごとに1回だけ計算して覚えておく。名前は「まとめ」で変わるので、ここでは覚えない（集計するときに canon で決める）
+function gameFacts(g){
+  if(g.facts) return g.facts;
+  const F = new Map(), ev = g.events;
+  const ofKey = k => ev.find(e => e.detailTranslationKey === k);
+  const t0 = (ofKey('statistics.events.startGame') || ev[0] || { time: 0 }).time;
+  const tEnd = (ofKey('statistics.events.endGame') || ev[ev.length - 1] || { time: t0 }).time;
+  for(const p of g.players.values()){
+    const m = plain(p.taskText).match(/\((\d+)\/(\d+)\)/), d = deathEvent(g, p.playerId);
+    F.set(p.playerId, { p, team: teamOf(g, p), win: g.winners.has(p.playerId), alive: p.stateTranslationKey === 'state.alive',
+      kills: 0, turnKill: 0, vents: 0, dist: 0, taskDone: m ? +m[1] : 0, taskAll: m ? +m[2] : 0,
+      deathAt: d ? d.time : null, ghost: d ? Math.max(0, tEnd - d.time) : 0, rta: null, first: false,
+      embroiled: p.stateTranslationKey === 'state.embroiled', exiled: false, redhand: 0,
+      report: 0, emergency: 0, emergency1: 0, votes: 0, skips: 0, voted: 0, vHit: 0, vTot: 0, shHit: 0, shMiss: 0 });
+  }
+  // ターン（会議と会議の間）の番号
+  const segOf = t => g.segs.findIndex(s => t >= s.absStart - 0.5 && t <= s.absEnd + 1.5);
+  const perTurn = new Map();
+  let firstDone = false;
+  for(const e of ev){
+    const k = e.detailTranslationKey, src = e.sourceId != null ? F.get(e.sourceId) : null;
+    const sheriff = src && src.p.roleId === 'sheriff';
+    if(k === 'statistics.events.kill'){
+      const n = (e.targetIds || []).length || 1;
+      if(src){
+        src.kills += n;
+        const key = e.sourceId + ':' + segOf(e.time), c = (perTurn.get(key) || 0) + n;
+        perTurn.set(key, c); src.turnKill = Math.max(src.turnKill, c);
+      }
+      for(const id of e.targetIds || []){
+        const f = F.get(id); if(!f) continue;
+        if(!firstDone) f.first = true;
+        if(f.rta == null) f.rta = Math.max(0, e.time - t0);
+        if(sheriff){ if(f.team === 'imp') src.shHit++; else src.shMiss++; }
+      }
+      firstDone = true;
+    }
+    else if(k === 'statistics.events.misfire'){ if(sheriff) src.shMiss++; }
+    else if(k === 'statistics.events.embroil'){ for(const id of e.targetIds || []){ const f = F.get(id); if(f) f.embroiled = true; } }
+    else if(k === 'statistics.events.exiled'){ for(const id of e.targetIds || []){ const f = F.get(id); if(f) f.exiled = true; } }
+    else if(k === 'statistics.events.report'){ if(src) src.report++; }
+    else if(k === 'statistics.events.emergency'){ if(src){ src.emergency++; if(g.meetings[0] && g.meetings[0].start === e) src.emergency1++; } }
+  }
+  // 現行犯：キルしてから5秒以内にその死体を通報され、その会議で追放された
+  for(const m of g.meetings){
+    const r = m.start; if(r.detailTranslationKey !== 'statistics.events.report') continue;
+    const body = (r.targetIds || [])[0];
+    const kill = ev.find(e => e.detailTranslationKey === 'statistics.events.kill' && (e.targetIds || []).includes(body));
+    if(!kill || kill.time > r.time || r.time - kill.time > 5) continue;
+    const out = m.events.filter(e => e.detailTranslationKey === 'statistics.events.exiled').flatMap(e => e.targetIds || []);
+    if(out.includes(kill.sourceId)){ const f = F.get(kill.sourceId); if(f) f.redhand++; }
+  }
+  // 投票
+  for(const v of g.rec.voteResults || []) for(const x of v.votes || []){
+    const f = F.get(x.voterId);
+    if(f && x.votedForId !== 254){ f.votes++; if(x.votedForId === 253) f.skips++; }
+    if(x.votedForId < 253){
+      const tg = F.get(x.votedForId); if(tg) tg.voted++;
+      if(f && f.team === 'crew'){ f.vTot++; if(tg && tg.team === 'imp') f.vHit++; }
+    }
+  }
+  // 移動データ：ベントに入った回数と、生きている間に歩いた距離（ベントの中の移動と、ワープのような大きな飛びは数えない）
+  for(const s of g.segs) for(const [id, tr] of s.tracks){
+    const f = F.get(id); if(!f) continue;
+    const p = tr.points, st = tr.states || [], n = p.length / 2;
+    for(let i = 1; i < n; i++){
+      const a = st[i - 1] || 0, b = st[i] || 0;
+      if(b & 1) continue;
+      if((b & 4) && !(a & 4)) f.vents++;
+      if((a & 4) || (b & 4) || (a & 1)) continue;
+      const dd = Math.hypot(p[2 * i] - p[2 * i - 2], p[2 * i + 1] - p[2 * i - 1]);
+      if(dd < 3) f.dist += dd;
+    }
+  }
+  return g.facts = F;
+}
+// 人ごとの合計（無効試合は除く）
+function playerTotals(list){
+  const T = new Map();
+  const SUM = ['kills', 'vents', 'dist', 'ghost', 'redhand', 'report', 'emergency', 'emergency1', 'votes', 'skips', 'voted', 'vHit', 'vTot', 'shHit', 'shMiss'];
+  for(const g of list){
+    if(g.cond === 'nogame') continue;
+    for(const f of gameFacts(g).values()){
+      const name = canon(f.p.name);
+      let s = T.get(name);
+      if(!s){ s = { name, n: 0, w: 0, alive: 0, turnKill: 0, taskDone: 0, taskAll: 0, rta: null, first: 0, embroiled: 0, crewEx: 0, madEx: 0, imp: 0, crew: 0 }; for(const k of SUM) s[k] = 0; T.set(name, s); }
+      s.color = f.p.color; s.n++; if(f.win) s.w++; if(f.alive) s.alive++;
+      for(const k of SUM) s[k] += f[k];
+      s.turnKill = Math.max(s.turnKill, f.turnKill);
+      if(f.team === 'crew' && f.p.roleId !== 'madmate' && f.taskAll){ s.taskDone += f.taskDone; s.taskAll += f.taskAll; }
+      if(f.rta != null && (s.rta == null || f.rta < s.rta)) s.rta = f.rta;
+      if(f.first) s.first++;
+      if(f.embroiled) s.embroiled++;
+      if(f.exiled && f.team === 'crew') s.crewEx++;
+      if(f.exiled && f.p.roleId === 'madmate') s.madEx++;
+      if(f.team === 'imp') s.imp++; else if(f.team === 'crew') s.crew++;
+    }
+  }
+  return T;
+}
+
+// ================= 表彰 =================
+// gold＝金賞（勝ちにつながる頑張り）、silver＝銀賞（勝ち負けには関係ないナンバーワン）
+// v：その人の値（0 や null は対象外）、low：小さいほうが上、fmt：受賞者の横に出す数
+const pct = (w, n) => n ? Math.round(w / n * 100) : 0;
+const AWARDS = [
+  { id: 'wins', medal: 'gold', icon: '🏆', name: '最多勝', desc: 'いちばん勝った人', v: s => s.w, fmt: v => `${v}勝` },
+  { id: 'kills', medal: 'gold', icon: '🔪', name: 'キル王', desc: 'いちばんキルした人', v: s => s.kills, fmt: v => `${v}キル` },
+  { id: 'killpe', medal: 'gold', icon: '⚡', name: 'キルペは正義', desc: '1つのターンでいちばん多くキルした人（2キル以上）', v: s => s.turnKill >= 2 ? s.turnKill : 0, fmt: v => `1ターン${v}キル` },
+  { id: 'detective', medal: 'gold', icon: '🎯', name: '名探偵', desc: '投票の的中率がいちばん高い人（クルー陣営で3票以上）', v: s => s.vTot >= 3 && s.vHit ? s.vHit / s.vTot : 0, fmt: (v, s) => `${pct(s.vHit, s.vTot)}%（${s.vHit}/${s.vTot}）` },
+  { id: 'sheriff', medal: 'gold', icon: '🔫', name: '名シェリフ', desc: 'シェリフで正しく撃てた人', v: s => s.shHit, fmt: v => `的中${v}回` },
+  { id: 'police', medal: 'gold', icon: '🐕', name: '警察犬', desc: '通報がいちばん多い人', v: s => s.report, fmt: v => `通報${v}回` },
+  { id: 'survivor', medal: 'gold', icon: '🛡️', name: '生き残り王', desc: '最後まで生き残った回数がいちばん多い人', v: s => s.alive, fmt: v => `${v}回生存` },
+  { id: 'scapegoat', medal: 'gold', icon: '🎭', name: '身代わり王', desc: 'マッドメイトで吊られた回数がいちばん多い人', v: s => s.madEx, fmt: v => `${v}回` },
+  { id: 'task', medal: 'gold', icon: '📋', name: 'タスク王', desc: 'クルーのときのタスク完了率がいちばん高い人', v: s => s.taskAll && s.taskDone ? s.taskDone / s.taskAll : 0, fmt: (v, s) => `${pct(s.taskDone, s.taskAll)}%（${s.taskDone}/${s.taskAll}）` },
+  { id: 'button1', medal: 'silver', icon: '🔔', name: '初手ボ王', desc: 'ターン1の緊急会議がいちばん多い人', v: s => s.emergency1, fmt: v => `${v}回` },
+  { id: 'tragic', medal: 'silver', icon: '😇', name: '悲劇の人', desc: '最初にキルされた回数がいちばん多い人（2回以上）', min: 2, v: s => s.first, fmt: v => `${v}回` },
+  { id: 'pity', medal: 'silver', icon: '🥲', name: '不憫枠', desc: 'クルー陣営なのに吊られた回数がいちばん多い人（2回以上）', min: 2, v: s => s.crewEx, fmt: v => `${v}回` },
+  { id: 'vent', medal: 'silver', icon: '🕳️', name: 'ベントの住人', desc: 'ベントに入った回数がいちばん多い人', v: s => s.vents, fmt: v => `${v}回` },
+  { id: 'walk', medal: 'silver', icon: '👟', name: '移動距離No.1', desc: '生きている間に歩いた距離がいちばん長い人', v: s => s.dist, fmt: v => `${Math.round(v).toLocaleString()}` },
+  { id: 'embroil', medal: 'silver', icon: '⛓️', name: '道連れ王', desc: '巻き添えにされた回数がいちばん多い人', v: s => s.embroiled, fmt: v => `${v}回` },
+  { id: 'popular', medal: 'silver', icon: '🤔', name: '人気者', desc: '会議で投票された票がいちばん多い人', v: s => s.voted, fmt: v => `${v}票` },
+  { id: 'pacifist', medal: 'silver', icon: '⏭️', name: '平和主義者', desc: 'スキップした割合がいちばん高い人（3票以上）', v: s => s.votes >= 3 && s.skips ? s.skips / s.votes : 0, fmt: (v, s) => `${pct(s.skips, s.votes)}%（${s.skips}/${s.votes}）` },
+  { id: 'red', medal: 'silver', icon: '🟥', name: '赤い人', desc: 'インポスター陣営になった回数がいちばん多い人', v: s => s.imp, fmt: v => `${v}回` },
+  { id: 'misfire', medal: 'silver', icon: '💥', name: '自爆王', desc: 'シェリフで誤射した回数がいちばん多い人', v: s => s.shMiss, fmt: v => `${v}回` },
+  { id: 'rta', medal: 'silver', icon: '⏱️', name: '死亡RTA', desc: 'ゲーム開始からいちばん早くキルされた人', low: true, v: s => s.rta, fmt: v => `${Math.round(v)}秒` },
+  { id: 'redhand', medal: 'silver', icon: '🚔', name: '現行犯王', desc: 'キルしてから5秒以内に通報され、その会議で吊られた回数がいちばん多い人', v: s => s.redhand, fmt: v => `${v}回` },
+  { id: 'ghost', medal: 'silver', icon: '👻', name: '霊界王', desc: '幽霊だった時間の合計がいちばん長い人', v: s => s.ghost, fmt: v => fmtMin(v) },
+  { id: 'stubborn', medal: 'silver', icon: '🐢', name: '粘り王', desc: 'いちばん長かった試合で、最後まで生きていたインポスター', special: stubbornAward },
+];
+// 粘り王：いちばん長かった試合のインポスター（キルできる赤い役職）のうち、いちばん最後まで生きていた人（負けた試合・最後に吊られた人も含む）
+function stubbornAward(list){
+  const valid = list.filter(g => g.cond !== 'nogame');
+  if(!valid.length) return null;
+  const maxD = Math.max(...valid.map(durOf));
+  const longest = valid.filter(g => durOf(g) === maxD), g = longest[0];
+  const imps = longest.flatMap(x => [...gameFacts(x).values()].filter(f => isKillerImp(f.p)));
+  if(!imps.length) return null;
+  const last = f => f.deathAt == null ? Infinity : f.deathAt;
+  const best = Math.max(...imps.map(last));
+  // 同じ長さの試合が2つ以上あるときは、両方に出た人を1人として数える
+  const who = [...new Map(imps.filter(f => last(f) === best).map(f => [canon(f.p.name), { name: canon(f.p.name), color: f.p.color }])).values()];
+  return { who, value: `${longest.map(noLabel).join('・')}（${fmtSec(maxD)}）`, game: g };
+}
+// withEmpty：当てはまる人がいない賞も「該当者なし」として入れる（村のページ用）
+function computeAwards(list, withEmpty = false){
+  const T = [...playerTotals(list).values()], out = [];
+  const none = a => { if(withEmpty) out.push({ a, who: [], value: '', none: true }); };
+  for(const a of AWARDS){
+    if(a.special){ const r = a.special(list); if(r) out.push({ a, ...r }); else none(a); continue; }
+    const vals = T.map(s => ({ s, v: a.v(s) })).filter(x => x.v != null && (a.low || x.v > 0) && (a.min == null || x.v >= a.min));
+    if(!vals.length){ none(a); continue; }
+    const best = a.low ? Math.min(...vals.map(x => x.v)) : Math.max(...vals.map(x => x.v));
+    const win = vals.filter(x => Math.abs(x.v - best) < 1e-9).map(x => x.s).sort((x, y) => x.name.localeCompare(y.name));
+    out.push({ a, who: win.map(s => ({ name: s.name, color: s.color })), value: a.fmt(best, win[0]) });
+  }
+  return out;
+}
+// 受賞者の名前（多いときは3人まで＋ほか○人）
+function whoHtml(who, max = 3){
+  const nw = h => `<span style="white-space:nowrap">${h}</span>`;
+  return who.slice(0, max).map(w => nw(`${swatch(w.color)}${esc(w.name)}`)).join(' ') + (who.length > max ? ` <span class="small">${nw(`ほか${who.length - max}人`)}</span>` : '');
+}
+function awardsHtml(res){
+  if(!res.some(r => !r.none)) return '<div class="dim">表彰できる試合がありません（無効試合だけの村など）</div>';
+  const part = (medal, label) => {
+    const xs = res.filter(r => r.a.medal === medal);
+    if(!xs.length) return '';
+    return `<div class="small" style="margin:${medal === 'gold' ? 0 : 12}px 0 6px">${label}</div><div class="awards">` + xs.map(r =>
+      `<div class="aw ${medal}${r.none ? ' none' : ''}" title="${esc(r.a.desc)}${r.who.length > 3 ? `\n${r.who.map(w => w.name).join('、')}` : ''}"><div class="md">${r.a.icon}</div><div class="aw2"><div><span class="an">${esc(r.a.name)}</span><span class="val">${esc(r.value)}</span></div>` +
+      `<div class="who">${r.none ? '<span class="dim">該当者なし</span>' : whoHtml(r.who)}</div><div class="ad">${esc(r.a.desc)}</div></div></div>`).join('') + '</div>';
+  };
+  return part('gold', '🥇 金賞 — 勝ちにつながる頑張り') + part('silver', '🥈 銀賞 — 勝ち負けには関係ないナンバーワン');
+}
+
+// ================= ページの切り替え（プレイヤー・村）=================
+function closePages(){
+  if(!pageOpen) return;
+  pageOpen = null; $('#pview').hidden = true; $('#vview').hidden = true; $('#pvBtn').classList.remove('on');
+}
+function showPage(kind){
+  stop();
+  statsOpen = false; $('#stats').hidden = true; $('#statsBtn').classList.remove('on');
+  $('#detail').hidden = true; $('#empty').hidden = true;
+  pageOpen = kind; $('#pview').hidden = kind !== 'player'; $('#vview').hidden = kind !== 'village';
+  $('#pvBtn').classList.toggle('on', kind === 'player');
+  $('#main').scrollTop = 0;
+}
+// ページを閉じて試合に戻る
+function leavePage(){
+  closePages();
+  if(cur){ $('#detail').hidden = false; requestAnimationFrame(fitView); } else $('#empty').hidden = games.length > 0;
+  renderList();
+}
+// 試合を開いて、その場面へ移る
+function goScene(g, t){ select(g); if(t != null){ const w = whereAt(g, t); if(w) w.go(); } }
+
+// ================= プレイヤーページ =================
+function openPlayer(name, fromStats){
+  if(!name){
+    // 統計で選んだ人 → 試合で選んだ人 → 自分 → いちばん試合の多い人
+    const cnt = new Map();
+    for(const g of games) for(const p of g.players.values()){ const n = canon(p.name); cnt.set(n, (cnt.get(n) || 0) + 1); }
+    name = pvName || statsWho || pickedName || (me && cnt.has(me) ? me : '') || ([...cnt.entries()].sort((a, b) => b[1] - a[1])[0] || [])[0];
+  }
+  if(!name) return;
+  pvName = name; pvFromStats = !!fromStats;
+  showPage('player'); renderList();
+}
+// プレイヤーページで集計する試合：統計と同じ（左の一覧の絞り込み＋統計で選んだ村）
+function pageList(){
+  if(!$('#sVil').options.length) renderStats(); // 村の選択肢を作る
+  const all = listed(filter === 'trash' ? 'all' : filter), scope = villageScope();
+  return scope ? all.filter(g => scope.has(g.village.id)) : all;
+}
+const pctTxt = (w, n) => n ? `${pct(w, n)}%<span class="small">（${w}/${n}）</span>` : '<span class="dim">—</span>';
+function renderPlayerPage(){
+  const list = pageList(), name = pvName, sv = $('#sVil');
+  $('#pvVil').innerHTML = sv.innerHTML; $('#pvVil').value = sv.value;
+  const scopeLabel = villageScope() ? sv.options[sv.selectedIndex].text.replace(/（[^（）]*試合）$/, '') : '';
+  const cnt = new Map();
+  for(const g of list) for(const p of g.players.values()){ const n = canon(p.name); cnt.set(n, (cnt.get(n) || 0) + 1); }
+  const opts = [...cnt.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  if(name && !cnt.has(name)) opts.unshift([name, 0]);
+  $('#pvWho').innerHTML = opts.map(([n, c]) => `<option value="${esc(n)}">${esc(n)}（${c}試合）</option>`).join('');
+  $('#pvWho').value = name;
+  $('#pvBack').hidden = !pvFromStats;
+  const mine = list.filter(g => [...g.players.values()].some(p => canon(p.name) === name));
+  const S = computeStats(mine), s = S.P.find(p => p.name === name), T = playerTotals(mine).get(name);
+  const color = s ? s.color : null;
+  $('#pvTitle').innerHTML = `${swatch(color)}${esc(name)}`;
+  $('#pvCrumb').innerHTML = 'プレイヤー' + (s && (s.names.size > 1 || [...s.names][0] !== name) ? `<span class="small">　ゲーム内の名前：${[...s.names].map(esc).join('、')}</span>` : '');
+  $('#pvScope').textContent = `対象：${mine.length} 試合` + (scopeLabel ? `（${scopeLabel}）` : '（すべての村）') + (filter === 'marked' ? '（マーク済みのみ）' : '') +
+    (mine.length ? `　${fmtDT(mine[mine.length - 1].started)} 〜 ${fmtDT(mine[0].started)}` : '') + '　※ 村の選び方と左の絞り込みは統計と同じです';
+  const sections = ['#pvAwards', '#pvRecords', '#pvPairs', '#pvMeet'];
+  pvCard = null;
+  if(!s || !T){
+    $('#pvCards').innerHTML = '<div class="card"><div class="v dim">この範囲では、この人の試合がありません（無効試合だけのときも出ません）</div></div>';
+    for(const id of sections) $(id).innerHTML = '';
+    for(const id of ['pvRoles', 'pvRivals', 'pvGames']) $('#' + id).innerHTML = '';
+    $('#pvTrend').innerHTML = ''; drawHeatOn($('#pvHeat'), [], 0, 'all', null); $('#pvhNote').textContent = '';
+    if(!$('#pvShotMenu').hidden) renderPvShotMenu();
+    return;
+  }
+  const cardRows = [
+    ['試合', `${s.n}`],
+    ['勝率', pctTxt(s.w, s.n)],
+    ['クルー陣営勝率', pctTxt(s.crew.w, s.crew.n)],
+    ['インポスター陣営勝率', pctTxt(s.imp.w, s.imp.n)],
+    ['キル', `${s.kills}<span class="small">（1試合 ${(s.kills / s.n).toFixed(1)}）</span>`],
+    ['最後まで生存', pctTxt(s.alive, s.n)],
+  ];
+  $('#pvCards').innerHTML = cardRows.map(([k, v]) => `<div class="card"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+
+  // ---- 受賞（選んでいる村ごとに表彰を出して数える）----
+  const got = new Map();
+  for(const v of villages){
+    const vl = list.filter(g => g.village === v);
+    if(!vl.some(g => mine.includes(g))) continue;
+    for(const r of computeAwards(vl)) if(r.who.some(w => w.name === name)){ const x = got.get(r.a.id) || { a: r.a, n: 0 }; x.n++; got.set(r.a.id, x); }
+  }
+  const gl = [...got.values()].sort((x, y) => (x.a.medal === 'gold' ? 0 : 1) - (y.a.medal === 'gold' ? 0 : 1) || y.n - x.n || AWARDS.indexOf(x.a) - AWARDS.indexOf(y.a));
+  $('#pvAwards').innerHTML = gl.length ? '<div class="awards">' + gl.map(x => `<div class="aw ${x.a.medal}" title="${esc(x.a.desc)}"><div class="md">${x.a.icon}</div><div class="aw2"><div><span class="an">${esc(x.a.name)}</span><span class="val">× ${x.n}</span></div><div class="ad">${esc(x.a.desc)}</div></div></div>`).join('') + '</div>'
+    : '<div class="dim">まだ受賞はありません</div>';
+
+  // ---- 記録 ----
+  const valid = mine.filter(g => g.cond !== 'nogame').slice().sort((a, b) => a.started - b.started);
+  const meOf = g => [...gameFacts(g).values()].find(f => canon(f.p.name) === name);
+  let bestK = null, run = { w: 0, l: 0, bw: 0, bl: 0 };
+  for(const g of valid){
+    const f = meOf(g); if(!f) continue;
+    if(f.kills && (!bestK || f.kills > bestK.n)) bestK = { n: f.kills, g };
+    if(f.win){ run.w++; run.l = 0; } else { run.l++; run.w = 0; }
+    run.bw = Math.max(run.bw, run.w); run.bl = Math.max(run.bl, run.l);
+  }
+  const gBtn = g => `<button class="when" data-g="${esc(g.id)}" title="この試合を開く">${md(g.started)} ${noLabel(g)}</button>`;
+  const tiles = [
+    ['1試合の最多キル', bestK ? `${bestK.n}キル ${gBtn(bestK.g)}` : '<span class="dim">-</span>'],
+    ['1ターンの最多キル', T.turnKill ? `${T.turnKill}キル` : '<span class="dim">-</span>'],
+    ['いちばん長い連勝', run.bw ? `${run.bw}連勝` : '<span class="dim">-</span>'],
+    ['いちばん長い連敗', run.bl ? `${run.bl}連敗` : '<span class="dim">-</span>'],
+    ['いちばん早くキルされた', T.rta != null ? `開始から ${Math.round(T.rta)}秒` : '<span class="dim">キルされていない</span>'],
+    ['タスク完了率（クルーのとき）', pctTxt(T.taskDone, T.taskAll)],
+    ['ベントに入った回数', `${T.vents}回`],
+    ['歩いた距離（合計）', `${Math.round(T.dist).toLocaleString()}<span class="small">（1試合 ${Math.round(T.dist / T.n).toLocaleString()}）</span>`],
+    ['幽霊だった時間（合計）', T.ghost ? fmtMin(T.ghost) : '<span class="dim">-</span>'],
+    ['インポスター陣営になった回数', `${T.imp}回<span class="small">（${pct(T.imp, T.n)}%）</span>`],
+  ];
+  $('#pvRecords').innerHTML = tiles.map(([k, v]) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+
+  // ---- 役職ごとの成績 ----
+  const TEAM = { crew: 'クルー', imp: 'インポスター', other: '第三' };
+  sortTable('pvRoles', [
+    { k: 'name', label: '役職', v: r => r.name, h: r => rich(r.roleText) || esc(r.name) },
+    { k: 'team', label: '陣営', v: r => r.team, h: r => `<span class="dim">${TEAM[r.team] || ''}</span>` },
+    { k: 'n', label: '回数', num: 1, v: r => r.n, h: r => r.n },
+    { k: 'w', label: '勝率', v: r => rateVal(r.w, r.n), h: r => rate(r.w, r.n, r.team === 'imp' ? 'imp' : 'crew') },
+    { k: 'alive', label: '最後まで生存', v: r => rateVal(r.alive, r.n), h: r => rate(r.alive, r.n) },
+    { k: 'exiled', label: '被追放率', v: r => rateVal(r.exiled, r.n), h: r => rate(r.exiled, r.n, 'exile') },
+    { k: 'first', label: '最初にキルされた', v: r => rateVal(r.first, r.n), h: r => rate(r.first, r.n, 'first') },
+  ], [...s.roles.values()], null, renderPlayerPage);
+
+  // ---- 勝率の推移 ----
+  renderTrend(mine, name, color, null, scopeLabel, { title: '#pvTrendTitle', note: '#pvTrendNote', box: '#pvTrend' });
+  $('#pvTrendTitle').innerHTML = '勝率の推移 <span class="dim">— 村ごと</span>';
+
+  // ---- 相性 ----
+  const R = computeRivals(list, name);
+  const pick = (f, ok, low) => { const xs = R.filter(ok); if(!xs.length) return null; const b = xs.reduce((a, c) => (low ? f(c) < f(a) : f(c) > f(a)) ? c : a); return xs.filter(x => f(x) === f(b)); };
+  const rr = b => b.n ? b.w / b.n : 0;
+  const pairRaw = [];
+  const tileWho = (xs, txt) => (pairRaw.push(xs ? { who: xs.map(x => ({ name: x.name, color: x.color })), txt: txt(xs[0]) } : null), xs) ? `${whoHtml(xs.map(x => ({ name: x.name, color: x.color })), 2)} <span class="small">${txt(xs[0])}</span>` : '<span class="dim">-</span>';
+  const pairs = [
+    ['いちばん勝てる相棒', '2人ともインポスター陣営だった試合の勝率（2回以上）', tileWho(pick(x => rr(x.pair) * 1000 + x.pair.n, x => x.pair.n >= 2), x => `${pct(x.pair.w, x.pair.n)}%（${x.pair.w}/${x.pair.n}）`)],
+    ['頼れる味方', '同じ陣営だった試合の勝率（3回以上）', tileWho(pick(x => rr(x.same) * 1000 + x.same.n, x => x.same.n >= 3), x => `${pct(x.same.w, x.same.n)}%（${x.same.w}/${x.same.n}）`)],
+    ['苦手な相手', '敵どうしだった試合で、この人の勝率がいちばん低い相手（3回以上）', tileWho(pick(x => rr(x.foe) * 1000 - x.foe.n, x => x.foe.n >= 3, true), x => `${pct(x.foe.w, x.foe.n)}%（${x.foe.w}/${x.foe.n}）`)],
+    ['よくキルする相手', '', tileWho(pick(x => x.kill, x => x.kill > 0), x => `${x.kill}回`)],
+    ['よくキルされる相手', '', tileWho(pick(x => x.killed, x => x.killed > 0), x => `${x.killed}回`)],
+    ['よく投票する相手', '', tileWho(pick(x => x.vote, x => x.vote > 0), x => `${x.vote}票`)],
+    ['よく投票される相手', '', tileWho(pick(x => x.voted, x => x.voted > 0), x => `${x.voted}票`)],
+  ];
+  pairs.forEach((p, i) => { if(pairRaw[i]) pairRaw[i].k = p[0]; });
+  // 画像用（HTML から文字だけを取り出す）
+  const plain = h => { const d = document.createElement('div'); d.innerHTML = h; return d.textContent; };
+  pvCard = { name, color, mine, scope: $('#pvScope').textContent.split('　※')[0],
+    cards: cardRows.map(([k, v]) => [k, plain(v)]), awards: gl,
+    records: tiles.map(([k, v]) => [k, plain(v)]),
+    pairs: pairRaw.filter(p => p && p.who.length) };
+  $('#pvPairs').innerHTML = pairs.map(([k, tip, v]) => `<div class="tile"${tip ? ` title="${esc(tip)}"` : ''}><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+  sortTable('pvRivals', [
+    { k: 'name', label: '相手', v: r => r.name, h: r => swatch(r.color) + esc(r.name) },
+    { k: 'n', label: '一緒の試合', num: 1, v: r => r.n, h: r => r.n },
+    { k: 'same', label: '同じ陣営のとき勝率', v: r => rateVal(r.same.w, r.same.n), h: r => rate(r.same.w, r.same.n) },
+    { k: 'pair', label: 'インポスター相棒', v: r => rateVal(r.pair.w, r.pair.n), h: r => rate(r.pair.w, r.pair.n, 'imp') },
+    { k: 'foe', label: '敵どうしのとき勝率', v: r => rateVal(r.foe.w, r.foe.n), h: r => rate(r.foe.w, r.foe.n) },
+    { k: 'kill', label: 'キルした', num: 1, v: r => r.kill, h: r => r.kill || '<span class="dim">-</span>' },
+    { k: 'killed', label: 'キルされた', num: 1, v: r => r.killed, h: r => r.killed || '<span class="dim">-</span>' },
+    { k: 'vote', label: '投票した', num: 1, v: r => r.vote, h: r => r.vote || '<span class="dim">-</span>' },
+    { k: 'voted', label: '投票された', num: 1, v: r => r.voted, h: r => r.voted || '<span class="dim">-</span>' },
+  ], R, { sel: () => false, click: r => { pvName = r.name; renderPlayerPage(); $('#main').scrollTop = 0; } }, renderPlayerPage);
+
+  // ---- 会議とシェリフ ----
+  $('#pvMeet').innerHTML = [
+    ['通報', `${T.report}回`],
+    ['緊急会議', `${T.emergency}回<span class="small">（うちターン1：${T.emergency1}回）</span>`],
+    ['スキップ率', pctTxt(T.skips, T.votes)],
+    ['投票的中率（クルー陣営のとき）', pctTxt(T.vHit, T.vTot)],
+    ['投票された票', `${T.voted}票<span class="small">（1試合 ${(T.voted / T.n).toFixed(1)}）</span>`],
+    ['シェリフ', s.sheriff.n ? `${s.sheriff.n}回・勝率 ${pct(s.sheriff.w, s.sheriff.n)}%<span class="small">（的中 ${T.shHit}・誤射 ${T.shMiss}）</span>` : '<span class="dim">なったことがない</span>'],
+  ].map(([k, v]) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+
+  // ---- キルの場所 ----
+  const maps = [...new Set(mine.map(g => g.rec.mapId))];
+  const mc = m => mine.filter(g => g.rec.mapId === m).length;
+  maps.sort((a, b) => mc(b) - mc(a));
+  const hm2 = $('#pvhMap'), prevM = hm2.value;
+  hm2.innerHTML = maps.map(m => `<option value="${m}">${esc(MAPS[m] ?? 'Map ' + m)}（${mc(m)}試合）</option>`).join('');
+  if(maps.includes(+prevM) && prevM !== '') hm2.value = prevM;
+  pvHeatList = mine; drawPvHeat();
+
+  // ---- 最近の試合 ----
+  const rows = mine.map(g => ({ g, f: meOf(g) || { p: [...g.players.values()].find(p => canon(p.name) === name), kills: 0 } }));
+  sortTable('pvGames', [
+    { k: 't', label: '日時', v: r => +r.g.started, h: r => `${fmtDT(r.g.started)}` },
+    { k: 'vil', label: '村', v: r => villageLabel(r.g.village), h: r => `${esc(villageName(r.g.village) ? `${md(r.g.village.start)} ${villageName(r.g.village)}` : villageLabel(r.g.village))} <span class="dim">${noLabel(r.g)}</span>` },
+    { k: 'map', label: 'マップ', v: r => MAPS[r.g.rec.mapId] || '', h: r => esc(MAPS[r.g.rec.mapId] ?? 'Map ' + r.g.rec.mapId) },
+    { k: 'role', label: '役職', v: r => roleLabel(r.f.p), h: r => rich(r.f.p.roleText) || esc(r.f.p.roleId) },
+    { k: 'res', label: '結果', v: r => r.g.cond === 'nogame' ? 0 : r.g.winners.has(r.f.p.playerId) ? 2 : 1, h: r => `<span class="me">${r.g.cond === 'nogame' ? '<span class="wl none">無効</span>' : r.g.winners.has(r.f.p.playerId) ? '<span class="wl win">勝ち</span>' : '<span class="wl lose">負け</span>'}</span>` },
+    { k: 'kills', label: 'キル', num: 1, v: r => r.f.kills || 0, h: r => r.f.kills || '<span class="dim">-</span>' },
+    { k: 'state', label: '状態', v: r => r.f.p.stateTranslationKey, h: r => esc(PSTATE[r.f.p.stateTranslationKey] || '') },
+  ], rows, { sel: () => false, click: r => select(r.g) }, renderPlayerPage);
+  $('#pview').querySelectorAll('[data-g]').forEach(b => b.onclick = e => { e.stopPropagation(); select(games.find(g => g.id === b.dataset.g)); });
+  if(!$('#pvShotMenu').hidden) renderPvShotMenu();
+}
+let pvHeatList = [];
+function drawPvHeat(){
+  if(pageOpen !== 'player') return;
+  const r = drawHeatOn($('#pvHeat'), pvHeatList, +$('#pvhMap').value, $('#pvhMode').value, pvName);
+  $('#pvhNote').textContent = typeof r === 'string' ? r : `${r.games} 試合・${r.spots} 件（白い点が1件ずつの場所）`;
+}
+sortState.pvGames = { k: 't', d: -1 };
+$('#pvhMap').onchange = drawPvHeat;
+$('#pvhMode').onchange = drawPvHeat;
+new ResizeObserver(drawPvHeat).observe($('#pvHeatBox'));
+$('#pvBtn').onclick = () => pageOpen === 'player' ? leavePage() : openPlayer(null, false);
+$('#pvClose').onclick = leavePage;
+$('#pvBack').onclick = () => openStats(true);
+$('#pvWho').onchange = e => { pvName = e.target.value; renderPlayerPage(); };
+$('#pvVil').onchange = e => { $('#sVil').value = e.target.value; renderPlayerPage(); };
+
+// ================= 村のページ（その夜の記録）=================
+function openVillage(v){
+  if(!v) return;
+  vvCur = v.id; showPage('village');
+  $('#vvShotMenu').hidden = true; $('#vvShotBtn').classList.remove('on');
+  renderList();
+}
+// 村の分け方を変えると村の ID が変わることがあるので、最初の試合を手がかりに探し直す
+function vvVillage(){
+  const v = villages.find(x => x.id === vvCur) || villages.find(x => x.games.some(g => g.id === vvCur));
+  if(v) vvCur = v.id;
+  return v;
+}
+// その夜の流れから付けるひとことタグ
+function flowTags(seq){
+  const v = seq.filter(x => !x.nogame), t = [];
+  if(v.length < 2) return t;
+  const run = f => { let b = 0, c = 0; for(const x of v){ c = f(x) ? c + 1 : 0; b = Math.max(b, c); } return b; };
+  const allW = v.length >= 3 && v.every(x => x.win), allL = v.length >= 3 && v.every(x => !x.win);
+  if(allW) t.push(['全勝', 'good']); else if(allL) t.push(['全敗', 'bad']);
+  const ws = run(x => x.win), ls = run(x => !x.win), rs = run(x => x.team === 'imp');
+  if(!allW && ws >= 3) t.push([`${ws}連勝`, 'good']);
+  if(!allL && ls >= 3) t.push([`${ls}連敗`, 'bad']);
+  if(v.length >= 3 && v.every(x => x.team === 'imp')) t.push(['ずっと人外', 'red']);
+  else if(rs >= 3) t.push([`人外${rs}連続`, 'red']);
+  if(v.length >= 3 && v.every(x => x.team === 'crew')) t.push(['ずっとクルー', 'blue']);
+  return t;
+}
+function renderVillagePage(){
+  const v = vvVillage();
+  if(!v){ leavePage(); return; }
+  const vg = v.games.filter(g => !isHidden(g)); // 古い順
+  const valid = vg.filter(g => g.cond !== 'nogame');
+  const vn = villageName(v);
+  $('#vvTitle').textContent = vn ? `${md(v.start)} ${vn}` : villageLabel(v);
+  $('#vvTitle').classList.toggle('dflt', !vn);
+  const i = villages.indexOf(v);
+  $('#vvPrev').disabled = i >= villages.length - 1; $('#vvNext').disabled = i <= 0;
+  if(!vg.length){ $('#vvSub').textContent = 'この村の試合は、すべて一覧から消されています。'; for(const id of ['#vvCards', '#vvAwards', '#vvHl']) $(id).innerHTML = ''; $('#vvPlayers').innerHTML = ''; $('#vvGames').innerHTML = ''; return; }
+  const first = vg[0], last = vg[vg.length - 1];
+  $('#vvSub').textContent = `${fmtDT(first.started)} 〜 ${hm(last.ended)}`;
+  const people = new Map(); // 名前 → その夜の流れ
+  for(const g of vg) for(const f of gameFacts(g).values()){
+    const n = canon(f.p.name);
+    let x = people.get(n); if(!x) people.set(n, x = { name: n, color: f.p.color, seq: [], n: 0, w: 0, kills: 0 });
+    x.color = f.p.color;
+    x.seq.push({ g, team: f.team, win: f.win, nogame: g.cond === 'nogame' });
+    if(g.cond !== 'nogame'){ x.n++; if(f.win) x.w++; x.kills += f.kills; }
+  }
+  const crewW = valid.filter(g => g.cond === 'crewmate').length, impW = valid.filter(g => g.cond === 'impostor').length;
+  $('#vvCards').innerHTML = [
+    ['試合数', `${vg.length}${vg.length !== valid.length ? `<span class="small">（無効 ${vg.length - valid.length}）</span>` : ''}`],
+    ['遊んだ時間', fmtMin(Math.max(0, (last.ended - first.started) / 1000))],
+    ['クルーメイト勝利', valid.length ? `${crewW}<span class="small">（${pct(crewW, valid.length)}%）</span>` : '-'],
+    ['インポスター勝利', valid.length ? `${impW}<span class="small">（${pct(impW, valid.length)}%）</span>` : '-'],
+    ['参加者', `${people.size}人`],
+    ['平均試合時間', fmtSec(vg.reduce((s, g) => s + durOf(g), 0) / vg.length)],
+  ].map(([k, val]) => `<div class="card"><div class="k">${k}</div><div class="v">${val}</div></div>`).join('');
+
+  // ---- 表彰 ----
+  vvAwardsRes = computeAwards(vg, true);
+  $('#vvAwards').innerHTML = awardsHtml(vvAwardsRes);
+
+  // ---- ハイライト ----
+  const jumps = [];
+  const jb = (g, t, label) => { jumps.push([g, t]); return `<button class="when" data-vj="${jumps.length - 1}" title="その場面へ移動">${esc(label)}</button>`; };
+  const sceneLabel = (g, t) => { const w = t != null && whereAt(g, t); return `${noLabel(g)}${w ? ' ' + w.label : ''}`; };
+  const hl = [];
+  if(valid.length){
+    const lg = valid.reduce((a, b) => durOf(b) > durOf(a) ? b : a), sg = valid.reduce((a, b) => durOf(b) < durOf(a) ? b : a);
+    hl.push(`<div><span class="hk">いちばん長い試合</span>${jb(lg, null, noLabel(lg))} ${fmtSec(durOf(lg))}・${esc(MAPS[lg.rec.mapId] ?? '')}・<span class="rs ${resCls(lg)}" style="font-weight:600">${esc(resText(lg))}</span></div>`);
+    if(sg !== lg) hl.push(`<div><span class="hk">いちばん短い試合</span>${jb(sg, null, noLabel(sg))} ${fmtSec(durOf(sg))}・${esc(MAPS[sg.rec.mapId] ?? '')}・<span class="rs ${resCls(sg)}" style="font-weight:600">${esc(resText(sg))}</span></div>`);
+  }
+  const nm = (g, id) => { const p = g.players.get(id); return p ? `${swatch(p.color)}${esc(canon(p.name))}` : '?'; };
+  for(const g of valid){
+    const k = g.events.find(e => e.detailTranslationKey === 'statistics.events.kill' && e.sourceId != null);
+    if(k){ hl.push(`<div><span class="hk">その夜の最初のキル</span>${nm(g, k.sourceId)} → ${(k.targetIds || []).map(id => nm(g, id)).join('・')} ${jb(g, k.time, sceneLabel(g, k.time))}</div>`); break; }
+  }
+  // いちばん長い連勝
+  let bestRun = 0, runners = [];
+  for(const x of people.values()){
+    let c = 0, b = 0; for(const s of x.seq){ if(s.nogame) continue; c = s.win ? c + 1 : 0; b = Math.max(b, c); }
+    if(b > bestRun){ bestRun = b; runners = [x]; } else if(b === bestRun && b) runners.push(x);
+  }
+  if(bestRun >= 2) hl.push(`<div><span class="hk">いちばん長い連勝</span>${whoHtml(runners.map(x => ({ name: x.name, color: x.color })))} <b>${bestRun}連勝</b></div>`);
+  // 目立った場面：シェリフの的中・誤射、現行犯、1ターンの連続キル
+  const scenes = [];
+  for(const g of valid){
+    const F = gameFacts(g);
+    for(const e of g.events){
+      const src = e.sourceId != null && F.get(e.sourceId);
+      if(!src) continue;
+      if(src.p.roleId === 'sheriff' && (e.detailTranslationKey === 'statistics.events.kill' || e.detailTranslationKey === 'statistics.events.misfire')){
+        const hit = e.detailTranslationKey === 'statistics.events.kill' && (e.targetIds || []).every(t => (F.get(t) || {}).team === 'imp');
+        scenes.push(`<div><span class="hk">${hit ? '🔫 シェリフ的中' : '💥 シェリフ誤射'}</span>${nm(g, e.sourceId)} → ${(e.targetIds || []).map(id => nm(g, id)).join('・')} ${jb(g, e.time, sceneLabel(g, e.time))}</div>`);
+      }
+    }
+    for(const m of g.meetings){
+      const r = m.start; if(r.detailTranslationKey !== 'statistics.events.report') continue;
+      const body = (r.targetIds || [])[0];
+      const kill = g.events.find(e => e.detailTranslationKey === 'statistics.events.kill' && (e.targetIds || []).includes(body));
+      if(!kill || kill.time > r.time || r.time - kill.time > 5) continue;
+      if(m.events.some(e => e.detailTranslationKey === 'statistics.events.exiled' && (e.targetIds || []).includes(kill.sourceId)))
+        scenes.push(`<div><span class="hk">🚔 現行犯</span>${nm(g, kill.sourceId)} がキルして ${Math.round(r.time - kill.time)}秒で通報され、追放 ${jb(g, kill.time, sceneLabel(g, kill.time))}</div>`);
+    }
+    for(const f of F.values()) if(f.turnKill >= 3) scenes.push(`<div><span class="hk">⚡ 1ターン${f.turnKill}キル</span>${nm(g, f.p.playerId)} ${jb(g, null, noLabel(g))}</div>`);
+  }
+  hl.push(...scenes.slice(0, 8));
+  if(scenes.length > 8) hl.push(`<div class="small">ほか ${scenes.length - 8} 件</div>`);
+  $('#vvHl').innerHTML = hl.join('') || '<div class="dim">ハイライトはありません</div>';
+  $('#vvHl').querySelectorAll('[data-vj]').forEach(b => b.onclick = () => { const [g, t] = jumps[+b.dataset.vj]; goScene(g, t); });
+
+  // ---- 参加者とその夜の流れ ----
+  const flowHtml = seq => `<span class="flow">${seq.map(s => `<i class="${s.nogame ? 'n' : s.team === 'imp' ? 'r' : s.team === 'other' ? 'o' : 'c'}${!s.nogame && !s.win ? ' lose' : ''}" title="${esc(noLabel(s.g))}：${s.nogame ? '無効' : s.win ? '勝ち' : '負け'}">${s.nogame ? '' : s.win ? '○' : '●'}</i>`).join('')}</span>`;
+  sortTable('vvPlayers', [
+    { k: 'name', label: '名前', v: r => r.name, h: r => `${swatch(r.color)}${esc(r.name)} <button class="pv" data-pv="${esc(r.name)}" title="この人のページを開く">👤</button>` },
+    { k: 'n', label: '試合', num: 1, v: r => r.n, h: r => r.n },
+    { k: 'w', label: '勝ち', num: 1, v: r => r.w * 1000 + r.n, h: r => r.w },
+    { k: 'rate', label: '勝率', v: r => rateVal(r.w, r.n), h: r => rate(r.w, r.n) },
+    { k: 'flow', label: 'その夜の流れ', v: r => r.seq.length, h: r => flowHtml(r.seq) },
+    { k: 'tag', label: 'ひとこと', v: r => flowTags(r.seq).length, h: r => flowTags(r.seq).map(([t, c]) => `<span class="tag ${c}">${esc(t)}</span>`).join('') || '<span class="dim">-</span>' },
+    { k: 'kills', label: 'キル', num: 1, v: r => r.kills, h: r => r.kills || '<span class="dim">-</span>' },
+  ], [...people.values()], { sel: () => false, click: r => openPlayer(r.name, false) }, renderVillagePage);
+
+  // ---- 試合の履歴 ----
+  sortTable('vvGames', [
+    { k: 'no', label: '試合', v: r => +r.started, h: r => `${noLabel(r)}${gameName(r) ? ` <span class="dim">${esc(gameName(r))}</span>` : ''}` },
+    { k: 't', label: '時刻', v: r => +r.started, h: r => hm(r.started) },
+    { k: 'map', label: 'マップ', v: r => MAPS[r.rec.mapId] || '', h: r => esc(MAPS[r.rec.mapId] ?? 'Map ' + r.rec.mapId) },
+    { k: 'res', label: '結果', v: r => r.cond, h: r => `<span class="rs ${resCls(r)}" style="font-weight:600">${esc(resText(r))}</span>` },
+    { k: 'why', label: '決着', v: r => r.reason, h: r => `<span class="dim">${r.cond === 'nogame' ? '-' : esc(REASON[r.reason] || r.reason || '')}</span>` },
+    { k: 'dur', label: '時間', num: 1, v: r => durOf(r), h: r => fmtSec(durOf(r)) },
+    { k: 'pn', label: '人数', num: 1, v: r => r.players.size, h: r => r.players.size },
+  ], vg, { sel: () => false, click: g => select(g) }, renderVillagePage);
+  $('#vview').querySelectorAll('[data-pv]').forEach(b => b.onclick = e => { e.stopPropagation(); openPlayer(b.dataset.pv, false); });
+}
+let vvAwardsRes = [];
+// ---- 表彰カードの画像（横長＝X 向け、縦長＝スマホ向け）----
+let vvShape = 'wide', vvHideNames = false;
+// 画像メニュー（横長・縦長／名前を隠す／保存・コピー／見本）。村のページとプレイヤーページで共通
+function renderShotMenu(m, title, make, fileName, again){
+  m.innerHTML = `<b>${title}</b>` +
+    `<span style="display:flex;gap:4px"><button class="chip${vvShape === 'wide' ? ' on' : ''}" data-shape="wide" title="横長（X のタイムラインで切れずに見える）">▭ 横長</button><button class="chip${vvShape === 'tall' ? ' on' : ''}" data-shape="tall" title="縦長（スマホで見やすい）">▯ 縦長</button></span>` +
+    `<label title="名前を P1・P2… に置き換えます"><input type="checkbox" class="shotHide"${vvHideNames ? ' checked' : ''}>名前を隠す</label>` +
+    `<button class="chip on shotSave">⤓ 画像を保存</button><button class="chip shotCopy">⧉ コピー</button>` +
+    `<div style="width:100%"><img class="shotPrev" alt="画像の見本" style="display:block;max-width:100%;max-height:520px;border:1px solid var(--line);border-radius:6px;margin-top:4px"></div>`;
+  m.querySelectorAll('[data-shape]').forEach(b => b.onclick = () => { vvShape = b.dataset.shape; again(); });
+  m.querySelector('.shotHide').onchange = e => { vvHideNames = e.target.checked; again(); };
+  m.querySelector('.shotSave').onclick = async () => {
+    const blob = await make(); if(!blob){ toast('画像を作れませんでした'); return; }
+    const url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = `${fileName()}_${vvShape === 'wide' ? '横' : '縦'}.png`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000);
+    toast('画像を保存しました。ダウンロードフォルダを確認してください');
+  };
+  m.querySelector('.shotCopy').onclick = async () => {
+    try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': await make() })]); toast('画像をコピーしました。X や Discord に貼り付けできます'); }
+    catch(_) { toast('このブラウザではコピーできませんでした。「画像を保存」を使ってください'); }
+  };
+  make().then(b => { if(!b) return; const img = m.querySelector('.shotPrev'); if(!img) return; if(img.dataset.u) URL.revokeObjectURL(img.dataset.u); img.src = img.dataset.u = URL.createObjectURL(b); });
+}
+const ymd = d => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
+function renderVvShotMenu(){
+  renderShotMenu($('#vvShotMenu'), '表彰を画像にする', makeAwardCard, () => { const v = vvVillage(); return `nos_${v ? ymd(v.start) : ''}_表彰`; }, renderVvShotMenu);
+}
+$('#vvShotBtn').onclick = () => { const m = $('#vvShotMenu'); m.hidden = !m.hidden; $('#vvShotBtn').classList.toggle('on', !m.hidden); if(!m.hidden) renderVvShotMenu(); };
+async function makeAwardCard(){
+  const v = vvVillage(); if(!v) return null;
+  const vg = v.games.filter(g => !isHidden(g)), valid = vg.filter(g => g.cond !== 'nogame');
+  const res = computeAwards(vg);
+  // 名前を隠すときは、その夜の参加者を名前順に P1・P2… にする
+  const all = [...new Set(vg.flatMap(g => [...g.players.values()].map(p => canon(p.name))))].sort((a, b) => a.localeCompare(b));
+  const alias = new Map(all.map((n, i) => [n, `P${i + 1}`]));
+  const nm = n => vvHideNames ? alias.get(n) || '?' : n;
+  const wide = vvShape === 'wide';
+  const W = wide ? 1600 : 1080, P = 36, cols = wide ? 3 : 2, gap = 14;
+  const cw = (W - P * 2 - gap * (cols - 1)) / cols, rh = 84;
+  const gold = res.filter(r => r.a.medal === 'gold'), silver = res.filter(r => r.a.medal === 'silver');
+  const rowsOf = xs => Math.ceil(xs.length / cols);
+  const headH = 170, secH = 40;
+  const H = headH + (gold.length ? secH + rowsOf(gold) * (rh + gap) : 0) + (silver.length ? secH + rowsOf(silver) * (rh + gap) : 0) + 50;
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  const F = (w, s) => `${w} ${s}px "Yu Gothic UI","Segoe UI","Segoe UI Emoji",Meiryo,sans-serif`;
+  x.fillStyle = '#15171c'; x.fillRect(0, 0, W, H);
+  // 上の帯
+  const band = x.createLinearGradient(0, 0, W, headH);
+  band.addColorStop(0, '#3a2f10'); band.addColorStop(0.55, '#1f2230'); band.addColorStop(1, '#15171c');
+  x.fillStyle = band; x.fillRect(0, 0, W, headH);
+  const fit = (t, w) => { if(x.measureText(t).width <= w) return t; while(t.length > 1 && x.measureText(t + '…').width > w) t = t.slice(0, -1); return t + '…'; };
+  x.textBaseline = 'alphabetic';
+  x.fillStyle = '#ffe08a'; x.font = F(700, 18); x.fillText('🏅 その夜の表彰', P, 44);
+  x.fillStyle = '#ffffff'; x.font = F(800, 44);
+  const vn = villageName(v);
+  x.fillText(fit(vn ? `${md(v.start)} ${vn}` : villageLabel(v), W - P * 2), P, 98);
+  const crewW = valid.filter(g => g.cond === 'crewmate').length, impW = valid.filter(g => g.cond === 'impostor').length;
+  x.fillStyle = '#c9cdd6'; x.font = F(400, 18);
+  const info = [`${vg.length ? `${fmtDT(vg[0].started)} 〜 ${hm(vg[vg.length - 1].ended)}` : ''}`, `${vg.length}試合`, `クルー ${crewW}勝・インポスター ${impW}勝`, `${all.length}人`];
+  if(valid.length){ const lg = valid.reduce((a, b) => durOf(b) > durOf(a) ? b : a); info.push(`最長 ${fmtSec(durOf(lg))}`); }
+  x.fillText(fit(info.join('　・　'), W - P * 2), P, 136);
+  let y = headH;
+  const section = (xs, medal, label) => {
+    if(!xs.length) return;
+    x.fillStyle = medal === 'gold' ? '#ffe08a' : '#dfe3ea'; x.font = F(700, 18);
+    x.fillText(label, P, y + 27);
+    y += secH;
+    xs.forEach((r, i) => {
+      const cx = P + (i % cols) * (cw + gap), cy = y + Math.floor(i / cols) * (rh + gap);
+      // 帯
+      const g2 = x.createLinearGradient(cx, 0, cx + cw, 0);
+      if(medal === 'gold'){ g2.addColorStop(0, '#3a3015'); g2.addColorStop(1, '#1d2027'); } else { g2.addColorStop(0, '#2b2f38'); g2.addColorStop(1, '#1d2027'); }
+      x.fillStyle = g2; x.beginPath(); x.roundRect(cx, cy, cw, rh, 12); x.fill();
+      x.strokeStyle = medal === 'gold' ? '#6b5a1f' : '#3a3f4c'; x.lineWidth = 1.5; x.stroke();
+      // メダル
+      const mx = cx + 44, my = cy + rh / 2, mr = 28;
+      const mg = x.createRadialGradient(mx - 9, my - 10, 2, mx, my, mr);
+      if(medal === 'gold'){ mg.addColorStop(0, '#fff1a8'); mg.addColorStop(0.55, '#e2b93b'); mg.addColorStop(1, '#8a6a12'); }
+      else { mg.addColorStop(0, '#ffffff'); mg.addColorStop(0.55, '#b9c0cc'); mg.addColorStop(1, '#6c7380'); }
+      x.fillStyle = mg; x.beginPath(); x.arc(mx, my, mr, 0, 7); x.fill();
+      x.strokeStyle = medal === 'gold' ? '#5a4a14' : '#464b56'; x.lineWidth = 3; x.stroke();
+      x.font = F(400, 26); x.textAlign = 'center'; x.fillStyle = '#000'; x.fillText(r.a.icon, mx, my + 9); x.textAlign = 'left';
+      // 賞の名前と数
+      const tx = cx + 88, tw = cw - 100;
+      x.font = F(800, 21); x.fillStyle = medal === 'gold' ? '#ffe08a' : '#f0f2f6';
+      const an = r.a.name; x.fillText(an, tx, cy + 33);
+      const aw = x.measureText(an).width;
+      x.font = F(400, 15); x.fillStyle = '#aeb4c2'; x.fillText(fit(r.value, Math.max(40, tw - aw - 12)), tx + aw + 10, cy + 33);
+      // 受賞者（色の丸と名前。入りきらないときは「ほか○人」）
+      let wx = tx; const wy = cy + 64;
+      x.font = F(600, 17);
+      for(let k = 0; k < r.who.length; k++){
+        const w = r.who[k], label = nm(w.name), lw = x.measureText(label).width;
+        const rest = r.who.length - k - 1, restW = rest ? 70 : 0;
+        if(wx + 18 + lw + restW > tx + tw && k > 0){ x.font = F(400, 14); x.fillStyle = '#9096a5'; x.fillText(`ほか${r.who.length - k}人`, wx, wy); break; }
+        const col = pcol({ color: w.color });
+        x.fillStyle = cssColor(col.main) || '#888'; x.beginPath(); x.arc(wx + 7, wy - 6, 7, 0, 7); x.fill();
+        x.strokeStyle = cssColor(col.shadow) || '#444'; x.lineWidth = 2; x.stroke();
+        x.fillStyle = '#e9ebf0'; x.font = F(600, 17); x.fillText(fit(label, tx + tw - wx - 20), wx + 19, wy);
+        wx += 19 + Math.min(lw, tx + tw - wx - 20) + 16;
+      }
+    });
+    y += rowsOf(xs) * (rh + gap);
+  };
+  section(gold, 'gold', '🥇 金賞 — 勝ちにつながる頑張り');
+  section(silver, 'silver', '🥈 銀賞 — 勝ち負けには関係ないナンバーワン');
+  x.font = F(400, 14); x.fillStyle = '#6f7584'; x.textAlign = 'right';
+  x.fillText(`NoS 戦歴ビューア v${VERSION}`, W - P, H - 18); x.textAlign = 'left';
+  return new Promise(ok => c.toBlob(ok, 'image/png'));
+}
+// ---- プレイヤーページの画像 ----
+let pvCard = null;
+function renderPvShotMenu(){
+  renderShotMenu($('#pvShotMenu'), 'このページを画像にする', makePlayerCard, () => `nos_${vvHideNames || !pvCard ? 'player' : pvCard.name}_${ymd(new Date())}`, renderPvShotMenu);
+}
+$('#pvShotBtn').onclick = () => { const m = $('#pvShotMenu'); m.hidden = !m.hidden; $('#pvShotBtn').classList.toggle('on', !m.hidden); if(!m.hidden) renderPvShotMenu(); };
+async function makePlayerCard(){
+  const d = pvCard; if(!d) return null;
+  // 名前を隠すときは、この人を P1、ほかの人を名前順に P2・P3… にする
+  const others = [...new Set(d.mine.flatMap(g => [...g.players.values()].map(p => canon(p.name))))].filter(n => n !== d.name).sort((a, b) => a.localeCompare(b));
+  const alias = new Map([[d.name, 'P1'], ...others.map((n, i) => [n, `P${i + 2}`])]);
+  const nm = n => vvHideNames ? alias.get(n) || '?' : n;
+  const wide = vvShape === 'wide';
+  const W = wide ? 1600 : 1080, P = 36, gap = 12;
+  const cardCols = wide ? 6 : 3, awCols = wide ? 4 : 2, recCols = wide ? 4 : 2, pairCols = wide ? 4 : 2;
+  const grid = (n, cols, rh) => n ? Math.ceil(n / cols) * (rh + gap) : 0;
+  const headH = 150, secH = 40, cardH = 78, awH = 64, recH = 66, pairH = 70;
+  const H = headH + 14 + grid(d.cards.length, cardCols, cardH) + 8 +
+    secH + (d.awards.length ? grid(d.awards.length, awCols, awH) : 40) +
+    secH + grid(d.records.length, recCols, recH) +
+    (d.pairs.length ? secH + grid(d.pairs.length, pairCols, pairH) : 0) + 50;
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  const F = (w, s) => `${w} ${s}px "Yu Gothic UI","Segoe UI","Segoe UI Emoji",Meiryo,sans-serif`;
+  const fit = (t, w) => { if(x.measureText(t).width <= w) return t; while(t.length > 1 && x.measureText(t + '…').width > w) t = t.slice(0, -1); return t + '…'; };
+  const dot = (cx, cy, r, color) => { const col = pcol({ color }); x.fillStyle = cssColor(col.main) || '#888'; x.beginPath(); x.arc(cx, cy, r, 0, 7); x.fill(); x.strokeStyle = cssColor(col.shadow) || '#444'; x.lineWidth = Math.max(2, r / 4); x.stroke(); };
+  const box = (bx, by, bw, bh, fill, line) => { x.fillStyle = fill; x.beginPath(); x.roundRect(bx, by, bw, bh, 10); x.fill(); x.strokeStyle = line; x.lineWidth = 1.5; x.stroke(); };
+  const cellW = cols => (W - P * 2 - gap * (cols - 1)) / cols;
+  const at = (i, cols, cw, rh, y0) => [P + (i % cols) * (cw + gap), y0 + Math.floor(i / cols) * (rh + gap)];
+  x.fillStyle = '#15171c'; x.fillRect(0, 0, W, H);
+  const band = x.createLinearGradient(0, 0, W, headH);
+  band.addColorStop(0, '#1d2a47'); band.addColorStop(0.6, '#1c1f2a'); band.addColorStop(1, '#15171c');
+  x.fillStyle = band; x.fillRect(0, 0, W, headH);
+  x.textBaseline = 'alphabetic';
+  x.fillStyle = '#9fc0ff'; x.font = F(700, 18); x.fillText('👤 プレイヤー', P, 42);
+  dot(P + 18, 82, 17, d.color);
+  x.fillStyle = '#ffffff'; x.font = F(800, 42); x.fillText(fit(nm(d.name), W - P * 2 - 56), P + 50, 97);
+  x.fillStyle = '#c9cdd6'; x.font = F(400, 17);
+  x.fillText(fit(d.scope, W - P * 2), P, 132);
+  let y = headH + 14;
+  // 数字のカード
+  const cw1 = cellW(cardCols);
+  d.cards.forEach(([k, v], i) => {
+    const [bx, by] = at(i, cardCols, cw1, cardH, y);
+    box(bx, by, cw1, cardH, '#1d2027', '#2f3440');
+    x.font = F(400, 14); x.fillStyle = '#9096a5'; x.fillText(fit(k, cw1 - 24), bx + 14, by + 26);
+    x.font = F(700, 22); x.fillStyle = '#f0f2f6'; x.fillText(fit(v, cw1 - 24), bx + 14, by + 60);
+  });
+  y += grid(d.cards.length, cardCols, cardH) + 8;
+  const head = t => { x.fillStyle = '#dfe3ea'; x.font = F(700, 18); x.fillText(t, P, y + 27); y += secH; };
+  // 受賞
+  head('🏅 受賞');
+  if(!d.awards.length){ x.font = F(400, 16); x.fillStyle = '#7d8391'; x.fillText('まだ受賞はありません', P, y + 22); y += 40; }
+  const cw2 = cellW(awCols);
+  d.awards.forEach((a, i) => {
+    const gold = a.a.medal === 'gold';
+    const [bx, by] = at(i, awCols, cw2, awH, y);
+    const g2 = x.createLinearGradient(bx, 0, bx + cw2, 0);
+    g2.addColorStop(0, gold ? '#3a3015' : '#2b2f38'); g2.addColorStop(1, '#1d2027');
+    box(bx, by, cw2, awH, g2, gold ? '#6b5a1f' : '#3a3f4c');
+    const mx = bx + 34, my = by + awH / 2, mr = 21;
+    const mg = x.createRadialGradient(mx - 7, my - 8, 2, mx, my, mr);
+    if(gold){ mg.addColorStop(0, '#fff1a8'); mg.addColorStop(0.55, '#e2b93b'); mg.addColorStop(1, '#8a6a12'); }
+    else { mg.addColorStop(0, '#ffffff'); mg.addColorStop(0.55, '#b9c0cc'); mg.addColorStop(1, '#6c7380'); }
+    x.fillStyle = mg; x.beginPath(); x.arc(mx, my, mr, 0, 7); x.fill();
+    x.font = F(400, 20); x.textAlign = 'center'; x.fillStyle = '#000'; x.fillText(a.a.icon, mx, my + 7); x.textAlign = 'left';
+    const cnt = `× ${a.n}`;
+    x.font = F(700, 19); const cntW = x.measureText(cnt).width;
+    x.fillStyle = '#e9ebf0'; x.textAlign = 'right'; x.fillText(cnt, bx + cw2 - 16, by + 40); x.textAlign = 'left';
+    x.font = F(800, 19); x.fillStyle = gold ? '#ffe08a' : '#f0f2f6';
+    x.fillText(fit(a.a.name, cw2 - 66 - cntW - 28), bx + 66, by + 40);
+  });
+  y += grid(d.awards.length, awCols, awH);
+  // 記録
+  head('📈 記録');
+  const cw3 = cellW(recCols);
+  d.records.forEach(([k, v], i) => {
+    const [bx, by] = at(i, recCols, cw3, recH, y);
+    box(bx, by, cw3, recH, '#1a1d24', '#2b2f3a');
+    x.font = F(400, 13); x.fillStyle = '#9096a5'; x.fillText(fit(k, cw3 - 24), bx + 14, by + 23);
+    x.font = F(700, 18); x.fillStyle = '#e9ebf0'; x.fillText(fit(v, cw3 - 24), bx + 14, by + 50);
+  });
+  y += grid(d.records.length, recCols, recH);
+  // 相性
+  if(d.pairs.length){
+    head('🤝 相性');
+    const cw4 = cellW(pairCols);
+    d.pairs.forEach((p, i) => {
+      const [bx, by] = at(i, pairCols, cw4, pairH, y);
+      box(bx, by, cw4, pairH, '#1a1d24', '#2b2f3a');
+      x.font = F(400, 13); x.fillStyle = '#9096a5'; x.fillText(fit(p.k, cw4 - 24), bx + 14, by + 23);
+      x.font = F(400, 14); const tw = x.measureText(p.txt).width;
+      x.fillStyle = '#aeb4c2'; x.textAlign = 'right'; x.fillText(p.txt, bx + cw4 - 14, by + 52); x.textAlign = 'left';
+      let wx = bx + 14; const lim = bx + cw4 - 14 - tw - 10;
+      for(let k = 0; k < p.who.length; k++){
+        const w = p.who[k], label = nm(w.name);
+        x.font = F(600, 16); const lw = x.measureText(label).width;
+        if(k > 0 && wx + 18 + lw + 60 > lim){ x.font = F(400, 13); x.fillStyle = '#9096a5'; x.fillText(`ほか${p.who.length - k}人`, wx, by + 52); break; }
+        dot(wx + 6, by + 46, 6, w.color);
+        x.fillStyle = '#e9ebf0'; x.font = F(600, 16); const t = fit(label, Math.max(30, lim - wx - 18)); x.fillText(t, wx + 17, by + 52);
+        wx += 17 + x.measureText(t).width + 14;
+      }
+    });
+    y += grid(d.pairs.length, pairCols, pairH);
+  }
+  x.font = F(400, 14); x.fillStyle = '#6f7584'; x.textAlign = 'right';
+  x.fillText(`NoS 戦歴ビューア v${VERSION}`, W - P, H - 18); x.textAlign = 'left';
+  return new Promise(ok => c.toBlob(ok, 'image/png'));
+}
+sortState.vvPlayers = { k: 'w', d: -1 };
+sortState.vvGames = { k: 'no', d: 1 };
+$('#vvClose').onclick = leavePage;
+$('#vvPrev').onclick = () => { const v = vvVillage(), i = villages.indexOf(v); if(villages[i + 1]) openVillage(villages[i + 1]); };
+$('#vvNext').onclick = () => { const v = vvVillage(), i = villages.indexOf(v); if(i > 0) openVillage(villages[i - 1]); };
+$('#vvName').onclick = () => { const v = vvVillage(); if(v) editInline($('#vvTitle'), villageName(v), `${md(v.start)} の村の名前`, n => setVillageName(v, n)); };
 
 // ================= 再生 =================
 const seek = $('#seek');
@@ -1762,7 +2629,7 @@ $('#helpBtn').onclick =() => { const h = $('#help'); h.hidden = !h.hidden; $('#h
 $('#prevKill').onclick = () => jumpKill(-1);
 $('#nextKill').onclick = () => jumpKill(1);
 addEventListener('keydown', e => {
-  if(!cur || statsOpen || e.target.tagName === 'INPUT' && e.target.type !== 'range' || e.target.tagName === 'SELECT') return;
+  if(!cur || statsOpen || pageOpen || e.target.tagName === 'INPUT' && e.target.type !== 'range' || e.target.tagName === 'SELECT') return;
   // ↑↓：一覧の前後の試合へ（一覧に出ている順。たたんだ村は飛ばす）
   if(e.key === 'ArrowUp' || e.key === 'ArrowDown'){
     const items = [...document.querySelectorAll('#games .g')];
@@ -2104,7 +2971,7 @@ $('#shotCopy').onclick = async () => {
 
 // ================= 新しいバージョンのお知らせ =================
 // 開いたときに GitHub で最新版の番号だけを確かめる（半日に1回。こちらから送るものはありません）
-const VERSION = '1.6';
+const VERSION = '1.7';
 const REPO = 'MandanoRyuseigun/nos-record-viewer';
 const UPD_KEY = 'nos-viewer-update';
 $('#ver').textContent = 'v' + VERSION;
