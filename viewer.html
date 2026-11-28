@@ -341,12 +341,78 @@ table.st.vs td.win{font-weight:700;color:#ffe08a}
 #sCards,#pvCards,#vvCards{grid-template-columns:repeat(6,1fr)}
 #sCards .card:last-child .v{white-space:normal;font-size:13.5px;line-height:1.6} /* いちばん勝った人は、何人もいると折り返す */
 @media (max-width:1000px){#app{grid-template-columns:1fr;height:auto}#side{max-height:40vh}.cards{grid-template-columns:repeat(2,1fr)}.stage{grid-template-columns:minmax(0,1fr);grid-template-areas:"map" "opts" "ctrl" "below";gap:10px 0}.opts{width:100%}#sCards,#pvCards,#vvCards{grid-template-columns:repeat(3,1fr)}}
+/* ================= 録画鑑賞モード ================= */
+#recOpen{width:100%;margin:0 0 8px}
+#recBox,#recBar,#recPanel,#recTab{display:none}
+body.rc-on #recBox{display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:80;background:#000;overflow:hidden}
+#recGames .chip.on{background:var(--acc2);border-color:var(--acc)}
+body.rc-on::before{content:'';position:fixed;inset:0;background:#0b0d12;z-index:79}
+body.rc-on #toast,body.rc-on #drop{z-index:100}
+#recVideo{display:block;flex:1;min-height:0;width:100%;background:#000;object-fit:contain;cursor:pointer}
+body.rc-on #recBar{display:block;position:fixed;left:0;bottom:0;width:100vw;z-index:88;padding:4px 10px 6px;background:#000;color:#fff;font-size:12px;transition:opacity .3s}
+#recBar .btns{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#recBar button{background:none;border:0;color:#fff;font-size:15px;cursor:pointer;padding:2px 4px;white-space:nowrap}
+#recBar button.b{font-size:12px;border:1px solid #ffffff55;border-radius:6px;padding:2px 7px}
+#recBar button.b:hover{border-color:#fff}
+#recBar button.b.on{background:var(--acc2);border-color:var(--acc)}
+#recBar .grp{display:inline-flex;gap:3px;flex-wrap:wrap}
+#recBar .sp{flex:1}
+#recTime{font-variant-numeric:tabular-nums;white-space:nowrap}
+#recSeek{position:relative;height:36px;cursor:pointer;touch-action:none;background:linear-gradient(#ffffff1f,#ffffff1f) 0 15px/100% 15px no-repeat}
+#recSeek .gm{position:absolute;top:15px;height:15px;background:#2f5fa8;border-left:2px solid #fff;border-right:2px solid #fff;font-size:10px;line-height:15px;text-align:center;overflow:hidden;white-space:nowrap;color:#fff}
+#recSeek .gm.alt{background:#2a8a78}
+#recSeek .mt{position:absolute;top:26px;height:4px;background:#f0c040;pointer-events:none}
+#recSeek .prog{position:absolute;left:0;top:31px;height:3px;background:#ff4d4d}
+#recSeek .hd2{position:absolute;top:14px;width:3px;height:21px;margin-left:-1px;background:#ff4d4d;box-shadow:0 0 3px #000;pointer-events:none}
+#recSeek .mk{position:absolute;top:2px;margin-left:-6px;width:12px;height:12px;line-height:0}
+#recSeek .mk.meet{font-size:11px;line-height:12px;text-align:center;margin-left:-7px;width:14px}
+#recTip{position:absolute;bottom:38px;transform:translateX(-50%);background:#000e;border:1px solid var(--line2);border-radius:6px;padding:1px 7px;white-space:nowrap;pointer-events:none;z-index:3}
+body.rc-on .mapbox{position:fixed!important;z-index:85;aspect-ratio:auto!important;max-width:none!important;border:0!important}
+body.rc-on .mapbox canvas{width:100%!important;height:100%!important}
+/* 左右・上下に並べる：録画とマップで画面を分ける */
+body.rc-lr #recBox{width:var(--rcSplit,62vw);height:calc(100vh - var(--rcBarH,64px))}
+body.rc-lr #recBar{width:var(--rcSplit,62vw)}
+body.rc-lr .mapbox{left:var(--rcSplit,62vw)!important;top:0!important;right:0!important;bottom:0!important;width:auto!important;height:auto!important;background:#0b0d12!important;border-radius:0!important}
+body.rc-tb #recBox{width:100vw;height:calc(var(--rcSplitH,62vh) - var(--rcBarH,64px))}
+body.rc-tb #recBar{bottom:auto;top:calc(var(--rcSplitH,62vh) - var(--rcBarH,64px))}
+body.rc-tb .mapbox{left:0!important;right:0!important;top:var(--rcSplitH,62vh)!important;bottom:0!important;width:auto!important;height:auto!important;background:#0b0d12!important;border-radius:0!important}
+body.rc-lr.rc-nogame .mapbox canvas,body.rc-tb.rc-nogame .mapbox canvas{opacity:.35}
+/* 映像の上に表示：録画を画面いっぱいに、マップを隅に */
+body.rc-over #recBox{width:100vw;height:100vh}
+body.rc-over #recBar{background:linear-gradient(transparent,#000d 30%)}
+body.rc-over .mapbox{width:var(--rcSize,28vw)!important;height:var(--rcSize,28vw)!important;background:transparent!important;box-shadow:none!important;border-radius:10px;overflow:hidden;pointer-events:none;transform:translate(var(--rcDX,0px),var(--rcDY,0px))}
+body.rc-over .mapbox canvas{opacity:var(--rcOp,.9)}
+body.rc-over .mapbox .badge,body.rc-over .mapbox .fit,body.rc-over.rc-nogame .mapbox{display:none}
+body.rc-over.rc-follow .mapbox{-webkit-mask-image:radial-gradient(circle at center,#000 55%,transparent 72%);mask-image:radial-gradient(circle at center,#000 55%,transparent 72%)}
+body.rc-over.rc-pos-bl .mapbox{left:16px!important;bottom:16px!important}
+body.rc-over.rc-pos-br .mapbox{right:16px!important;bottom:16px!important}
+body.rc-over.rc-pos-tl .mapbox{left:16px!important;top:16px!important}
+body.rc-over.rc-pos-tr .mapbox{right:16px!important;top:16px!important}
+body.rc-over.rc-idle #recBar{opacity:0;pointer-events:none}
+body.rc-over.rc-idle{cursor:none}
+body.rc-over.rc-idle #recVideo{cursor:none}
+/* 設定のパネル */
+body.rc-on #recPanel{display:block;position:fixed;right:12px;top:12px;z-index:90;width:340px;max-height:calc(100vh - var(--rcBarH,64px) - 24px);overflow:auto;background:#1b1e26f2;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font-size:12px;box-shadow:0 6px 24px #0008}
+body.rc-on.rc-pmin #recPanel{display:none}
+body.rc-on.rc-pmin #recTab{display:block;position:fixed;right:12px;top:12px;z-index:95;background:#1b1e26ee;border:1px solid var(--line2);border-radius:8px;font-size:16px;padding:4px 8px;cursor:pointer;transition:opacity .3s}
+body.rc-on.rc-idle #recTab{opacity:0;pointer-events:none}
+#recPanel h4{margin:0 0 6px;font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+#recPanel .row{display:flex;align-items:center;gap:6px;margin:6px 0;flex-wrap:wrap}
+#recPanel label{display:inline-flex;align-items:center;gap:3px;cursor:pointer}
+#recPanel input[type=range]{width:90px;accent-color:var(--acc)}
+#recPanel select{background:var(--panel2);border:1px solid var(--line2);border-radius:6px;padding:1px 4px}
+#recPanel .dim{color:var(--sub)}
+#recGames{max-height:130px;overflow:auto;display:flex;flex-wrap:wrap;gap:4px}
+#recNudge .chip{min-width:28px;padding:2px 6px}
+body:not(.rc-over) .rcOverOnly,body.rc-over .rcSplitOnly{display:none!important}
 </style>
 </head>
 <body>
 <div id="app">
   <aside id="side">
     <div class="hd"><h2>ゲームデータ <span class="small" style="font-weight:400" title="NoS 戦歴ビューアのバージョン" id="ver"></span></h2><span><button class="icon" id="statsBtn" title="統計（勝率など）">📊</button> <button class="icon" id="pvBtn" title="プレイヤーごとのページ">👤</button> <button class="icon" id="hfBtn" title="殿堂（歴代記録・役職ごとのランキング）">🏛️</button> <button class="icon" id="pick" title="フォルダを読み込む">📁</button> <button class="icon" id="reload" title="再読み込み（先に open-viewer.cmd を実行しておくと、最新の試合が入ります）">⟳</button></span></div>
+    <button class="chip" id="recOpen" title="OBS などで録画した動画を開いて、記録のマップと一緒に再生します（試験中の機能です）">🎬 録画を見る（ベータ）</button>
+    <input type="file" id="recFile" accept="video/*,.mkv" hidden>
     <div id="upd" hidden></div>
     <div id="bak" class="bak" hidden></div>
     <div class="chips"><button class="chip on" data-f="all">すべて</button><button class="chip" data-f="marked">マーク済み</button><button class="chip" data-f="trash" id="trashChip" hidden title="一覧から消した試合（ここから戻せます）"></button></div>
@@ -543,6 +609,42 @@ table.st.vs td.win{font-weight:700;color:#ffe08a}
       <div class="tw"><table class="st" id="vvGames"></table></div>
     </div>
   </main>
+</div>
+<div id="recBox"><video id="recVideo" preload="auto"></video></div>
+<div id="recBar">
+  <div id="recSeek"><div id="recBands"></div><div class="prog"></div><div class="hd2"></div><div id="recMarks"></div><div id="recTip" hidden></div></div>
+  <div class="btns">
+    <button id="recPlay" title="再生・停止（Space・録画をクリック）">▶</button><span id="recTime">0:00 / 0:00</span>
+    <span class="grp">
+      <button class="b" id="recPrevG" title="前の試合の始まりへ（↑）">≪ 試合</button>
+      <button class="b" id="recPrevT" title="このターンの始まり・前のターンへ（A）">‹ ターン</button>
+      <button class="b" id="recBack" title="10秒戻る（Shift＋←）">−10秒</button>
+      <button class="b" id="recFwd" title="10秒進む（Shift＋→）">＋10秒</button>
+      <button class="b" id="recNextT" title="次のターンの始まりへ（D）">ターン ›</button>
+      <button class="b" id="recNextG" title="次の試合の始まりへ（↓）">試合 ≫</button>
+    </span>
+    <span class="sp"></span>
+    <button class="b" id="recZoom" title="再生バーを今の試合だけに広げて、キルや会議の印を出します（Z）">🔍 試合を拡大</button>
+    <button id="recMute" title="音を消す">🔊</button><button id="recFull" title="全画面（マップも一緒に）">⛶</button>
+    <button class="b" data-recexit title="録画鑑賞モードを終わります（Esc）">✕ 通常に戻る</button>
+  </div>
+</div>
+<button id="recTab" title="設定を開く（H キー）">🎬</button>
+<div id="recPanel">
+  <h4>🎬 録画鑑賞モード（ベータ）<span><button class="chip" data-recexit title="録画鑑賞モードを終わります（Esc）">✕ 通常に戻る</button> <button class="chip" id="recMin" title="設定を隠す（H キー）">－</button></span></h4>
+  <div class="row dim" id="recInfo"></div>
+  <div id="recGames"></div>
+  <div class="row" title="録画とマップがずれて見えるときに合わせます（録画ごとに覚えます）">ずれ調整 <input type="range" data-rec="off" min="-10" max="10" step="0.05"><span id="recOffV"></span></div>
+  <div class="row">表示：<label><input type="radio" name="recLay" value="lr">左右に並べる</label><label><input type="radio" name="recLay" value="tb">上下に並べる</label><label><input type="radio" name="recLay" value="over">映像の上に表示</label></div>
+  <div class="row rcSplitOnly">録画の広さ <input type="range" data-rec="split" min="35" max="80" step="1"></div>
+  <div class="row">表示する人：<label><input type="radio" name="recWho" value="all">全員</label><label title="マップで選んだ人（選んでいなければ「自分の名前」の人、どちらも無ければホスト）だけを出します"><input type="radio" name="recWho" value="me">自分だけ</label></div>
+  <div class="row">範囲：<label><input type="radio" name="recRange" value="all">マップ全体</label><label><input type="radio" name="recRange" value="follow">自分の周辺</label><input type="range" data-rec="zoom" min="4" max="20" step="0.5" title="周辺の広さ"></div>
+  <div class="row">キャラ：<label><input type="radio" name="recDot" value="dot">点</label><label><input type="radio" name="recDot" value="icon">アイコン</label>大きさ <input type="range" data-rec="size" min="0.4" max="2.5" step="0.1"></div>
+  <div class="row"><label><input type="checkbox" data-rec="name">キャラの名前</label></div>
+  <div class="row rcOverOnly">マップの位置：<select data-rec="pos"><option value="bl">左下</option><option value="br">右下</option><option value="tl">左上</option><option value="tr">右上</option></select>
+    <span id="recNudge" title="位置の微調整（Shift を押しながらだと大きく動きます）"><button class="chip" data-d="l">←</button> <button class="chip" data-d="u">↑</button> <button class="chip" data-d="d">↓</button> <button class="chip" data-d="r">→</button> <button class="chip" data-d="0" title="元の位置に戻す">↺</button></span></div>
+  <div class="row rcOverOnly">マップの大きさ <input type="range" data-rec="msize" min="15" max="45" step="1"> 濃さ <input type="range" data-rec="op" min="30" max="100" step="5"></div>
+  <div class="row dim" id="recNow"></div>
 </div>
 <div id="drop">ここにドロップして読み込み</div>
 <div id="toast"></div>
@@ -3471,6 +3573,7 @@ $('#helpBtn').onclick =() => { const h = $('#help'); h.hidden = !h.hidden; $('#h
 $('#prevKill').onclick = () => jumpKill(-1);
 $('#nextKill').onclick = () => jumpKill(1);
 addEventListener('keydown', e => {
+  if(REC.on){ recKey(e); return; }
   if(!cur || statsOpen || pageOpen || e.target.tagName === 'INPUT' && e.target.type !== 'range' || e.target.tagName === 'SELECT') return;
   // ↑↓：一覧の前後の試合へ（一覧に出ている順。たたんだ村は飛ばす）
   if(e.key === 'ArrowUp' || e.key === 'ArrowDown'){
@@ -3618,9 +3721,15 @@ function draw(){
   const d = devicePixelRatio || 1, W = cv.width, H = cv.height;
   ctx.clearRect(0,0,W,H);
   if(!cur || !step) return;
+  // 録画鑑賞モードでは、表示する人・範囲・キャラの見せ方を専用の設定にする
+  const rec = REC.on, meId = rec ? recMeId() : null;
+  const skip = id => rec && REC.opt.who === 'me' && id !== meId;
+  const dot = rec && REC.opt.dot === 'dot';
+  const csize = rec ? +REC.opt.size : 1;
+  if(rec) recFollow(meId);
   const f = floorOf(cur);
   if(f){ ctx.imageSmoothingEnabled = true; ctx.drawImage(step.type === 'meet' && f.cvMeeting ? f.cvMeeting : f.cv, sx(f.minX), sy(f.maxY), f.w*view.s, f.h*view.s); }
-  const oAlive = $('#oAlive').checked, oGhost = $('#oGhost').checked, oObj = $('#oObj').checked, oName = $('#oName').checked, trail = +$('#oTrail').value;
+  const oAlive = $('#oAlive').checked, oGhost = $('#oGhost').checked, oObj = $('#oObj').checked, oName = rec ? REC.opt.name : $('#oName').checked, trail = +$('#oTrail').value;
   const H0 = Math.max(16*d, (f && f.image ? 1.3 : 0.95)*view.s);
   if(oObj && f) for(const v of f.vents) vent(sx(v.x), sy(v.y), Math.max(16*d, (f.image ? 1.4 : 0.9)*view.s));
   const ta = absNow();
@@ -3630,7 +3739,7 @@ function draw(){
     for(const e of cur.events){
       if(e.time > ta + 0.01) break;
       if(e.time < from - 0.5 || !BODY.has(e.detailTranslationKey)) continue;
-      for(const tid of e.targetIds||[]){ const p = (e.positions||[]).find(q => q.playerId === tid); if(p) deadBody(sx(p.x), sy(p.y), H0, pcol(cur.players.get(tid))); }
+      for(const tid of e.targetIds||[]){ const p = (e.positions||[]).find(q => q.playerId === tid); if(p && !skip(tid)) (dot ? dotBody : deadBody)(sx(p.x), sy(p.y), H0 * csize, pcol(cur.players.get(tid))); }
     }
   }
   const labels = [];
@@ -3638,7 +3747,7 @@ function draw(){
   // 視界：生きている人の位置に、その人の色の半透明の円（キャラを選んでいるときはその人だけ）
   const oVision = $('#oVision').checked;
   const visionCircle = (id, x, y) => {
-    if(selPlayer != null && id !== selPlayer) return;
+    if(selPlayer != null && id !== selPlayer || skip(id)) return;
     const pl = cur.players.get(id);
     const col = cssColor(pcol(pl).main) || '#ffffff';
     const visR = VISION_BASE * visionOf(pl) * view.s;
@@ -3653,12 +3762,13 @@ function draw(){
     if(oVision && oAlive) for(const [id, tr] of seg.tracks){ const pos = sample(seg, tr, ta); if(pos && !(pos.s & 1)) visionCircle(id, pos.x, pos.y); }
     // 軌跡（ベントでの移動は点線）
     for(const [id, tr] of seg.tracks){
-      const all = trail === -1 || id === selPlayer;
-      if(!all && trail <= 0) continue;
+      // 録画鑑賞モードでは、選んだ人でも先の動きは出さない
+      const all = trail === -1 || (!rec && id === selPlayer);
+      if(skip(id) || !all && trail <= 0) continue;
       const p = tr.points, st = tr.states||[], n = p.length/2;
       const iNow = Math.min(n-1, Math.floor(tIn/seg.interval));
       const i0 = all ? 0 : Math.max(0, iNow - Math.round(trail/seg.interval));
-      const iEnd = id === selPlayer ? n-1 : iNow;
+      const iEnd = !rec && id === selPlayer ? n-1 : iNow;
       const dead = st[iNow] & 1;
       if(dead ? !oGhost : !oAlive) continue;
       ctx.strokeStyle = pcol(cur.players.get(id)).main; ctx.lineWidth = (id === selPlayer ? 3.5 : 2.5)*d; ctx.lineCap = ctx.lineJoin = 'round';
@@ -3685,14 +3795,15 @@ function draw(){
     }
     const ids = [...seg.tracks.keys()].sort((a,b) => (a===selPlayer) - (b===selPlayer));
     for(const id of ids){
-      const tr = seg.tracks.get(id), pos = sample(seg, tr, ta); if(!pos) continue;
+      const tr = seg.tracks.get(id), pos = sample(seg, tr, ta); if(!pos || skip(id)) continue;
       const dead = pos.s & 1, inVent = pos.s & 4;
       if(dead ? !oGhost : !oAlive) continue;
       lastPos.set(id, pos);
       const pl = cur.players.get(id), X = sx(pos.x), Y = sy(pos.y);
-      crew(X, Y, H0, pcol(pl), { flip: facingLeft(tr, pos.i), ghost: !!dead, alpha: dead ? 0.5 : inVent ? 0.35 : 1 });
-      if(id === selPlayer){ ctx.strokeStyle = '#fff'; ctx.lineWidth = 2*d; ctx.beginPath(); ctx.arc(X, Y, H0*0.8, 0, 7); ctx.stroke(); }
-      if(oName && pl) labels.push([mapLabel(pl), X, Y - H0*0.62]);
+      const o = { flip: facingLeft(tr, pos.i), ghost: !!dead, alpha: dead ? 0.5 : inVent ? 0.35 : 1 };
+      if(dot) dotCrew(X, Y, H0 * csize, pcol(pl), o, id === meId); else crew(X, Y, H0 * csize, pcol(pl), o);
+      if(!dot && id === selPlayer){ ctx.strokeStyle = '#fff'; ctx.lineWidth = 2*d; ctx.beginPath(); ctx.arc(X, Y, H0*csize*0.8, 0, 7); ctx.stroke(); }
+      if(oName && pl) labels.push([mapLabel(pl), X, Y - (dot ? dotR(H0 * csize) + 4*d : H0*csize*0.62)]);
     }
     const alive = [...seg.tracks.values()].filter(t => !((sample(seg,t,ta)||{}).s & 1)).length;
     $('#badge').textContent = `ターン ${seg.idx+1} ・ 生存 ${alive}人`;
@@ -3701,11 +3812,11 @@ function draw(){
     if(oVision && oAlive) for(const p of m.start.positions || []) if(!dead.has(p.playerId)) visionCircle(p.playerId, p.x, p.y);
     for(const p of m.start.positions || []){
       const isDead = dead.has(p.playerId);
-      if(isDead ? !oGhost : !oAlive) continue;
+      if((isDead ? !oGhost : !oAlive) || skip(p.playerId)) continue;
       lastPos.set(p.playerId, p);
-      const pl = cur.players.get(p.playerId), X = sx(p.x), Y = sy(p.y);
-      crew(X, Y, H0, pcol(pl), { ghost: isDead, alpha: isDead ? 0.5 : 1 });
-      if(oName && pl) labels.push([mapLabel(pl), X, Y - H0*0.62]);
+      const pl = cur.players.get(p.playerId), X = sx(p.x), Y = sy(p.y), o = { ghost: isDead, alpha: isDead ? 0.5 : 1 };
+      if(dot) dotCrew(X, Y, H0 * csize, pcol(pl), o, p.playerId === meId); else crew(X, Y, H0 * csize, pcol(pl), o);
+      if(oName && pl) labels.push([mapLabel(pl), X, Y - (dot ? dotR(H0 * csize) + 4*d : H0*csize*0.62)]);
     }
     $('#badge').textContent = `会議 ${m.idx}（${EVT[m.start.detailTranslationKey]}された瞬間の位置）`;
   }
@@ -3811,9 +3922,303 @@ $('#shotCopy').onclick = async () => {
   } catch(_) { shotAlias = null; draw(); toast('このブラウザではコピーできませんでした。「画像を保存」を使ってください'); }
 };
 
+// ================= 録画鑑賞モード =================
+// OBS などの録画を読み込み（コピーはしません）、記録と実際の時刻で合わせて、マップを一緒に動かす。
+// 録画を始めた時刻は、ファイル名の「YYYY-MM-DD hh-mm-ss」（OBS のはじめの設定）から読む。
+const REC_KEY = 'nos-viewer-rec';
+const REC_DEF = { lay: 'lr', split: 62, who: 'all', range: 'all', zoom: 9, dot: 'dot', size: 1, name: true, pos: 'bl', msize: 28, op: 90, nx: 0, ny: 0, offs: {} };
+const REC = { on: false, start: 0, file: '', url: '', raf: 0, last: -1, idle: 0, loading: 0, opt: { ...REC_DEF } };
+try { Object.assign(REC.opt, JSON.parse(localStorage.getItem(REC_KEY) || '{}') || {}); } catch(_) {}
+if(!REC.opt.offs || typeof REC.opt.offs !== 'object') REC.opt.offs = {};
+const recSave = () => { try { localStorage.setItem(REC_KEY, JSON.stringify(REC.opt)); } catch(_) {} };
+const recV = $('#recVideo');
+const recFmt = t => { t = Math.max(0, t || 0); const h = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, x = String(Math.floor(t % 60)).padStart(2, '0'); return h ? `${h}:${String(m).padStart(2, '0')}:${x}` : `${m}:${x}`; };
+const recOff = () => +REC.opt.offs[REC.file] || 0;
+// 記録の中の時刻 → 実際の時刻：startedAtUtc は、マップの物（ベントなど）が出たいちばん早い時刻にあたる
+const recBase = g => { if(g.recBase == null){ let a = Infinity; for(const o of g.rec.mapObjects || []) if(isFinite(o.spawnTime) && o.spawnTime < a) a = o.spawnTime; g.recBase = isFinite(a) ? a : (g.segs[0] ? g.segs[0].absStart - 1.8 : 0); } return g.recBase; };
+const recEndT = g => Math.max(g.events.length ? g.events[g.events.length - 1].time : 0, g.segs.length ? g.segs[g.segs.length - 1].absEnd : 0);
+const recVT = (g, t, start = REC.start) => (g.started.getTime() + (t - recBase(g)) * 1000 - start) / 1000 + recOff(); // 記録の時刻 → 録画の秒
+const recGT = (g, vt) => recBase(g) + ((vt - recOff()) * 1000 + REC.start - g.started.getTime()) / 1000;          // 録画の秒 → 記録の時刻
+const recGames = (start = REC.start) => games.filter(g => !isHidden(g) && g.segs.length && recVT(g, recEndT(g), start) > 0 && recVT(g, recBase(g), start) < (recV.duration || 0))
+  .sort((a, b) => a.started - b.started);
+// 試合の中の時刻を先に探し、無ければ前後3秒まで広げる（試合の間が短いとき、前の試合のままにならないように）
+const recGameAt = (list, vt) => [0, 3].reduce((hit, pad) => hit || list.find(g => vt >= recVT(g, recBase(g)) - pad && vt <= recVT(g, recEndT(g)) + pad), null);
+let recList = [];
+
+// ---- 開く・閉じる ----
+$('#recOpen').onclick = () => $('#recFile').click();
+$('#recFile').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if(f) recStart(f); };
+function recStart(file){
+  const m = file.name.match(/(\d{4})-(\d{2})-(\d{2})[ _T](\d{2})-(\d{2})-(\d{2})/);
+  if(!m){ toast('録画を始めた時刻がファイル名から読めません。「2026-11-27 23-35-55.mp4」のような名前（OBS のはじめの設定）のまま使ってください'); return; }
+  const start = new Date(+m[1], m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime();
+  if(REC.on || REC.url) recExit();
+  const ticket = ++REC.loading;
+  REC.url = URL.createObjectURL(file); REC.file = file.name;
+  recV.onerror = () => { if(ticket !== REC.loading || !REC.url) return; recExit(); toast('この動画は再生できませんでした。mkv の場合は、OBS の「ファイル」→「録画の再多重化」で mp4 にしてから開いてください'); };
+  recV.onloadedmetadata = () => {
+    if(ticket !== REC.loading) return;
+    const list = recGames(start);
+    if(!list.length){ recExit(); toast('この録画の時間に重なる試合がありません。先に open-viewer.cmd を実行して、その試合の記録を読み込んでください'); return; }
+    REC.start = start; REC.on = true; REC.last = -1; recList = list;
+    REC.zoomed = false; REC.zg = null; $('#recZoom').classList.remove('on');
+    document.body.classList.add('rc-on');
+    select(list[0]);
+    recApply(); recRenderGames(); recRenderMarks();
+    recSeekTo(recVT(list[0], list[0].segs[0].absStart) - 2); // 最初の試合の始まりから
+    recUpdateBar();
+    $('#recInfo').textContent = `録画の開始 ${new Date(start).toLocaleString('ja-JP')}・長さ ${recFmt(recV.duration)}・${list.length}試合`;
+    cancelAnimationFrame(REC.raf); REC.raf = requestAnimationFrame(recLoop);
+    recWake();
+  };
+  recV.src = REC.url;
+}
+function recExit(){
+  REC.loading++;
+  const was = REC.on; REC.on = false;
+  cancelAnimationFrame(REC.raf); clearTimeout(REC.idle);
+  recV.onerror = recV.onloadedmetadata = null;
+  recV.pause(); recV.removeAttribute('src'); recV.load();
+  if(REC.url) URL.revokeObjectURL(REC.url);
+  REC.url = '';
+  document.body.classList.remove('rc-on', 'rc-lr', 'rc-tb', 'rc-over', 'rc-follow', 'rc-nogame', 'rc-idle', 'rc-pmin', 'rc-pos-bl', 'rc-pos-br', 'rc-pos-tl', 'rc-pos-tr');
+  if(document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  if(was && cur){ syncCtrl(); requestAnimationFrame(fitView); }
+}
+document.querySelectorAll('[data-recexit]').forEach(b => b.onclick = recExit);
+
+// ---- 設定 ----
+function recApply(){
+  const o = REC.opt, c = document.body.classList, root = document.documentElement.style;
+  for(const l of ['lr', 'tb', 'over']) c.toggle('rc-' + l, REC.on && o.lay === l);
+  for(const q of ['bl', 'br', 'tl', 'tr']) c.toggle('rc-pos-' + q, REC.on && o.pos === q);
+  c.toggle('rc-follow', REC.on && o.range === 'follow');
+  root.setProperty('--rcSplit', o.split + 'vw'); root.setProperty('--rcSplitH', o.split + 'vh');
+  root.setProperty('--rcSize', o.msize + 'vw'); root.setProperty('--rcOp', o.op / 100);
+  root.setProperty('--rcDX', o.nx + 'px'); root.setProperty('--rcDY', o.ny + 'px');
+  for(const [n, k] of [['recLay', 'lay'], ['recWho', 'who'], ['recRange', 'range'], ['recDot', 'dot']])
+    document.querySelectorAll(`input[name=${n}]`).forEach(r => r.checked = r.value === o[k]);
+  document.querySelectorAll('[data-rec]').forEach(el => {
+    const k = el.dataset.rec;
+    if(el.type === 'checkbox') el.checked = !!o[k]; else el.value = k === 'off' ? recOff() : o[k];
+  });
+  $('#recOffV').textContent = recOff().toFixed(2) + '秒';
+}
+// 設定を変えたあと、大きさの変わったマップを描き直す
+function recRefit(){ requestAnimationFrame(() => { if(REC.on){ fitView(); REC.last = -1; } }); }
+for(const [n, k] of [['recLay', 'lay'], ['recWho', 'who'], ['recRange', 'range'], ['recDot', 'dot']])
+  document.querySelectorAll(`input[name=${n}]`).forEach(r => r.onchange = () => { REC.opt[k] = r.value; recSave(); recApply(); recRefit(); });
+document.querySelectorAll('[data-rec]').forEach(el => el.addEventListener('input', () => {
+  const k = el.dataset.rec;
+  if(k === 'off'){ REC.opt.offs[REC.file] = +el.value; recRenderGames(); recRenderMarks(); }
+  else REC.opt[k] = el.type === 'checkbox' ? el.checked : k === 'pos' ? el.value : +el.value;
+  recSave(); recApply();
+  if(k === 'split' || k === 'msize') recRefit(); else { REC.last = -1; draw(); }
+}));
+$('#recNudge').querySelectorAll('button').forEach(b => b.onclick = e => {
+  const o = REC.opt, k = e.shiftKey ? 32 : 8, d = b.dataset.d;
+  if(d === 'l') o.nx -= k; else if(d === 'r') o.nx += k; else if(d === 'u') o.ny -= k; else if(d === 'd') o.ny += k; else o.nx = o.ny = 0;
+  recSave(); recApply();
+});
+const recPanelMin = on => document.body.classList.toggle('rc-pmin', on);
+$('#recMin').onclick = () => recPanelMin(true);
+$('#recTab').onclick = () => recPanelMin(false);
+
+// ---- 録画の操作 ----
+const recSeekTo = t => { recV.currentTime = Math.max(0, Math.min(recV.duration || 0, t)); };
+const recToggle = () => { if(recV.paused) recV.play().catch(() => {}); else recV.pause(); };
+$('#recPlay').onclick = recToggle; recV.onclick = recToggle;
+recV.onplay = recV.onpause = () => { $('#recPlay').textContent = recV.paused ? '▶' : '❚❚'; recWake(); };
+recV.onvolumechange = () => { $('#recMute').textContent = recV.muted ? '🔇' : '🔊'; };
+$('#recMute').onclick = () => { recV.muted = !recV.muted; };
+// 全画面はページごと（録画だけを全画面にすると、マップが消えるため）
+$('#recFull').onclick = () => { if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => {}); };
+let recDragging = false;
+const recTimeAt = e => { const r = $('#recSeek').getBoundingClientRect(), [lo, hi] = recSpan(); return lo + Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * (hi - lo); };
+const recSeekAt = e => recSeekTo(recTimeAt(e));
+$('#recSeek').addEventListener('pointermove', e => {
+  const t = recTimeAt(e), i = recList.findIndex(g => t >= recVT(g, recBase(g)) && t <= recVT(g, recEndT(g)));
+  const r = $('#recSeek').getBoundingClientRect(), tip = $('#recTip');
+  tip.textContent = recFmt(t) + (i >= 0 ? `　${i + 1}　${noLabel(recList[i])}` : '');
+  tip.style.left = Math.max(50, Math.min(r.width - 50, e.clientX - r.left)) + 'px'; tip.hidden = false;
+});
+$('#recSeek').addEventListener('pointerleave', () => { $('#recTip').hidden = true; });
+$('#recSeek').onpointerdown = e => { recDragging = true; $('#recSeek').setPointerCapture(e.pointerId); recSeekAt(e); };
+$('#recSeek').onpointermove = e => { if(recDragging) recSeekAt(e); };
+$('#recSeek').onpointerup = $('#recSeek').onpointercancel = () => { recDragging = false; };
+// 再生中にマウスを動かさないと、操作バーと 🎬 を隠す（録画やキャプチャーに映らないように）
+function recWake(){
+  document.body.classList.remove('rc-idle'); clearTimeout(REC.idle);
+  if(REC.on) REC.idle = setTimeout(() => { if(REC.on && !recV.paused) document.body.classList.add('rc-idle'); }, 2500);
+}
+addEventListener('pointermove', () => { if(REC.on) recWake(); });
+// 前のキル／次のキル（録画の中のすべての試合から）
+function recJumpKill(dir){
+  const ts = recList.flatMap(g => g.events.filter(e => e.detailTranslationKey === 'statistics.events.kill' || e.detailTranslationKey === 'statistics.events.misfire').map(e => recVT(g, e.time) - 1.5)).sort((a, b) => a - b);
+  const now = recV.currentTime;
+  const t = dir > 0 ? ts.find(x => x > now + 0.2) : ts.filter(x => x < now - 1).pop();
+  if(t != null) recSeekTo(t);
+}
+function recKey(e){
+  if(e.ctrlKey || e.altKey || e.metaKey || e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT' && e.target.type === 'range') return;
+  const k = e.key.toLowerCase();
+  if(e.code === 'Space') recToggle();
+  else if(k === 'arrowleft') recSeekTo(recV.currentTime - (e.shiftKey ? 10 : 3));
+  else if(k === 'arrowright') recSeekTo(recV.currentTime + (e.shiftKey ? 10 : 3));
+  else if(k === 'arrowup') recSkip('game', -1);
+  else if(k === 'arrowdown') recSkip('game', 1);
+  else if(k === 'a') recSkip('turn', -1);
+  else if(k === 'd') recSkip('turn', 1);
+  else if(k === 'z') recSetZoom(!REC.zoomed);
+  else if(k === 'q') recJumpKill(-1);
+  else if(k === 'e') recJumpKill(1);
+  else if(k === 'h') recPanelMin(!document.body.classList.contains('rc-pmin'));
+  else if(k === 'escape'){ if(!document.fullscreenElement) recExit(); }
+  else return;
+  e.preventDefault(); recWake();
+}
+
+// ---- 試合の一覧と、シークバーの印 ----
+function recRenderGames(){
+  recList = recGames();
+  $('#recGames').innerHTML = recList.map((g, i) => `<button class="chip" data-i="${i}" title="この試合の始まりへ">${i + 1}　${recFmt(recVT(g, g.segs[0].absStart))}〜 ${esc(noLabel(g))}</button>`).join('') || '<span class="dim">この録画の時間に重なる試合がありません</span>';
+  $('#recGames').querySelectorAll('button').forEach(b => b.onclick = () => { const g = recList[+b.dataset.i]; recSeekTo(recVT(g, g.segs[0].absStart) - 2); });
+}
+// 再生バーに出す範囲（秒）。ふだんは録画全体、「試合を拡大」のときは今の試合だけ
+function recSpan(){
+  const dur = recV.duration || 0, g = REC.zoomed && REC.zg;
+  if(!g) return [0, dur];
+  const lo = Math.max(0, recVT(g, recBase(g)) - 3), hi = Math.min(dur, recVT(g, recEndT(g)) + 3);
+  return hi > lo ? [lo, hi] : [0, dur];
+}
+function recRenderMarks(){
+  if(!recV.duration) return;
+  const [lo, hi] = recSpan(), pc = t => Math.max(0, Math.min(100, (t - lo) / (hi - lo) * 100));
+  let bands = '', marks = '';
+  const mark = (t, jump, cls, title, inner) => { if(t >= lo && t <= hi) marks += `<span class="mk${cls}" style="left:${pc(t)}%" data-v="${jump}" title="${esc(`${recFmt(t)} ${title}`)}">${inner}</span>`; };
+  recList.forEach((g, i) => {
+    const from = recVT(g, g.segs[0].absStart), to = recVT(g, recEndT(g));
+    if(to < lo || from > hi) return;
+    // 試合ごとの区切り（色を交互にして、番号を出す）
+    bands += `<div class="gm${i % 2 ? ' alt' : ''}" style="left:${pc(from)}%;width:${pc(to) - pc(from)}%">${pc(to) - pc(from) > 2.5 ? esc(String(i + 1)) : ''}</div>`;
+    // キルや会議の印は「試合を拡大」のときだけ（録画全体では、試合の区切りだけにする）
+    if(!REC.zoomed) return;
+    for(const m of g.meetings){
+      const t = recVT(g, m.start.time), x = pc(t), y = pc(recVT(g, isFinite(m.end) ? m.end : m.start.time + 5));
+      const report = m.start.detailTranslationKey === 'statistics.events.report';
+      if(y > x) bands += `<div class="mt" style="left:${x}%;width:${y - x}%"></div>`;
+      mark(t, t, ' meet', `会議${m.idx}（${report ? '通報' : '緊急会議'}）`, report ? '📢' : '🔔');
+    }
+    for(const e of g.events){
+      const kill = e.detailTranslationKey === 'statistics.events.kill';
+      if(!kill && e.detailTranslationKey !== 'statistics.events.misfire') continue;
+      const c = cssColor(pcol(g.players.get(e.sourceId)).main) || '#ff5c5c', t = recVT(g, e.time);
+      mark(t, t - 1.5, '', kill ? 'キル' : 'シェリフの誤射', `<svg width="12" height="11" viewBox="0 0 12 11"><g fill="${c}" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"><polygon points="${kill ? '1,1 11,1 6,10' : '6,0 11,5 6,10 1,5'}"/></g></svg>`);
+    }
+  });
+  $('#recBands').innerHTML = bands; $('#recMarks').innerHTML = marks;
+  $('#recMarks').querySelectorAll('.mk').forEach(el => el.onpointerdown = e => { e.stopPropagation(); recSeekTo(+el.dataset.v); });
+}
+function recUpdateBar(){
+  const [lo, hi] = recSpan(), x = hi > lo ? Math.max(0, Math.min(100, (recV.currentTime - lo) / (hi - lo) * 100)) : 0;
+  $('#recTime').textContent = `${recFmt(recV.currentTime)} / ${recFmt(recV.duration)}`;
+  $('#recSeek .prog').style.width = x + '%'; $('#recSeek .hd2').style.left = x + '%';
+}
+// 今の位置の試合（合間なら、直前の試合）
+const recNearGame = vt => recGameAt(recList, vt) || recList.filter(g => recVT(g, recBase(g)) <= vt).pop() || recList[0];
+function recSetZoom(on){
+  REC.zoomed = on; REC.zg = on ? recNearGame(recV.currentTime) : null;
+  $('#recZoom').classList.toggle('on', on);
+  recRenderMarks(); recUpdateBar();
+}
+$('#recZoom').onclick = () => recSetZoom(!REC.zoomed);
+
+// ---- 試合・ターンの送り ----
+const recStarts = kind => recList.flatMap(g => (kind === 'game' ? [g.segs[0]] : g.segs).map(sg => Math.max(0, recVT(g, sg.absStart) - (kind === 'game' ? 2 : 0.3)))).sort((a, b) => a - b);
+function recSkip(kind, dir){
+  const now = recV.currentTime, ts = recStarts(kind);
+  // 戻るときは、始まりから3秒以上たっていれば今の始まりへ、そうでなければ1つ前へ
+  const t = dir > 0 ? ts.find(x => x > now + 0.5) : ts.filter(x => x < now - 3).pop();
+  if(t != null) recSeekTo(t); else if(dir < 0 && ts.length) recSeekTo(ts[0]);
+}
+$('#recPrevG').onclick = () => recSkip('game', -1);
+$('#recNextG').onclick = () => recSkip('game', 1);
+$('#recPrevT').onclick = () => recSkip('turn', -1);
+$('#recNextT').onclick = () => recSkip('turn', 1);
+$('#recBack').onclick = () => recSeekTo(recV.currentTime - 10);
+$('#recFwd').onclick = () => recSeekTo(recV.currentTime + 10);
+// 操作バーの高さに合わせて、録画の高さを決める（狭いとボタンが2段になるため）
+new ResizeObserver(() => { const h = $('#recBar').offsetHeight; if(h) document.documentElement.style.setProperty('--rcBarH', h + 'px'); }).observe($('#recBar'));
+
+// ---- 録画に合わせてマップを動かす ----
+function recShowAt(t){
+  const turns = cur.steps.filter(s => s.type === 'turn');
+  const st = turns.find(s => t >= s.seg.absStart - 0.5 && t <= s.seg.absEnd + 0.5)
+    || cur.steps.find(s => s.type === 'meet' && t >= s.m.start.time - 0.5 && t <= s.m.end + 0.5)
+    || cur.steps.filter(s => (s.type === 'turn' ? s.seg.absStart : s.m.start.time) <= t).pop() || turns[0];
+  if(!st) return;
+  if(st !== step) setStep(st);
+  if(st.type === 'turn') tIn = Math.max(0, Math.min(stepLen(), t - st.seg.absStart));
+  syncCtrl();
+}
+function recLoop(){
+  if(!REC.on) return;
+  const vt = recV.currentTime;
+  if(Math.abs(vt - REC.last) > 0.001){
+    REC.last = vt; playing = false; recUpdateBar();
+    const g = recGameAt(recList, vt);
+    document.body.classList.toggle('rc-nogame', !g);
+    if(g){
+      if(g !== cur) select(g);
+      recShowAt(recGT(g, vt));
+      // 今の試合を一覧で目立たせる。拡大中は、再生バーもその試合に切り替える
+      const i = recList.indexOf(g);
+      $('#recGames').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.i === i));
+      if(REC.zoomed && g !== REC.zg && !recDragging){ REC.zg = g; recRenderMarks(); recUpdateBar(); }
+    }
+    $('#recNow').textContent = g ? `${noLabel(g)}・${step.label}${step.type === 'turn' ? ' ' + fmtSec(tIn) : ''}` : '試合の外';
+    draw();
+  }
+  REC.raf = requestAnimationFrame(recLoop);
+}
+// 「自分」：マップで選んだ人 → 自分の名前の人 → ホスト
+function recMeId(){
+  if(selPlayer != null) return selPlayer;
+  const ps = [...cur.players.values()];
+  const p = ps.find(p => me && canon(p.name) === me) || ps.find(p => p.isHost) || ps[0];
+  return p ? p.playerId : null;
+}
+// 「自分の周辺」：自分を中心にする
+function recFollow(id){
+  if(REC.opt.range !== 'follow') return;
+  let pos = null;
+  if(step.type === 'turn'){ const tr = step.seg.tracks.get(id); if(tr) pos = sample(step.seg, tr, absNow()); }
+  else pos = (step.m.start.positions || []).find(q => q.playerId === id);
+  if(!pos) return;
+  view.s = Math.min(cv.width, cv.height) / (2 * +REC.opt.zoom);
+  view.ox = cv.width / 2 - pos.x * view.s; view.oy = cv.height / 2 + pos.y * view.s;
+}
+// キャラを点で描く（自分は白い輪つき。幽霊は輪だけ、死体は ×）
+// h はアイコンの高さ。点はアイコンの半分ちょっとの直径にして、拡大してもつり合うようにする
+const dotR = h => h * 0.28;
+function dotCrew(x, y, h, c, o, mine){
+  const d = devicePixelRatio || 1, r = dotR(h), col = cssColor(c.main) || '#fff';
+  ctx.save(); ctx.globalAlpha = o.alpha == null ? 1 : o.alpha;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, 7);
+  if(o.ghost){ ctx.lineWidth = 1.5 * d; ctx.strokeStyle = col; ctx.stroke(); }
+  else { ctx.fillStyle = col; ctx.fill(); ctx.lineWidth = 1 * d; ctx.strokeStyle = '#000a'; ctx.stroke(); }
+  if(mine){ ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(x, y, r + 2 * d, 0, 7); ctx.lineWidth = 1.5 * d; ctx.strokeStyle = '#fff'; ctx.stroke(); }
+  ctx.restore();
+}
+function dotBody(x, y, h, c){
+  const d = devicePixelRatio || 1, r = dotR(h) * 0.9;
+  ctx.save(); ctx.lineWidth = 2 * d; ctx.lineCap = 'round'; ctx.strokeStyle = cssColor(c.main) || '#f55';
+  ctx.beginPath(); ctx.moveTo(x - r, y - r); ctx.lineTo(x + r, y + r); ctx.moveTo(x + r, y - r); ctx.lineTo(x - r, y + r); ctx.stroke(); ctx.restore();
+}
+
 // ================= 新しいバージョンのお知らせ =================
 // 開いたときに GitHub で最新版の番号だけを確かめる（半日に1回。こちらから送るものはありません）
-const VERSION = '1.9';
+const VERSION = '2.0';
 const REPO = 'MandanoRyuseigun/nos-record-viewer';
 const UPD_KEY = 'nos-viewer-update';
 $('#ver').textContent = 'v' + VERSION;
@@ -3853,7 +4258,11 @@ async function fromFiles(list){
 $('#dir').onchange = e => fromFiles([...e.target.files]);
 addEventListener('dragover', e => { e.preventDefault(); $('#drop').style.display = 'flex'; });
 addEventListener('dragleave', e => { if(e.target === $('#drop')) $('#drop').style.display = 'none'; });
-addEventListener('drop', e => { e.preventDefault(); $('#drop').style.display = 'none'; fromFiles([...e.dataTransfer.files]); });
+addEventListener('drop', e => {
+  e.preventDefault(); $('#drop').style.display = 'none';
+  const files = [...e.dataTransfer.files], video = files.find(f => /^video\//.test(f.type) || /\.(mp4|mkv|webm|mov)$/i.test(f.name));
+  if(video) recStart(video); else fromFiles(files);
+});
 
 if(!window.DecompressionStream) $('#empty').textContent = 'このブラウザは gzip の展開に対応していません。Chrome / Edge / Firefox の最新版で開いてください。';
 loadRecords(window.__NOS_RECORDS__ || []).then(autoLoadSettings).then(checkBackupReminder);
